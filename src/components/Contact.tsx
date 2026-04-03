@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 import { SiVk, SiInstagram, SiTelegram, SiPinterest } from 'react-icons/si';
 import ColorControlPanel from './ColorControlPanel';
 
@@ -41,6 +42,8 @@ const Contact = ({
     setFormData({ name: '', email: '', phone: '', message: '', file: null });
   };
 
+  const [consentAccepted, setConsentAccepted] = useState(false);
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const target = e.target as HTMLInputElement;
     if (target.type === 'file' && target.files) {
@@ -72,13 +75,15 @@ const Contact = ({
         />
       )}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Section Header */}
-        <div className="text-center mb-16">
+        {/* Section Header — якорь для «Контакты» в шапке */}
+        <div id="contact-reach" className="text-center mb-16 scroll-mt-28">
           <h2 className="font-display text-3xl md:text-4xl font-bold mb-4" style={{ color: headingColor }}>
             Свяжитесь с нами
           </h2>
           <p className="text-lg max-w-2xl mx-auto" style={{ color: textColor }}>
-            Готовы создать украшение вашей мечты? Свяжитесь с нами для консультации
+            Готовы создать украшение вашей мечты?
+            <br />
+            Свяжитесь с нами для оформления заказа или консультации
           </p>
         </div>
 
@@ -311,8 +316,33 @@ const Contact = ({
                 )}
               </div>
 
+              <div className="flex items-start gap-3">
+                <input
+                  type="checkbox"
+                  id="privacy-consent"
+                  checked={consentAccepted}
+                  onChange={(e) => setConsentAccepted(e.target.checked)}
+                  required
+                  aria-required="true"
+                  className="mt-1 h-[18px] w-[18px] shrink-0 rounded-none border-2 cursor-pointer accent-[#59151f]"
+                  style={{ borderColor: headingColor }}
+                />
+                <label htmlFor="privacy-consent" className="text-sm leading-snug cursor-pointer select-none" style={{ color: textColor }}>
+                  Оставляя данные, вы соглашаетесь с{' '}
+                  <Link href="/privacy" className="text-accent-primary underline hover:no-underline" onClick={(e) => e.stopPropagation()}>
+                    Политикой конфиденциальности
+                  </Link>
+                  {' '}и принимаете условия{' '}
+                  <Link href="/offer" className="text-accent-primary underline hover:no-underline" onClick={(e) => e.stopPropagation()}>
+                    Публичной оферты
+                  </Link>
+                  .
+                </label>
+              </div>
+
               <button
                 type="submit"
+                disabled={!consentAccepted}
                 style={{ 
                   backgroundColor: headingColor,
                   color: backgroundColor,
@@ -320,7 +350,7 @@ const Contact = ({
                   borderWidth: '1px',
                   borderStyle: 'solid'
                 }}
-                className="w-full hover:opacity-90 py-3 px-6 rounded-lg font-medium transition-all duration-300 transform hover:scale-105 shadow-luxury"
+                className="w-full hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 py-3 px-6 rounded-lg font-medium transition-all duration-300 transform hover:scale-105 shadow-luxury"
               >
                 Отправить сообщение
               </button>

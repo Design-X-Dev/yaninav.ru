@@ -65,7 +65,7 @@ export default function ProductPage() {
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <h1 className="text-2xl font-bold mb-4">Товар не найден</h1>
-          <Link href="/#catalog" className="text-accent-primary hover:underline">
+          <Link href="/collection" className="text-accent-primary hover:underline">
             Вернуться в каталог
           </Link>
         </div>
@@ -86,7 +86,7 @@ export default function ProductPage() {
                 Главная
               </Link>
               <span className="text-theme-secondary">/</span>
-              <Link href="/#catalog" className="text-theme-secondary hover:text-accent-primary">
+              <Link href="/collection" className="text-theme-secondary hover:text-accent-primary">
                 Каталог
               </Link>
               <span className="text-theme-secondary">/</span>
@@ -173,6 +173,14 @@ export default function ProductPage() {
                   </div>
                 )}
               </div>
+
+              <Link
+                href="/gift-certificate"
+                className="mt-4 block w-full text-center px-6 py-3 rounded-full font-medium transition-all duration-300 border-2 hover:opacity-90 shadow-sm"
+                style={{ borderColor: '#59151f', color: '#59151f' }}
+              >
+                Подарочный сертификат
+              </Link>
             </div>
 
             {/* Product Info */}
@@ -203,6 +211,31 @@ export default function ProductPage() {
                   ))}
                 </div>
               </div>
+
+              {(product.material || product.centralStone || product.additionalStones) && (
+                <div className="pt-2">
+                  <dl className="grid grid-cols-1 sm:grid-cols-[minmax(9rem,12rem)_1fr] gap-x-8 gap-y-4 text-sm text-theme-secondary">
+                    {product.material && (
+                      <>
+                        <dt className="text-theme-secondary/90 font-medium shrink-0">Материал</dt>
+                        <dd className="leading-relaxed">{product.material}</dd>
+                      </>
+                    )}
+                    {product.centralStone && (
+                      <>
+                        <dt className="text-theme-secondary/90 font-medium shrink-0 pt-1 sm:pt-0">Центральный камень</dt>
+                        <dd className="leading-relaxed pt-1 sm:pt-0">{product.centralStone}</dd>
+                      </>
+                    )}
+                    {product.additionalStones && (
+                      <>
+                        <dt className="text-theme-secondary/90 font-medium shrink-0 pt-1 sm:pt-0">Дополнительные камни</dt>
+                        <dd className="leading-relaxed pt-1 sm:pt-0">{product.additionalStones}</dd>
+                      </>
+                    )}
+                  </dl>
+                </div>
+              )}
 
               {/* Action Buttons */}
               <div className="flex flex-col sm:flex-row gap-4 pt-6">

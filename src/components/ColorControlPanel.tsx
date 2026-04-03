@@ -56,8 +56,8 @@ const ColorControlPanel = ({
 
       {isOpen && (
         <>
-          <div 
-            className="fixed inset-0 z-40" 
+          <div
+            className="fixed inset-0 z-40"
             onClick={() => {
               setIsOpen(false);
             }}
@@ -73,11 +73,10 @@ const ColorControlPanel = ({
                     onClick={() => {
                       handleBackgroundColorSelect(color.hex);
                     }}
-                    className={`w-10 h-10 rounded-full border-2 transition-all duration-300 hover:scale-110 flex-shrink-0 ${
-                      backgroundColor === color.hex 
-                        ? 'border-accent-primary ring-2 ring-accent-primary ring-offset-2' 
+                    className={`w-10 h-10 rounded-full border-2 transition-all duration-300 hover:scale-110 flex-shrink-0 ${backgroundColor === color.hex
+                        ? 'border-accent-primary ring-2 ring-accent-primary ring-offset-2'
                         : 'border-gray-300 hover:border-accent-primary'
-                    }`}
+                      }`}
                     style={{ backgroundColor: color.hex }}
                     title={color.name}
                   />
@@ -91,7 +90,7 @@ const ColorControlPanel = ({
             {/* Выбор цвета текста */}
             <div>
               <p className="text-sm font-semibold text-gray-700 mb-3">Цвет текста:</p>
-              
+
               {/* Заголовок */}
               <div className="mb-4">
                 <p className="text-xs font-medium text-gray-600 mb-2">Заголовок</p>
@@ -104,11 +103,10 @@ const ColorControlPanel = ({
                           onHeadingColorChange(color.hex);
                         }
                       }}
-                      className={`w-10 h-10 rounded-full border-2 transition-all duration-300 hover:scale-110 flex-shrink-0 ${
-                        headingColor === color.hex
+                      className={`w-10 h-10 rounded-full border-2 transition-all duration-300 hover:scale-110 flex-shrink-0 ${headingColor === color.hex
                           ? 'border-accent-primary ring-2 ring-accent-primary ring-offset-2'
                           : 'border-gray-300 hover:border-accent-primary'
-                      }`}
+                        }`}
                       style={{ backgroundColor: color.hex }}
                       title={color.name}
                     />
@@ -128,11 +126,10 @@ const ColorControlPanel = ({
                           onSubheadingColorChange(color.hex);
                         }
                       }}
-                      className={`w-10 h-10 rounded-full border-2 transition-all duration-300 hover:scale-110 flex-shrink-0 ${
-                        subheadingColor === color.hex
+                      className={`w-10 h-10 rounded-full border-2 transition-all duration-300 hover:scale-110 flex-shrink-0 ${subheadingColor === color.hex
                           ? 'border-accent-primary ring-2 ring-accent-primary ring-offset-2'
                           : 'border-gray-300 hover:border-accent-primary'
-                      }`}
+                        }`}
                       style={{ backgroundColor: color.hex }}
                       title={color.name}
                     />
@@ -152,11 +149,10 @@ const ColorControlPanel = ({
                           onTextColorChange(color.hex);
                         }
                       }}
-                      className={`w-10 h-10 rounded-full border-2 transition-all duration-300 hover:scale-110 flex-shrink-0 ${
-                        textColor === color.hex
+                      className={`w-10 h-10 rounded-full border-2 transition-all duration-300 hover:scale-110 flex-shrink-0 ${textColor === color.hex
                           ? 'border-accent-primary ring-2 ring-accent-primary ring-offset-2'
                           : 'border-gray-300 hover:border-accent-primary'
-                      }`}
+                        }`}
                       style={{ backgroundColor: color.hex }}
                       title={color.name}
                     />

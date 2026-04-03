@@ -97,27 +97,27 @@ const About = ({
       )}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-          {/* Left Content */}
-          <div>
+          {/* Left Content — якорь для «О студии» в шапке */}
+          <div id="about-description" className="scroll-mt-28">
           <h2 className="font-display text-3xl md:text-4xl font-bold mb-6" style={{ color: headingColor }}>
             Философия бренда
           </h2>
             <div className="space-y-6" style={{ color: textColor }}>
               <p className="text-lg leading-relaxed">
-                Бренд YANINA V строится на признании: каждое украшение — это личная история, эмоция и память. 
+                Бренд ЯНИНА В строится на признании: каждое украшение — это личная история, эмоция и память. 
                 Мы создаём ювелирные украшения, отражающие уникальность каждого клиента.
               </p>
               <p className="text-lg leading-relaxed">
                 <strong style={{ color: subheadingColor }}>Художественный подход и профессиональное мастерство:</strong> соединяем эстетику, символизм и современные тренды, при этом сохраняем свою уникальность.
               </p>
               <p className="text-lg leading-relaxed">
-                Украшения YANINA V несут глубокий эмоциональный заряд, который резонирует с клиентами.
+                Украшения ЯНИНА В несут глубокий эмоциональный заряд, который резонирует с клиентами.
               </p>
               <p className="text-lg leading-relaxed">
                 <strong style={{ color: headingColor }}>Всё ручная работа:</strong> точные ювелирные техники, авторский художественный взгляд, внимание к деталям и лимитированные серии.
               </p>
               <p className="text-lg leading-relaxed">
-                С 2016 года мы держим планку высокого качества и гарантии — каждая вещь становится частью семейного архива. 
+                С 2016 года мы держим планку высокого качества и гарантии — каждое ювелирное изделие становится частью семейного архива. 
                 Стремимся сочетать эстетику и тренды.
               </p>
             </div>

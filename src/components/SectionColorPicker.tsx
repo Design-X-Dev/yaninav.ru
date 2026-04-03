@@ -36,8 +36,8 @@ const SectionColorPicker = ({ sectionId: _sectionId, // eslint-disable-line @typ
 
       {isOpen && (
         <>
-          <div 
-            className="fixed inset-0 z-40" 
+          <div
+            className="fixed inset-0 z-40"
             onClick={() => setIsOpen(false)}
           />
           <div className="absolute top-12 right-0 bg-white/95 backdrop-blur-sm rounded-2xl shadow-xl p-4 min-w-[280px] z-50 border border-gray-200">
@@ -50,11 +50,10 @@ const SectionColorPicker = ({ sectionId: _sectionId, // eslint-disable-line @typ
                     onColorChange(color.hex);
                     setIsOpen(false);
                   }}
-                  className={`w-16 h-16 rounded-lg border-2 transition-all duration-300 hover:scale-110 ${
-                    currentColor === color.hex 
-                      ? 'border-accent-primary ring-2 ring-accent-primary ring-offset-2' 
+                  className={`w-16 h-16 rounded-lg border-2 transition-all duration-300 hover:scale-110 ${currentColor === color.hex
+                      ? 'border-accent-primary ring-2 ring-accent-primary ring-offset-2'
                       : 'border-gray-300 hover:border-accent-primary'
-                  }`}
+                    }`}
                   style={{ backgroundColor: color.hex }}
                   title={color.name}
                 />

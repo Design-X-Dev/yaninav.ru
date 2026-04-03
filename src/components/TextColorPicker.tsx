@@ -59,8 +59,8 @@ const TextColorPicker = ({
 
       {isOpen && (
         <>
-          <div 
-            className="fixed inset-0 z-40" 
+          <div
+            className="fixed inset-0 z-40"
             onClick={() => {
               setIsOpen(false);
               setActiveType(null);
@@ -77,7 +77,7 @@ const TextColorPicker = ({
                   >
                     <span className="text-sm font-medium text-gray-700">Заголовок</span>
                     <div className="flex items-center gap-2">
-                      <div 
+                      <div
                         className="w-6 h-6 rounded border-2 border-gray-300"
                         style={{ backgroundColor: headingColor }}
                       />
@@ -92,7 +92,7 @@ const TextColorPicker = ({
                   >
                     <span className="text-sm font-medium text-gray-700">Подзаголовок</span>
                     <div className="flex items-center gap-2">
-                      <div 
+                      <div
                         className="w-6 h-6 rounded border-2 border-gray-300"
                         style={{ backgroundColor: subheadingColor }}
                       />
@@ -107,7 +107,7 @@ const TextColorPicker = ({
                   >
                     <span className="text-sm font-medium text-gray-700">Основной текст</span>
                     <div className="flex items-center gap-2">
-                      <div 
+                      <div
                         className="w-6 h-6 rounded border-2 border-gray-300"
                         style={{ backgroundColor: textColor }}
                       />
@@ -142,11 +142,10 @@ const TextColorPicker = ({
                       <button
                         key={color.hex}
                         onClick={() => handleColorSelect(color.hex)}
-                        className={`w-16 h-16 rounded-lg border-2 transition-all duration-300 hover:scale-110 ${
-                          currentColor === color.hex 
-                            ? 'border-accent-primary ring-2 ring-accent-primary ring-offset-2' 
+                        className={`w-16 h-16 rounded-lg border-2 transition-all duration-300 hover:scale-110 ${currentColor === color.hex
+                            ? 'border-accent-primary ring-2 ring-accent-primary ring-offset-2'
                             : 'border-gray-300 hover:border-accent-primary'
-                        }`}
+                          }`}
                         style={{ backgroundColor: color.hex }}
                         title={color.name}
                       />

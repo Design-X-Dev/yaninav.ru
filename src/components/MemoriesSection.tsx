@@ -44,8 +44,8 @@ const slides = [
   },
 ];
 
-const MemoriesSection = ({ 
-  backgroundColor = '#f4f7f0', 
+const MemoriesSection = ({
+  backgroundColor = '#f4f7f0',
   onColorChange,
   headingColor = '#59151f',
   subheadingColor = '#59151f',
@@ -339,7 +339,7 @@ const MemoriesSection = ({
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-12 sm:pt-16 lg:pt-20 pb-8 sm:pb-12">
         <div className="text-center">
           <h2 className="font-display text-3xl md:text-4xl font-bold mb-2" style={{ color: headingColor }}>
-            Yanina V
+            ЯНИНА В
           </h2>
           <h3 className="font-display text-[1.5rem] sm:text-[1.8rem] lg:text-[2.1rem] font-medium mb-3" style={{ color: subheadingColor }}>
             Украшения, в которых живут воспоминания
@@ -378,14 +378,14 @@ const MemoriesSection = ({
               if (position === 'hidden') return null;
 
               const randomRotation = getRandomRotation(index);
-              
+
               // Определяем translate-x, scale, z-index и opacity в зависимости от позиции
               let translateX = '0px';
               let scale = 1;
               let zIndex = 20;
               let opacity = 1;
               let blur = 'blur-0';
-              
+
               if (position === 'center') {
                 translateX = '0px';
                 scale = 1;
@@ -417,7 +417,7 @@ const MemoriesSection = ({
                 opacity = 0.2;
                 blur = 'blur-[12px]';
               }
-              
+
               return (
                 <div
                   key={slide.id}

@@ -9,6 +9,10 @@ export interface Product {
   description: string;
   price: number;
   bannerImage: string;
+  /** Характеристики для таблицы на странице товара */
+  material?: string;
+  centralStone?: string;
+  additionalStones?: string;
 }
 
 // Функция для получения пути к изображению товара

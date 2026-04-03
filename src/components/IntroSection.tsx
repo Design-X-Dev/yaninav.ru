@@ -13,8 +13,8 @@ interface IntroSectionProps {
   onTextColorChange?: (color: string) => void;
 }
 
-const IntroSection = ({ 
-  backgroundColor = '#f4f7f0', 
+const IntroSection = ({
+  backgroundColor = '#f4f7f0',
   onColorChange,
   headingColor = '#59151f',
   subheadingColor = '#59151f',
@@ -41,7 +41,7 @@ const IntroSection = ({
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center">
           <h2 className="font-display text-3xl md:text-4xl font-bold mb-2" style={{ color: headingColor }}>
-            Yanina V
+            ЯНИНА В
           </h2>
           <h3 className="font-display text-[1.5rem] sm:text-[1.8rem] lg:text-[2.1rem] font-medium mb-3" style={{ color: subheadingColor }}>
             Украшения, в которых живут воспоминания

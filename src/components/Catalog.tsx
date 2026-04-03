@@ -306,7 +306,7 @@ const Catalog = ({
         {showViewAll && (
           <div className="text-center mt-12">
             <Link
-              href="/catalog"
+              href="/collection"
               className="inline-block px-8 py-3 rounded-full font-medium transition-all duration-300 transform hover:scale-105 shadow-lg"
               style={{ 
                 backgroundColor: headingColor, 

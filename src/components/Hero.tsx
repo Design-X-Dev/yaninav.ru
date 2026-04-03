@@ -44,7 +44,7 @@ const Hero = ({ backgroundColor = '#f4f7f0', onColorChange }: HeroProps) => {
     // Вычисляем высоту Hero как viewport минус высота Header
     const updateHeroHeight = () => {
       if (typeof window === 'undefined') return;
-      
+
       const header = document.querySelector('header');
       if (header) {
         const headerHeight = header.offsetHeight;
@@ -57,7 +57,7 @@ const Hero = ({ backgroundColor = '#f4f7f0', onColorChange }: HeroProps) => {
 
     // Обновляем при изменении размера окна
     window.addEventListener('resize', updateHeroHeight);
-    
+
     // Обновляем при изменении видимости (для мобильного меню)
     const observer = new MutationObserver(updateHeroHeight);
     const header = document.querySelector('header');

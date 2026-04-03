@@ -15,8 +15,8 @@ interface FooterProps {
   onTextColorChange?: (color: string) => void;
 }
 
-const Footer = ({ 
-  backgroundColor = '#f4f7f0', 
+const Footer = ({
+  backgroundColor = '#f4f7f0',
   onColorChange,
   headingColor = '#59151f',
   subheadingColor = '#59151f',
@@ -25,6 +25,16 @@ const Footer = ({
   onSubheadingColorChange,
   onTextColorChange,
 }: FooterProps) => {
+  const scrollToHomeSection = (sectionId: string) => {
+    if (typeof window === 'undefined') return;
+    if (window.location.pathname !== '/') return;
+    const el = document.getElementById(sectionId);
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      window.history.replaceState(null, '', `#${sectionId}`);
+    }
+  };
+
   return (
     <footer className="relative text-theme-primary" style={{ backgroundColor }}>
       {(onColorChange || onHeadingColorChange || onSubheadingColorChange || onTextColorChange) && (
@@ -45,7 +55,7 @@ const Footer = ({
           {/* Company Info */}
           <div className="lg:col-span-2">
             <Link href="/" className="font-display text-3xl font-bold inline-block mb-4" style={{ color: headingColor }}>
-              YANINA V
+              ЯНИНА В
             </Link>
             <p className="mb-6 max-w-md" style={{ color: textColor }}>
               Ювелирная студия, создающая эксклюзивные украшения ручной работы.
@@ -72,28 +82,48 @@ const Footer = ({
             <h3 className="text-lg font-semibold mb-4" style={{ color: headingColor }}>Быстрые ссылки</h3>
             <ul className="space-y-2">
               <li>
-                <Link href="#catalog" className="hover:text-accent-primary transition-colors duration-300" style={{ color: textColor }}>
-                  Каталог
-                </Link>
-              </li>
-              <li>
-                <Link href="#collections" className="hover:text-accent-primary transition-colors duration-300" style={{ color: textColor }}>
+                <Link href="/collection" className="hover:text-accent-primary transition-colors duration-300" style={{ color: textColor }}>
                   Коллекции
                 </Link>
               </li>
               <li>
-                <Link href="#about" className="hover:text-accent-primary transition-colors duration-300" style={{ color: textColor }}>
+                <Link href="/gift-certificate" className="hover:text-accent-primary transition-colors duration-300" style={{ color: textColor }}>
+                  Подарочный сертификат
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/#about-description"
+                  className="hover:text-accent-primary transition-colors duration-300"
+                  style={{ color: textColor }}
+                  onClick={(e) => {
+                    if (typeof window !== 'undefined' && window.location.pathname === '/') {
+                      e.preventDefault();
+                      scrollToHomeSection('about-description');
+                    }
+                  }}
+                >
                   О студии
                 </Link>
               </li>
               <li>
-                <Link href="#contact" className="hover:text-accent-primary transition-colors duration-300" style={{ color: textColor }}>
+                <Link
+                  href="/#contact-reach"
+                  className="hover:text-accent-primary transition-colors duration-300"
+                  style={{ color: textColor }}
+                  onClick={(e) => {
+                    if (typeof window !== 'undefined' && window.location.pathname === '/') {
+                      e.preventDefault();
+                      scrollToHomeSection('contact-reach');
+                    }
+                  }}
+                >
                   Контакты
                 </Link>
               </li>
               <li>
                 <Link href="/custom-orders" className="hover:text-accent-primary transition-colors duration-300" style={{ color: textColor }}>
-                  Индивидуальные заказы
+                  Индивидуальный заказ
                 </Link>
               </li>
             </ul>
@@ -144,14 +174,17 @@ const Footer = ({
         <div className="border-t border-theme-muted mt-12 pt-8">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <p className="text-sm" style={{ color: textColor }}>
-              © 2024 YANINA V. Все права защищены.
+              © 2016 – 2026 ЯНИНА В. Все права защищены.
             </p>
-            <div className="flex space-x-6 mt-4 md:mt-0">
+            <div className="flex flex-wrap justify-center gap-x-6 gap-y-2 mt-4 md:mt-0">
               <Link href="/privacy" className="hover:text-accent-primary text-sm transition-colors duration-300" style={{ color: textColor }}>
                 Политика конфиденциальности
               </Link>
-              <Link href="/terms" className="hover:text-accent-primary text-sm transition-colors duration-300" style={{ color: textColor }}>
-                Условия использования
+              <Link href="/offer" className="hover:text-accent-primary text-sm transition-colors duration-300" style={{ color: textColor }}>
+                Публичная оферта
+              </Link>
+              <Link href="/warranty" className="hover:text-accent-primary text-sm transition-colors duration-300" style={{ color: textColor }}>
+                Гарантии
               </Link>
               <Link href="/delivery" className="hover:text-accent-primary text-sm transition-colors duration-300" style={{ color: textColor }}>
                 Доставка и оплата

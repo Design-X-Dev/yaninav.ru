@@ -56,6 +56,24 @@ function HomeContent() {
     return () => window.removeEventListener('resize', updateLimit);
   }, []);
 
+  useEffect(() => {
+    const scrollToHash = () => {
+      const hash = typeof window !== 'undefined' ? window.location.hash : '';
+      if (!hash) return;
+      const id = hash.slice(1);
+      if (!id) return;
+      const el = document.getElementById(id);
+      if (el) {
+        requestAnimationFrame(() => {
+          el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+      }
+    };
+    scrollToHash();
+    window.addEventListener('hashchange', scrollToHash);
+    return () => window.removeEventListener('hashchange', scrollToHash);
+  }, []);
+
   const handleColorChange = (sectionId: string, color: string) => {
     setSectionColors((prev: typeof defaultColors) => ({
       ...prev,

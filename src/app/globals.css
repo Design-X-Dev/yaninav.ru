@@ -1,38 +1,59 @@
 @import "tailwindcss";
 
-/* Default theme (light) - Основная цветовая схема YANINA V */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Default theme (light) - Основная цветовая схема ЯНИНА В */
 :root {
   --font-playfair: "Playfair Display", serif;
   --font-inter: "Inter", sans-serif;
   --font-disruptor-script: "Disruptor's Script", cursive;
-  
+
   /* Base colors - Основная палитра */
-  --background: #f4f7f0; /* 244, 247, 240 - светло-кремовый */
-  --foreground: #384a32; /* 56, 74, 50 - темно-оливковый зеленый */
-  --secondary-bg: #e0cdba; /* 224, 205, 186 - светло-бежевый */
-  --tertiary-bg: #f9faf7; /* более светлый оттенок кремового */
+  --background: #f4f7f0;
+  /* 244, 247, 240 - светло-кремовый */
+  --foreground: #384a32;
+  /* 56, 74, 50 - темно-оливковый зеленый */
+  --secondary-bg: #e0cdba;
+  /* 224, 205, 186 - светло-бежевый */
+  --tertiary-bg: #f9faf7;
+  /* более светлый оттенок кремового */
   --glass-bg: rgba(244, 247, 240, 0.9);
-  --border-color: #9fb1c2; /* 159, 177, 194 - светло-голубой/серый */
-  
+  --border-color: #9fb1c2;
+  /* 159, 177, 194 - светло-голубой/серый */
+
   /* Text colors */
-  --text-primary: #384a32; /* 56, 74, 50 - темно-оливковый */
-  --text-secondary: #616161; /* 97, 97, 97 - темно-серый */
-  --text-muted: #9fb1c2; /* 159, 177, 194 - светло-голубой */
-  
+  --text-primary: #384a32;
+  /* 56, 74, 50 - темно-оливковый */
+  --text-secondary: #616161;
+  /* 97, 97, 97 - темно-серый */
+  --text-muted: #9fb1c2;
+  /* 159, 177, 194 - светло-голубой */
+
   /* Gradients */
-  --gradient-start: #f4f7f0; /* кремовый */
-  --gradient-middle: #e0cdba; /* бежевый */
-  --gradient-end: #f9faf7; /* светлый кремовый */
+  --gradient-start: #f4f7f0;
+  /* кремовый */
+  --gradient-middle: #e0cdba;
+  /* бежевый */
+  --gradient-end: #f9faf7;
+  /* светлый кремовый */
 }
 
-/* Основная цветовая схема YANINA V */
+/* Основная цветовая схема ЯНИНА В */
 :root {
-  --accent-primary: #59151f; /* 89, 21, 31 - темно-бордовый */
-  --accent-primary-light: #7a2a3a; /* более светлый бордовый */
-  --accent-primary-dark: #3d0f15; /* более темный бордовый */
-  --accent-secondary: #384a32; /* 56, 74, 50 - темно-оливковый зеленый */
-  --accent-secondary-light: #4d6344; /* более светлый оливковый */
-  --accent-secondary-dark: #2a3525; /* более темный оливковый */
+  --accent-primary: #59151f;
+  /* 89, 21, 31 - темно-бордовый */
+  --accent-primary-light: #7a2a3a;
+  /* более светлый бордовый */
+  --accent-primary-dark: #3d0f15;
+  /* более темный бордовый */
+  --accent-secondary: #384a32;
+  /* 56, 74, 50 - темно-оливковый зеленый */
+  --accent-secondary-light: #4d6344;
+  /* более светлый оливковый */
+  --accent-secondary-dark: #2a3525;
+  /* более темный оливковый */
   --shadow-color: rgba(89, 21, 31, 0.25);
 }
 
@@ -210,6 +231,7 @@ html {
   from {
     transform: rotate(0deg);
   }
+
   to {
     transform: rotate(360deg);
   }
@@ -220,6 +242,7 @@ html {
     opacity: 0;
     transform: translateY(10px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -233,4 +256,3 @@ html {
 .animate-spin-slow {
   animation: spin-slow 3s linear infinite;
 }
-
