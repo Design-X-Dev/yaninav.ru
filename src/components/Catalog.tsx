@@ -114,8 +114,11 @@ const ProductCard = ({
     if (product.image2?.trim()) {
       imgArray.push(product.image2);
     }
+    if (product.image3?.trim()) {
+      imgArray.push(product.image3);
+    }
     return imgArray.filter(Boolean);
-  }, [product.image, product.image2]);
+  }, [product.image, product.image2, product.image3]);
   
   const hasMultipleImages = images.length > 1;
 
@@ -185,7 +188,7 @@ const ProductCard = ({
         
         {/* Dot Indicators */}
         {hasMultipleImages && (
-          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2.5 z-[100]">
+          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2.5 z-10">
             {images.map((_, index) => (
               <DotIndicator
                 key={`product-${product.id}-dot-${index}`}
@@ -217,7 +220,9 @@ const ProductCard = ({
         <div className="flex flex-col mt-auto">
           <div className="mb-2">
             <span className="font-bold text-xl" style={{ color: headingColor }}>
-              Цена от {formatPrice(product.price)} ₽
+              {product.price !== null
+                ? `Цена от ${formatPrice(product.price)} ₽`
+                : 'Цена по запросу'}
             </span>
           </div>
         </div>

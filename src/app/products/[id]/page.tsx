@@ -22,6 +22,9 @@ export default function ProductPage() {
     if (product.image2?.trim()) {
       imgArray.push(product.image2);
     }
+    if (product.image3?.trim()) {
+      imgArray.push(product.image3);
+    }
     if (product.bannerImage?.trim()) {
       imgArray.push(product.bannerImage);
     }
@@ -146,7 +149,7 @@ export default function ProductPage() {
 
                 {/* Индикаторы точек */}
                 {hasMultipleImages && (
-                  <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2.5 z-[100]">
+                  <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2.5 z-10">
                     {images.map((_, index) => (
                       <button
                         key={`dot-${index}`}
@@ -192,7 +195,9 @@ export default function ProductPage() {
                 </h1>
                 <div className="mb-6">
                   <div className="text-3xl font-bold text-accent-primary mb-2">
-                    Цена от {formatPrice(product.price)} ₽
+                    {product.price !== null
+                      ? `Цена от ${formatPrice(product.price)} ₽`
+                      : 'Цена по запросу'}
                   </div>
                   <p className="text-sm text-theme-secondary">
                     * для расчёта стоимости свяжитесь с нашим менеджером
@@ -211,31 +216,6 @@ export default function ProductPage() {
                   ))}
                 </div>
               </div>
-
-              {(product.material || product.centralStone || product.additionalStones) && (
-                <div className="pt-2">
-                  <dl className="grid grid-cols-1 sm:grid-cols-[minmax(9rem,12rem)_1fr] gap-x-8 gap-y-4 text-sm text-theme-secondary">
-                    {product.material && (
-                      <>
-                        <dt className="text-theme-secondary/90 font-medium shrink-0">Материал</dt>
-                        <dd className="leading-relaxed">{product.material}</dd>
-                      </>
-                    )}
-                    {product.centralStone && (
-                      <>
-                        <dt className="text-theme-secondary/90 font-medium shrink-0 pt-1 sm:pt-0">Центральный камень</dt>
-                        <dd className="leading-relaxed pt-1 sm:pt-0">{product.centralStone}</dd>
-                      </>
-                    )}
-                    {product.additionalStones && (
-                      <>
-                        <dt className="text-theme-secondary/90 font-medium shrink-0 pt-1 sm:pt-0">Дополнительные камни</dt>
-                        <dd className="leading-relaxed pt-1 sm:pt-0">{product.additionalStones}</dd>
-                      </>
-                    )}
-                  </dl>
-                </div>
-              )}
 
               {/* Action Buttons */}
               <div className="flex flex-col sm:flex-row gap-4 pt-6">

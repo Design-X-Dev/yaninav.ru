@@ -3,16 +3,14 @@ import productsData from '@/data/products.json';
 export interface Product {
   id: number;
   image: string;
-  image2?: string; // Второе изображение товара
+  image2?: string;
+  image3?: string;
   category: string;
   name: string;
   description: string;
-  price: number;
+  /** null — цена по запросу */
+  price: number | null;
   bannerImage: string;
-  /** Характеристики для таблицы на странице товара */
-  material?: string;
-  centralStone?: string;
-  additionalStones?: string;
 }
 
 // Функция для получения пути к изображению товара
@@ -70,6 +68,18 @@ export function getProductsByCategory(category: string): Product[] {
     else if (searchCategory.includes('цветными') || searchCategory === 'colored-stones') {
       matches = productCategory.includes('цветными');
     }
+    else if (
+      searchCategory.includes('бриллиант') &&
+      !searchCategory.includes('цветн') &&
+      (searchCategory.includes('кольца') || searchCategory === 'diamond-rings')
+    ) {
+      matches =
+        productCategory.includes('кольца с бриллиантами') ||
+        productCategory === 'кольца с бриллиантами';
+    }
+    else if (searchCategory.includes('серьг') || searchCategory.includes('пусет') || searchCategory === 'earrings') {
+      matches = productCategory.includes('серьги') || productCategory.includes('пусет');
+    }
     // Частичное совпадение
     else {
       matches = productCategory.includes(searchCategory) || normalizedProductCategory.includes(searchCategory);
@@ -108,8 +118,7 @@ export function getAllCategories(): { id: string; name: string }[] {
   ];
 }
 
-// Функция для форматирования цены
+// Форматирование числовой цены (рубли)
 export function formatPrice(price: number): string {
   return new Intl.NumberFormat('ru-RU').format(price);
 }
-
