@@ -102,6 +102,7 @@ const Hero = ({ backgroundColor = '#f4f7f0', onColorChange }: HeroProps) => {
           <video
             ref={videoRef}
             className="w-full h-full"
+            poster="/videos/jewelry-hero.png"
             autoPlay
             muted
             loop
