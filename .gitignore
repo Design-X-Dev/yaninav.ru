@@ -18,6 +18,10 @@
 
 # misc
 .DS_Store
+
+# Python export tooling
+/scripts/.venv/
+/output/
 *.pem
 
 # debug

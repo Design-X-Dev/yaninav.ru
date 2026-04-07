@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "images:small": "python3 scripts/generate_product_images_small.py",
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",

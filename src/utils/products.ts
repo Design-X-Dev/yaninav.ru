@@ -13,11 +13,24 @@ export interface Product {
   bannerImage: string;
 }
 
-// Функция для получения пути к изображению товара
+const SMALL_SUFFIX = '_small';
+
+/** Имя файла превью: `photo.jpg` → `photo_small.jpg` (идемпотентно). */
+function toSmallProductImageFileName(imageName: string): string {
+  const t = imageName.trim();
+  if (!t) return t;
+  const lastDot = t.lastIndexOf('.');
+  if (lastDot <= 0) return `${t}${SMALL_SUFFIX}`;
+  const base = t.slice(0, lastDot);
+  const ext = t.slice(lastDot);
+  if (base.toLowerCase().endsWith(SMALL_SUFFIX)) return t;
+  return `${base}${SMALL_SUFFIX}${ext}`;
+}
+
+// Путь к сжатому превью в /public/images/products/ (оригиналы без суффикса в репозитории остаются)
 export function getProductImagePath(imageName: string): string {
   if (!imageName) return '/images/placeholder.jpg';
-  // Ищем фото в разных папках
-  return `/images/products/${imageName}`;
+  return `/images/products/${toSmallProductImageFileName(imageName)}`;
 }
 
 // Функция для получения всех товаров
