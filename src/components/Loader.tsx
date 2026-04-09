@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 interface LoaderProps {
   onLoadComplete: () => void;
@@ -8,6 +8,12 @@ interface LoaderProps {
 
 const Loader = ({ onLoadComplete }: LoaderProps) => {
   const [isVisible, setIsVisible] = useState(true);
+  const isMountedRef = useRef(true);
+
+  useEffect(() => {
+    isMountedRef.current = true;
+    return () => { isMountedRef.current = false; };
+  }, []);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -15,39 +21,37 @@ const Loader = ({ onLoadComplete }: LoaderProps) => {
     const loadTime = 1400;
     const startTime = Date.now();
 
-    const checkLoadComplete = () => {
-      const elapsed = Date.now() - startTime;
-      const remainingTime = Math.max(0, loadTime - elapsed);
-
-      setTimeout(() => {
+    const finish = () => {
+      const remaining = Math.max(0, loadTime - (Date.now() - startTime));
+      const t1 = setTimeout(() => {
+        if (!isMountedRef.current) return;
         setIsVisible(false);
-        setTimeout(() => {
+        const t2 = setTimeout(() => {
+          if (!isMountedRef.current) return;
           onLoadComplete();
         }, 300);
-      }, remainingTime);
+        return () => clearTimeout(t2);
+      }, remaining);
+      return t1;
     };
 
+    let t1: ReturnType<typeof setTimeout>;
     const video = document.querySelector('video');
     if (video) {
-      const handleVideoLoad = () => {
-        checkLoadComplete();
-      };
-
       if (video.readyState >= 3) {
-        checkLoadComplete();
+        t1 = finish();
       } else {
-        video.addEventListener('canplaythrough', handleVideoLoad, { once: true });
+        video.addEventListener('canplaythrough', () => { t1 = finish(); }, { once: true });
       }
     } else {
-      checkLoadComplete();
+      t1 = finish();
     }
 
-    const fallbackTimeout = setTimeout(() => {
-      checkLoadComplete();
-    }, 2000);
+    const fallback = setTimeout(() => { if (isMountedRef.current) { t1 = finish(); } }, 2000);
 
     return () => {
-      clearTimeout(fallbackTimeout);
+      clearTimeout(t1);
+      clearTimeout(fallback);
     };
   }, [onLoadComplete]);
 
@@ -139,9 +143,7 @@ const Loader = ({ onLoadComplete }: LoaderProps) => {
         }
 
         @keyframes loader-dot-in {
-          to {
-            opacity: 1;
-          }
+          to { opacity: 1; }
         }
 
         .loader-title-top {
@@ -155,32 +157,18 @@ const Loader = ({ onLoadComplete }: LoaderProps) => {
         }
 
         @keyframes loader-line-grow {
-          from {
-            transform: scaleX(0);
-          }
-          to {
-            transform: scaleX(1);
-          }
+          from { transform: scaleX(0); }
+          to { transform: scaleX(1); }
         }
 
         @keyframes loader-mid-fade {
-          from {
-            opacity: 0;
-          }
-          to {
-            opacity: 1;
-          }
+          from { opacity: 0; }
+          to { opacity: 1; }
         }
 
         @keyframes loader-reveal-up {
-          from {
-            opacity: 0;
-            transform: translateY(12px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
+          from { opacity: 0; transform: translateY(12px); }
+          to { opacity: 1; transform: translateY(0); }
         }
       `}</style>
     </div>

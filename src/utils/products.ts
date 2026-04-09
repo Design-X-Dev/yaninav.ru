@@ -1,4 +1,10 @@
 import productsData from '@/data/products.json';
+import { nbspAfterSi } from '@/utils/typography';
+
+export interface ProductCharacteristic {
+  key: string;
+  value: string;
+}
 
 export interface Product {
   id: number;
@@ -8,9 +14,13 @@ export interface Product {
   category: string;
   name: string;
   description: string;
+  /** Текст после блока характеристик (маркетинговый хвост) */
+  descriptionEnd?: string;
+  /** Характеристики изделия для таблицы на странице товара */
+  characteristics?: ProductCharacteristic[];
   /** null — цена по запросу */
   price: number | null;
-  bannerImage: string;
+  bannerImage?: string;
 }
 
 const SMALL_SUFFIX = '_small';
@@ -27,6 +37,21 @@ function toSmallProductImageFileName(imageName: string): string {
   return `${base}${SMALL_SUFFIX}${ext}`;
 }
 
+function normalizeProductText(p: Product): Product {
+  const characteristics = p.characteristics?.map((c) => ({
+    key: nbspAfterSi(c.key),
+    value: nbspAfterSi(c.value),
+  }));
+  return {
+    ...p,
+    name: nbspAfterSi(p.name),
+    description: nbspAfterSi(p.description),
+    descriptionEnd: p.descriptionEnd ? nbspAfterSi(p.descriptionEnd) : undefined,
+    category: nbspAfterSi(p.category),
+    characteristics,
+  };
+}
+
 // Путь к сжатому превью в /public/images/products/ (оригиналы без суффикса в репозитории остаются)
 export function getProductImagePath(imageName: string): string {
   if (!imageName) return '/images/placeholder.jpg';
@@ -35,12 +60,13 @@ export function getProductImagePath(imageName: string): string {
 
 // Функция для получения всех товаров
 export function getAllProducts(): Product[] {
-  return productsData as Product[];
+  return (productsData as Product[]).map(normalizeProductText);
 }
 
 // Функция для получения товара по ID
 export function getProductById(id: number): Product | undefined {
-  return productsData.find((product: Product) => product.id === id);
+  const p = productsData.find((product: Product) => product.id === id);
+  return p ? normalizeProductText(p) : undefined;
 }
 
 // Функция для получения товаров по категории
@@ -49,11 +75,11 @@ export function getProductsByCategory(category: string): Product[] {
     // Гарантируем уникальность даже для 'all'
     return Array.from(
       new Map(productsData.map(product => [product.id, product])).values()
-    ) as Product[];
+    ).map(normalizeProductText) as Product[];
   }
-  
+
   const seenIds = new Set<number>();
-  return productsData.filter((product: Product) => {
+  const filtered = productsData.filter((product: Product) => {
     // Гарантируем уникальность по ID
     if (seenIds.has(product.id)) return false;
     
@@ -75,7 +101,9 @@ export function getProductsByCategory(category: string): Product[] {
     else if (searchCategory.includes('помолвочн') || searchCategory === 'engagement-rings') {
       matches = productCategory.includes('помолвочн');
     }
-    else if (searchCategory.includes('обручальн') || searchCategory === 'wedding-rings') {
+    // Не использовать searchCategory.includes('обручальн'): slug «женские-обручальные-кольца» тоже
+    // содержит эту подстроку и тогда в выборку попадали бы все обручальные, включая мужские.
+    else if (searchCategory === 'wedding-rings') {
       matches = productCategory.includes('обручальн');
     }
     else if (searchCategory.includes('цветными') || searchCategory === 'colored-stones') {
@@ -105,6 +133,12 @@ export function getProductsByCategory(category: string): Product[] {
     
     return false;
   });
+  return filtered.map(normalizeProductText);
+}
+
+/** Slug категории для `?category=` и сравнения с фильтром коллекции (как в getAllCategories). */
+export function getCategorySlug(category: string): string {
+  return category.toLowerCase().replace(/\s+/g, '-');
 }
 
 // Функция для получения всех категорий
@@ -112,10 +146,10 @@ export function getAllCategories(): { id: string; name: string }[] {
   const categoriesMap = new Map<string, string>();
   productsData.forEach((product: Product) => {
     if (product.category) {
-      const normalizedId = product.category.toLowerCase().replace(/\s+/g, '-');
+      const normalizedId = getCategorySlug(product.category);
       // Используем Map для гарантии уникальности ID
       if (!categoriesMap.has(normalizedId)) {
-        categoriesMap.set(normalizedId, product.category);
+        categoriesMap.set(normalizedId, nbspAfterSi(product.category));
       }
     }
   });
@@ -129,6 +163,27 @@ export function getAllCategories(): { id: string; name: string }[] {
     { id: 'all', name: 'Все изделия' },
     ...categories
   ];
+}
+
+/** Порядок категорий в сабхедере главной и на странице коллекции */
+export const CATALOG_NAV_ORDER: readonly string[] = [
+  'all',
+  'помолвочные-кольца',
+  'кольца-с-цветными-камнями',
+  'кольца-с-бриллиантами',
+  'женские-обручальные-кольца',
+  'мужские-обручальные-кольца',
+  'обручальные-кольца',
+  'серьги-и-пусеты',
+];
+
+/** Категории для навигации (только существующие в данных, в заданном порядке) */
+export function getCategoriesForNav(): { id: string; name: string }[] {
+  const all = getAllCategories();
+  const byId = new Map(all.map((c) => [c.id, c]));
+  return CATALOG_NAV_ORDER.map((id) => byId.get(id)).filter(
+    (c): c is { id: string; name: string } => c != null
+  );
 }
 
 // Форматирование числовой цены (рубли)

@@ -3,6 +3,7 @@ import { Playfair_Display, Inter } from "next/font/google";
 import localFont from "next/font/local";
 import "./globals.css";
 import AppLoader from "@/components/AppLoader";
+import ContactMessengerFab from "@/components/ContactMessengerFab";
 
 const playfair = Playfair_Display({
   variable: "--font-playfair",
@@ -44,6 +45,7 @@ export default function RootLayout({
       >
         <AppLoader />
         {children}
+        <ContactMessengerFab />
       </body>
     </html>
   );

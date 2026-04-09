@@ -10,53 +10,33 @@ html {
   --font-inter: "Inter", sans-serif;
   --font-disruptor-script: "Disruptor's Script", cursive;
 
-  /* Base colors - Основная палитра */
+  /* Base colors */
   --background: #f4f7f0;
-  /* 244, 247, 240 - светло-кремовый */
   --foreground: #384a32;
-  /* 56, 74, 50 - темно-оливковый зеленый */
   --secondary-bg: #e0cdba;
-  /* 224, 205, 186 - светло-бежевый */
   --tertiary-bg: #f9faf7;
-  /* более светлый оттенок кремового */
   --glass-bg: rgba(244, 247, 240, 0.9);
   --border-color: #9fb1c2;
-  /* 159, 177, 194 - светло-голубой/серый */
 
   /* Text colors */
   --text-primary: #384a32;
-  /* 56, 74, 50 - темно-оливковый */
   --text-secondary: #616161;
-  /* 97, 97, 97 - темно-серый */
   --text-muted: #9fb1c2;
-  /* 159, 177, 194 - светло-голубой */
 
   /* Gradients */
   --gradient-start: #f4f7f0;
-  /* кремовый */
   --gradient-middle: #e0cdba;
-  /* бежевый */
   --gradient-end: #f9faf7;
-  /* светлый кремовый */
-}
 
-/* Основная цветовая схема ЯНИНА В */
-:root {
+  /* Accent */
   --accent-primary: #59151f;
-  /* 89, 21, 31 - темно-бордовый */
   --accent-primary-light: #7a2a3a;
-  /* более светлый бордовый */
   --accent-primary-dark: #3d0f15;
-  /* более темный бордовый */
   --accent-secondary: #384a32;
-  /* 56, 74, 50 - темно-оливковый зеленый */
   --accent-secondary-light: #4d6344;
-  /* более светлый оливковый */
   --accent-secondary-dark: #2a3525;
-  /* более темный оливковый */
   --shadow-color: rgba(89, 21, 31, 0.25);
 }
-
 
 @theme inline {
   --color-background: var(--background);
@@ -80,7 +60,6 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-inter), system-ui, sans-serif;
-  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 .font-display {
@@ -88,118 +67,49 @@ body {
 }
 
 /* Utility classes using CSS variables */
-.text-accent-primary {
-  color: var(--accent-primary);
-}
+.text-accent-primary { color: var(--accent-primary); }
+.bg-accent-primary   { background-color: var(--accent-primary); }
+.text-accent-secondary { color: var(--accent-secondary); }
+.bg-accent-secondary   { background-color: var(--accent-secondary); }
+.bg-theme           { background-color: var(--background); }
+.bg-theme-secondary { background-color: var(--secondary-bg); }
+.bg-theme-tertiary  { background-color: var(--tertiary-bg); }
+.text-theme-primary   { color: var(--text-primary); }
+.text-theme-secondary { color: var(--text-secondary); }
+.text-theme-muted     { color: var(--text-muted); }
+.border-theme          { border-color: var(--border-color); }
+.border-accent-primary { border-color: var(--accent-primary); }
+.border-accent-secondary { border-color: var(--accent-secondary); }
+.border-theme-muted  { border-color: var(--text-muted); }
 
-.bg-accent-primary {
-  background-color: var(--accent-primary);
-}
+.hover\:bg-accent-primary-dark:hover  { background-color: var(--accent-primary-dark); }
+.hover\:bg-accent-secondary-dark:hover { background-color: var(--accent-secondary-dark); }
+.hover\:bg-theme-secondary:hover { background-color: var(--secondary-bg); }
 
-.text-accent-secondary {
-  color: var(--accent-secondary);
-}
-
-.bg-accent-secondary {
-  background-color: var(--accent-secondary);
-}
-
-.bg-theme {
-  background-color: var(--background);
-}
-
-.bg-theme-secondary {
-  background-color: var(--secondary-bg);
-}
-
-.bg-theme-tertiary {
-  background-color: var(--tertiary-bg);
-}
-
-.text-theme-primary {
-  color: var(--text-primary);
-}
-
-.text-theme-secondary {
-  color: var(--text-secondary);
-}
-
-.text-theme-muted {
-  color: var(--text-muted);
-}
-
-.border-theme {
-  border-color: var(--border-color);
-}
-
-.border-accent-primary {
-  border-color: var(--accent-primary);
-}
-
-.border-accent-secondary {
-  border-color: var(--accent-secondary);
-}
-
-.hover\:bg-accent-primary-dark:hover {
-  background-color: var(--accent-primary-dark);
-}
-
-.hover\:bg-accent-secondary-dark:hover {
-  background-color: var(--accent-secondary-dark);
-}
-
-/* Enhanced contrast utilities */
-.text-accent-primary-strong {
-  color: var(--accent-primary-dark);
-}
-
-.bg-accent-primary-strong {
-  background-color: var(--accent-primary-dark);
-}
-
-.border-accent-primary-strong {
-  border-color: var(--accent-primary-dark);
-}
+.text-accent-primary-strong  { color: var(--accent-primary-dark); }
+.bg-accent-primary-strong    { background-color: var(--accent-primary-dark); }
+.border-accent-primary-strong { border-color: var(--accent-primary-dark); }
 
 /* Hide scrollbar for horizontal scroll */
-.scrollbar-hide {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-}
-
-.scrollbar-hide::-webkit-scrollbar {
-  display: none;
-}
-
-.hover\:bg-theme-secondary:hover {
-  background-color: var(--secondary-bg);
-}
-
-/* Smooth scrolling */
-html {
-  scroll-behavior: smooth;
-}
+.scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+.scrollbar-hide::-webkit-scrollbar { display: none; }
 
 /* Custom gradients */
 .gradient-accent-primary {
   background: linear-gradient(135deg, var(--accent-primary-light) 0%, var(--accent-primary) 50%, var(--accent-primary-dark) 100%);
 }
-
 .gradient-accent-secondary {
   background: linear-gradient(135deg, var(--accent-secondary-light) 0%, var(--accent-secondary) 50%, var(--accent-secondary-dark) 100%);
 }
-
 .gradient-text {
   background: linear-gradient(135deg, var(--accent-primary-light) 0%, var(--accent-primary) 50%, var(--accent-primary-dark) 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
-
 .gradient-theme {
   background: linear-gradient(135deg, var(--gradient-start) 0%, var(--gradient-middle) 50%, var(--gradient-end) 100%);
 }
-
 .gradient-theme-reverse {
   background: linear-gradient(135deg, var(--gradient-end) 0%, var(--gradient-middle) 50%, var(--gradient-start) 100%);
 }
@@ -216,43 +126,20 @@ html {
 .shadow-luxury {
   box-shadow: 0 25px 50px -12px var(--shadow-color), 0 0 0 1px color-mix(in srgb, var(--accent-primary) 8%, transparent);
 }
-
 .shadow-theme {
   box-shadow: 0 25px 50px -12px var(--shadow-color);
 }
 
-/* Theme toggle animation */
-* {
-  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
-}
-
 /* Custom animations */
 @keyframes spin-slow {
-  from {
-    transform: rotate(0deg);
-  }
-
-  to {
-    transform: rotate(360deg);
-  }
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
 }
 
 @keyframes fade-in {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
-.animate-fade-in {
-  animation: fade-in 0.2s ease-out;
-}
-
-.animate-spin-slow {
-  animation: spin-slow 3s linear infinite;
-}
+.animate-fade-in   { animation: fade-in 0.2s ease-out; }
+.animate-spin-slow { animation: spin-slow 3s linear infinite; }

@@ -1,107 +1,49 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import ColorControlPanel from './ColorControlPanel';
+import { SECTIONS } from '@/utils/theme';
 
-interface HeroProps {
-  backgroundColor?: string;
-  onColorChange?: (color: string) => void;
-}
-
-const Hero = ({ backgroundColor = '#f4f7f0', onColorChange }: HeroProps) => {
+const Hero = () => {
   const [isVideoPlaying, setIsVideoPlaying] = useState(true);
-  const [heroHeight, setHeroHeight] = useState('100vh');
   const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
-    // Управление воспроизведением видео
-    if (videoRef.current) {
-      if (isVideoPlaying) {
-        videoRef.current.play().catch(console.error);
+    const video = videoRef.current;
+    if (!video) return;
+
+    const tryPlay = () => {
+      if (process.env.NODE_ENV === 'development') {
+        video.play().catch((err) => console.warn('[Hero] video.play():', err));
       } else {
-        videoRef.current.pause();
+        video.play().catch(() => {});
       }
+    };
+
+    if (isVideoPlaying) {
+      if (video.readyState >= 3) {
+        tryPlay();
+      } else {
+        video.addEventListener('canplaythrough', tryPlay, { once: true });
+      }
+    } else {
+      video.pause();
     }
   }, [isVideoPlaying]);
 
-  useEffect(() => {
-    // Автоматический запуск видео после монтирования
-    const video = videoRef.current;
-    if (video) {
-      const handleVideoLoad = () => {
-        video.play().catch(console.error);
-      };
-
-      if (video.readyState >= 3) {
-        video.play().catch(console.error);
-      } else {
-        video.addEventListener('canplaythrough', handleVideoLoad, { once: true });
-      }
-    }
-  }, []);
-
-  useEffect(() => {
-    // Вычисляем высоту Hero как viewport минус высота Header
-    const updateHeroHeight = () => {
-      if (typeof window === 'undefined') return;
-
-      const header = document.querySelector('header');
-      if (header) {
-        const headerHeight = header.offsetHeight;
-        setHeroHeight(`calc(100vh - ${headerHeight}px)`);
-      }
-    };
-
-    // Обновляем при монтировании
-    updateHeroHeight();
-
-    // Обновляем при изменении размера окна
-    window.addEventListener('resize', updateHeroHeight);
-
-    // Обновляем при изменении видимости (для мобильного меню)
-    const observer = new MutationObserver(updateHeroHeight);
-    const header = document.querySelector('header');
-    if (header) {
-      observer.observe(header, {
-        childList: true,
-        subtree: true,
-        attributes: true,
-        attributeFilter: ['class', 'style']
-      });
-    }
-
-    return () => {
-      window.removeEventListener('resize', updateHeroHeight);
-      observer.disconnect();
-    };
-  }, []);
+  const { bg } = SECTIONS.hero;
 
   return (
     <section
-      className="relative w-full overflow-hidden z-10"
-      style={{
-        backgroundColor,
-        height: heroHeight,
-        minHeight: heroHeight
-      }}
+      id="hero"
+      className="relative w-full h-screen min-h-screen overflow-hidden z-10 scroll-mt-28"
+      style={{ backgroundColor: bg }}
       suppressHydrationWarning
     >
-      {onColorChange && (
-        <ColorControlPanel
-          sectionId="hero"
-          backgroundColor={backgroundColor}
-          headingColor="#59151f"
-          subheadingColor="#59151f"
-          textColor="#616161"
-          onBackgroundColorChange={onColorChange}
-        />
-      )}
-      {/* Video Background - full width and height */}
       <div className="w-full h-full relative">
         <div className="relative w-full h-full">
           <video
             ref={videoRef}
-            className="w-full h-full"
+            className="w-full h-full object-cover object-center"
             poster="/videos/jewelry-hero.png"
             autoPlay
             muted
@@ -109,22 +51,14 @@ const Hero = ({ backgroundColor = '#f4f7f0', onColorChange }: HeroProps) => {
             playsInline
             controls={false}
             preload="auto"
-            style={{
-              width: '100%',
-              height: '100%',
-              objectFit: 'cover',
-              objectPosition: 'center'
-            }}
           >
             <source src="/videos/jewelry-hero.mp4" type="video/mp4" />
             <source src="/videos/jewelry-hero.webm" type="video/webm" />
             Ваш браузер не поддерживает видео.
           </video>
 
-          {/* Video Overlay */}
-          <div className="absolute inset-0 bg-black/20"></div>
+          <div className="absolute inset-0 bg-black/20" />
 
-          {/* Control Button - Bottom Right Corner of Video */}
           {isVideoPlaying ? (
             <button
               onClick={() => setIsVideoPlaying(false)}
@@ -137,7 +71,6 @@ const Hero = ({ backgroundColor = '#f4f7f0', onColorChange }: HeroProps) => {
             </button>
           ) : (
             <>
-              {/* Play Button - Center */}
               <div className="absolute inset-0 flex items-center justify-center z-10">
                 <div className="text-center">
                   <button
@@ -151,7 +84,6 @@ const Hero = ({ backgroundColor = '#f4f7f0', onColorChange }: HeroProps) => {
                   <p className="text-white font-display text-xl sm:text-2xl drop-shadow-md">Смотреть видео</p>
                 </div>
               </div>
-              {/* Pause Button - Bottom Right Corner */}
               <button
                 onClick={() => setIsVideoPlaying(true)}
                 className="absolute bottom-2 right-2 w-8 h-8 rounded-full bg-black/60 backdrop-blur-sm flex items-center justify-center hover:bg-black/80 transition-all duration-300 transform hover:scale-110 border border-white/40 z-10"
@@ -169,4 +101,4 @@ const Hero = ({ backgroundColor = '#f4f7f0', onColorChange }: HeroProps) => {
   );
 };
 
-export default Hero; 
+export default Hero;
