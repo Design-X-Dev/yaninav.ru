@@ -118,17 +118,13 @@ _(заполнить после обсуждения)_
 
 ### B-03. Главная (и ещё страницы) целиком `'use client'`
 
-- **Статус:** Open
+- **Статус:** Done (частично — см. **Что осталось на потом** ниже)
 - **Приоритет:** Critical
 - **Категория:** SEO / Performance / Architecture
 
-**Что нашли:** Корень приложения для главной помечен как клиентский компонент:
+**Что нашли (состояние на дату аудита, до 2026-04-30):** Корень приложения для главной был помечен как клиентский компонент (`'use client'` в [`src/app/page.tsx`](src/app/page.tsx)).
 
-```1:1:src/app/page.tsx
-'use client';
-```
-
-Аналогично: [`src/app/collection/page.tsx`](src/app/collection/page.tsx), [`src/app/favorites/page.tsx`](src/app/favorites/page.tsx) — вся страница под `'use client'`.
+Аналогично: [`src/app/collection/page.tsx`](src/app/collection/page.tsx), [`src/app/favorites/page.tsx`](src/app/favorites/page.tsx) — вся страница была под `'use client'`.
 
 **Почему это важно:** Меньше серверного HTML при первой отдаче, хуже для SEO‑ботов и LCP по сравнению с тем, когда статичный контент рендерится на сервере. Весь связанный граф может уезжать в клиентский бандл.
 
@@ -136,8 +132,17 @@ _(заполнить после обсуждения)_
 - Оставить страницы **Server Components** по умолчанию.
 - Вынести хуки (`useResponsiveCatalogLimit`, `useHashScroll`, фильтры с `useSearchParams`) в маленькие клиентские обёртки и обернуть ими только нужные участки.
 
+**Исправлено (2026-04-30):**
+- [`src/app/page.tsx`](src/app/page.tsx) — **Server Component**; `Header` и блок каталога в `<Suspense>` (из‑за `useSearchParams` в шапке и клиентского каталога). Логика `useResponsiveCatalogLimit` + `useHashScroll` перенесена в [`src/components/HomeCatalog.tsx`](src/components/HomeCatalog.tsx) (`'use client'`).
+- [`src/app/collection/page.tsx`](src/app/collection/page.tsx) — **Server Component**; `Header` и `Catalog` в `<Suspense>`.
+- [`src/app/favorites/page.tsx`](src/app/favorites/page.tsx) — **без изменений**, остаётся `'use client'` (чтение избранного из `localStorage` через `useFavoriteIds`).
+
+**Что осталось на потом:**
+- Полный перенос загрузки списка товаров на сервер (fetch / CMS) и разделение «серверный список + клиентский фильтр/карусель» — связано с **B-10**, **B-11**; логично делать при миграции на CMS.
+- Сейчас [`Catalog`](src/components/Catalog.tsx) по‑прежнему целиком клиентский (`usePathname`, `useRouter`, `useSearchParams` для `?category=`) — это осознанный компромисс минимального рефакторинга.
+
 **Решение команды:**  
-_(заполнить после обсуждения)_
+Минимальные правки по плану B-03: главная и `/collection` — серверные страницы; `/favorites` — клиентская; дальнейшая глубина RSC — после CMS.
 
 ---
 
@@ -333,13 +338,13 @@ _(заполнить после обсуждения)_
 
 ---
 
-### B-12. Нет `.env.example`
+### B-12. `.env.example`
 
-- **Статус:** Open
+- **Статус:** Done
 - **Приоритет:** Architecture
 - **Категория:** DX
 
-**Что нашли:** Секретов в коде почти нет, но переменные окружения появятся при форме (SMTP, Telegram token, URL сайта для sitemap, S3 credentials). `.env.example` отсутствует.
+**Что нашли:** Секретов в коде почти нет, но переменные окружения появятся при форме (SMTP, Telegram token, URL сайта для sitemap, S3 credentials). `.env.example` отсутствовал.
 
 **Почему это важно:** Онбординг нового разработчика и воспроизводимость деплоя без «угадать имя переменной».
 
@@ -347,7 +352,7 @@ _(заполнить после обсуждения)_
 - Добавить `.env.example` с пустыми/фиктивными значениями и комментариями после появления первых реальных ключей.
 
 **Решение команды:**  
-_(заполнить после обсуждения)_
+В корне репозитория добавлен [`.env.example`](../.env.example): плейсхолдеры для `NEXT_PUBLIC_SITE_URL`, SMTP, `TELEGRAM_BOT_TOKEN`, S3. Реальные ключи по-прежнему только в `.env` (не в git).
 
 ---
 
@@ -452,4 +457,5 @@ _(заполнить после обсуждения)_
 
 | Дата | Пункт | Решение |
 |------|--------|---------|
+| 2026-04-30 | B-03 | Done — частично: [`src/app/page.tsx`](src/app/page.tsx) и [`src/app/collection/page.tsx`](src/app/collection/page.tsx) переведены в Server Components, клиентские хуки главной вынесены в [`src/components/HomeCatalog.tsx`](src/components/HomeCatalog.tsx). Подробности и «что на потом» — в теле B-03. |
 | — | — | _(заполняется по мере обсуждения)_ |
