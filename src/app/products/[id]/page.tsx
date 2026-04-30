@@ -1,6 +1,10 @@
+import { Suspense } from 'react';
 import { notFound } from 'next/navigation';
+import Header from '@/components/Header';
+import Footer from '@/components/Footer';
 import ProductDetailsClient from '@/components/ProductDetailsClient';
-import { getAllProducts, getProductById } from '@/utils/products';
+import { getAllProducts, getProductById, getCategoriesForNav } from '@/lib/products.server';
+import { SECTIONS } from '@/utils/theme';
 
 interface ProductPageProps {
   params: Promise<{ id: string }>;
@@ -28,9 +32,25 @@ export default async function ProductPage({ params }: ProductPageProps) {
     notFound();
   }
 
+  const categories = getCategoriesForNav();
+
   const relatedProducts = getAllProducts()
     .filter((p) => p.category === product.category && p.id !== product.id)
     .slice(0, 3);
 
-  return <ProductDetailsClient product={product} relatedProducts={relatedProducts} />;
+  const catalogBg = SECTIONS.catalog.bg;
+
+  return (
+    <main>
+      <Suspense>
+        <Header
+          sectionColor={catalogBg}
+          categories={categories}
+          currentProduct={{ category: product.category, name: product.name }}
+        />
+      </Suspense>
+      <ProductDetailsClient product={product} relatedProducts={relatedProducts} />
+      <Footer />
+    </main>
+  );
 }

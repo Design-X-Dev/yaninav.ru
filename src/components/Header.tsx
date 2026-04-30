@@ -2,9 +2,9 @@
 
 import { useState, useEffect, useRef, useCallback, Suspense, type CSSProperties } from 'react';
 import Link from 'next/link';
-import { usePathname, useParams, useSearchParams } from 'next/navigation';
+import { usePathname, useSearchParams } from 'next/navigation';
 import { generateHeaderShadow } from '@/utils/shadowUtils';
-import { getCategoriesForNav, getProductById, getCategorySlug } from '@/utils/products';
+import { getCategorySlug } from '@/utils/products';
 import { scrollToHomeSection } from '@/utils/navigation';
 
 const MenuHeartIcon = ({ className }: { className?: string }) => (
@@ -20,6 +20,8 @@ const MenuHeartIcon = ({ className }: { className?: string }) => (
 
 interface HeaderProps {
   sectionColor?: string;
+  categories?: { id: string; name: string }[];
+  currentProduct?: { category: string; name: string };
 }
 
 const HOME_PAGE_ANCHORS: { id: string; label: string }[] = [
@@ -70,11 +72,14 @@ const SubnavScrollChevron = ({ dir }: { dir: 'left' | 'right' }) => (
   </svg>
 );
 
-function HeaderCollectionCategoryNav() {
+function HeaderCollectionCategoryNav({
+  categories,
+}: {
+  categories: { id: string; name: string }[];
+}) {
   const searchParams = useSearchParams();
-  const categories = getCategoriesForNav();
   const raw = searchParams.get('category');
-  const activeCategoryId = raw ? decodeURIComponent(raw) : 'all';
+  const activeCategoryId = raw ? decodeURIComponent(raw).toLowerCase().trim() : 'all';
 
   const scrollRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
@@ -167,12 +172,10 @@ const BreadcrumbDot = () => (
   </li>
 );
 
-function HeaderProductBreadcrumbs() {
-  const params = useParams();
-  const rawId = params?.id;
-  const idStr = Array.isArray(rawId) ? rawId[0] : rawId;
-  const id = idStr ? parseInt(idStr, 10) : NaN;
-  const product = Number.isFinite(id) ? getProductById(id) : undefined;
+function HeaderProductBreadcrumbs({ currentProduct }: { currentProduct?: { category: string; name: string } }) {
+  if (!currentProduct) return null;
+
+  const { category, name } = currentProduct;
 
   return (
     <div className="px-2.5 sm:px-3 max-w-7xl mx-auto w-full pointer-events-auto">
@@ -184,25 +187,21 @@ function HeaderProductBreadcrumbs() {
                 Коллекция
               </Link>
             </li>
-            {product && (
-              <>
-                <BreadcrumbDot />
-                <li className="flex shrink-0 items-center justify-center">
-                  <Link
-                    href={`/collection?category=${encodeURIComponent(getCategorySlug(product.category))}`}
-                    className={subnavLinkClass(false)}
-                  >
-                    {product.category}
-                  </Link>
-                </li>
-                <BreadcrumbDot />
-                <li className="flex shrink-0 items-center justify-center">
-                  <span className={subnavLinkClass(true)} aria-current="page">
-                    {product.name}
-                  </span>
-                </li>
-              </>
-            )}
+            <BreadcrumbDot />
+            <li className="flex shrink-0 items-center justify-center">
+              <Link
+                href={`/collection?category=${encodeURIComponent(getCategorySlug(category))}`}
+                className={subnavLinkClass(false)}
+              >
+                {category}
+              </Link>
+            </li>
+            <BreadcrumbDot />
+            <li className="flex shrink-0 items-center justify-center">
+              <span className={subnavLinkClass(true)} aria-current="page">
+                {name}
+              </span>
+            </li>
           </ol>
         </div>
       </nav>
@@ -212,7 +211,7 @@ function HeaderProductBreadcrumbs() {
 
 // ─── Header ──────────────────────────────────────────────────────────────────
 
-const Header = ({ sectionColor = '#f4f7f0' }: HeaderProps) => {
+const Header = ({ sectionColor = '#f4f7f0', categories, currentProduct }: HeaderProps) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const pathname = usePathname();
   const isHome = pathname === '/';
@@ -444,16 +443,16 @@ const Header = ({ sectionColor = '#f4f7f0' }: HeaderProps) => {
         )}
 
         {/* Подменю категорий коллекции */}
-        {isCollectionPage && (
+        {isCollectionPage && categories && categories.length > 0 && (
           <Suspense fallback={<div className="h-12 max-w-7xl mx-auto w-full px-2.5 sm:px-3" aria-hidden />}>
-            <HeaderCollectionCategoryNav />
+            <HeaderCollectionCategoryNav categories={categories} />
           </Suspense>
         )}
 
         {/* Хлебные крошки на странице товара */}
-        {isProductPage && (
+        {isProductPage && currentProduct && (
           <Suspense fallback={<div className="h-12 max-w-7xl mx-auto w-full px-2.5 sm:px-3" aria-hidden />}>
-            <HeaderProductBreadcrumbs />
+            <HeaderProductBreadcrumbs currentProduct={currentProduct} />
           </Suspense>
         )}
       </div>

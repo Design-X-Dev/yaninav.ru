@@ -5,7 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { SECTIONS } from '@/utils/theme';
-import { getProductsByCategory, getCategoriesForNav, getProductImagePath, formatPrice, type Product } from '@/utils/products';
+import { getProductImagePath, formatPrice, getCategorySlug, type Product } from '@/utils/products';
 import { nbspAfterSi } from '@/utils/typography';
 
 // ─── Компоненты изображений ─────────────────────────────────────────────────
@@ -161,30 +161,52 @@ export const ProductCard = ({ product, backgroundColor, headingColor, textColor 
 // ─── Catalog ─────────────────────────────────────────────────────────────────
 
 interface CatalogProps {
+  products: Product[];
+  categories: { id: string; name: string }[];
   limit?: number;
   showViewAll?: boolean;
   hideCategoryFilter?: boolean;
+  initialCategory?: string;
 }
 
-const Catalog = ({ limit, showViewAll = false, hideCategoryFilter = false }: CatalogProps) => {
+const Catalog = ({
+  products,
+  categories,
+  limit,
+  showViewAll = false,
+  hideCategoryFilter = false,
+  initialCategory,
+}: CatalogProps) => {
   const { bg: backgroundColor, heading: headingColor, text: textColor } = SECTIONS.catalog;
 
-  const [activeCategory, setActiveCategory] = useState('all');
+  const [activeCategory, setActiveCategory] = useState(() => initialCategory ?? 'all');
   const pathname = usePathname();
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const categories = useMemo(() => getCategoriesForNav(), []);
-
   const syncCategoryFromUrl = useCallback(() => {
     if (pathname !== '/collection') return;
     const raw = searchParams.get('category');
-    if (!raw) { setActiveCategory('all'); return; }
-    const id = decodeURIComponent(raw);
+    if (!raw) {
+      setActiveCategory('all');
+      return;
+    }
+    const id = decodeURIComponent(raw).toLowerCase().trim();
     if (id === 'all' || categories.some((c) => c.id === id)) setActiveCategory(id === 'all' ? 'all' : id);
   }, [pathname, searchParams, categories]);
 
-  useEffect(() => { syncCategoryFromUrl(); }, [syncCategoryFromUrl]);
+  useEffect(() => {
+    syncCategoryFromUrl();
+  }, [syncCategoryFromUrl]);
+
+  /** Навигация с сервера при обновлении RSC-пейлоада searchParams */
+  useEffect(() => {
+    if (pathname !== '/collection' || initialCategory == null) return;
+    const id = initialCategory.toLowerCase().trim();
+    if (id === 'all' || categories.some((c) => c.id === id)) {
+      setActiveCategory(id === 'all' ? 'all' : id);
+    }
+  }, [pathname, initialCategory, categories]);
 
   const handleCategoryChange = (id: string) => {
     setActiveCategory(id);
@@ -194,15 +216,19 @@ const Catalog = ({ limit, showViewAll = false, hideCategoryFilter = false }: Cat
     }
   };
 
-  const products = useMemo(() => {
+  const displayedProducts = useMemo(() => {
+    const filtered =
+      activeCategory === 'all'
+        ? products
+        : products.filter((p) => Boolean(p.category) && getCategorySlug(p.category) === activeCategory);
     const seen = new Set<number>();
-    const unique = getProductsByCategory(activeCategory).filter((p) => {
+    const unique = filtered.filter((p) => {
       if (seen.has(p.id)) return false;
       seen.add(p.id);
       return true;
     });
-    return limit && limit > 0 ? unique.slice(0, limit) : unique;
-  }, [activeCategory, limit]);
+    return limit != null && limit > 0 ? unique.slice(0, limit) : unique;
+  }, [products, activeCategory, limit]);
 
   return (
     <section id="catalog" className="relative scroll-mt-28 pt-4 pb-20" style={{ backgroundColor }} suppressHydrationWarning>
@@ -244,7 +270,7 @@ const Catalog = ({ limit, showViewAll = false, hideCategoryFilter = false }: Cat
           </div>
         )}
 
-        {products.length === 0 ? (
+        {displayedProducts.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20">
             <h3 className="font-display text-2xl md:text-3xl font-semibold mb-3" style={{ color: headingColor }}>
               Товары не найдены
@@ -256,7 +282,7 @@ const Catalog = ({ limit, showViewAll = false, hideCategoryFilter = false }: Cat
         ) : (
           <>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-8 items-stretch">
-              {products.map((product) => (
+              {displayedProducts.map((product) => (
                 <ProductCard
                   key={product.id}
                   product={product}

@@ -61,11 +61,11 @@
 
 ### B-01. Изображения: оригиналы в repo и большой объём `public/images`
 
-- **Статус:** Open
+- **Статус:** Done — частично (рабочее дерево очищено, история git не переписана)
 - **Приоритет:** Critical
 - **Категория:** Performance / DX / Infra
 
-**Что нашли:** В `public/images/products/` лежат пары файлов на товар — полноразмерные `DSC_*.jpg` (~10–15 МБ каждый) и версии `_small.jpg` (~80 КБ). В UI для превью используются только `_small`:
+**Что нашли:** В `public/images/products/` лежали пары файлов на товар — полноразмерные `DSC_*.jpg` (~10–15 МБ каждый) и версии `_small.jpg` (~80 КБ). В UI для превью используются только `_small`:
 
 ```56:59:src/utils/products.ts
 export function getProductImagePath(imageName: string): string {
@@ -74,7 +74,7 @@ export function getProductImagePath(imageName: string): string {
 }
 ```
 
-Папка `public/images` суммарно занимает сотни МБ (~795 МБ на момент аудита дискового снимка), большая часть — неиспользуемые для сайта оригиналы. Они утолщают clone, билды и Docker-слои с артефактами.
+Папка `public/images` суммарно занимала сотни МБ (~795 МБ на момент аудита дискового снимка), большая часть — неиспользуемые для сайта оригиналы. Они утолщают clone, билды и Docker-слои с артефактами.
 
 **Почему это важно:** Долгое время CI/CD и деплоя, дорогий трафик, риск упереться в лимиты хостинга. История Git может сохранять блобы даже после удаления файлов — может понадобиться очистка истории (`git filter-repo` / BFG).
 
@@ -84,7 +84,7 @@ export function getProductImagePath(imageName: string): string {
 - Для Retina: рассмотреть промежуточный размер (например `_medium`) вместо или вместе с `_small`, не светя 15 МБ на пользователя.
 
 **Решение команды:**  
-_(заполнить после обсуждения)_
+Оригиналы (`DSC_*.jpg`) удалены из рабочего дерева — `public/images/products/` теперь содержит только `_small`-превью (общий объём ~8.9 МБ). Дальше нужно: (1) при необходимости переписать историю git (`git filter-repo` / BFG), чтобы не таскать ~795 МБ блобов в clone, (2) договориться о месте хранения оригиналов (S3/локально у заказчика).
 
 ---
 
@@ -135,14 +135,14 @@ _(заполнить после обсуждения)_
 **Исправлено (2026-04-30):**
 - [`src/app/page.tsx`](src/app/page.tsx) — **Server Component**; `Header` и блок каталога в `<Suspense>` (из‑за `useSearchParams` в шапке и клиентского каталога). Логика `useResponsiveCatalogLimit` + `useHashScroll` перенесена в [`src/components/HomeCatalog.tsx`](src/components/HomeCatalog.tsx) (`'use client'`).
 - [`src/app/collection/page.tsx`](src/app/collection/page.tsx) — **Server Component**; `Header` и `Catalog` в `<Suspense>`.
-- [`src/app/favorites/page.tsx`](src/app/favorites/page.tsx) — **без изменений**, остаётся `'use client'` (чтение избранного из `localStorage` через `useFavoriteIds`).
+- [`src/app/favorites/page.tsx`](src/app/favorites/page.tsx) — **Server Component**; клиент только в [`FavoritesClient`](src/components/FavoritesClient.tsx) (чтение избранного из `localStorage` через `useFavoriteIds`).
 
 **Что осталось на потом:**
-- Полный перенос загрузки списка товаров на сервер (fetch / CMS) и разделение «серверный список + клиентский фильтр/карусель» — связано с **B-10**, **B-11**; логично делать при миграции на CMS.
+- Полный перенос загрузки списка товаров на внешний fetch / CMS (сейчас данные пробрасываются с сервера из `products.server` через props — см. **B-11**).
 - Сейчас [`Catalog`](src/components/Catalog.tsx) по‑прежнему целиком клиентский (`usePathname`, `useRouter`, `useSearchParams` для `?category=`) — это осознанный компромисс минимального рефакторинга.
 
 **Решение команды:**  
-Минимальные правки по плану B-03: главная и `/collection` — серверные страницы; `/favorites` — клиентская; дальнейшая глубина RSC — после CMS.
+Минимальные правки по плану B-03: главная, `/collection`, `/favorites` — серверные страницы с клиентскими обёртками там, где нужны хуки; дальнейшая глубина RSC — после CMS.
 
 ---
 
@@ -179,11 +179,11 @@ _(заполнить после обсуждения)_
 
 ### B-05. Отсутствует `/images/placeholder.jpg`
 
-- **Статус:** Open
+- **Статус:** Done
 - **Приоритет:** Critical
 - **Категория:** Bug / UX
 
-**Что нашли:** Fallback на `/images/placeholder.jpg` объявлен в коде, файла в `public/` нет на момент аудита:
+**Что нашли:** Fallback на `/images/placeholder.jpg` объявлен в коде, файла в `public/` не было на момент аудита:
 
 - [`src/utils/products.ts`](src/utils/products.ts) — `getProductImagePath` возвращает плейсхолдер для пустого имени файла (см. строки 56–58 выше в B-01).
 - [`src/components/Catalog.tsx`](src/components/Catalog.tsx) — `onError` на `<Image>` подменяет `src` на `/images/placeholder.jpg`.
@@ -195,7 +195,7 @@ _(заполнить после обсуждения)_
 - Добавить лёгкий `public/images/placeholder.jpg` (или `.webp`) в стиле бренда.
 
 **Решение команды:**  
-_(заполнить после обсуждения)_
+Файл [`public/images/placeholder.jpg`](../public/images/placeholder.jpg) добавлен (~3.9 КБ); fallback в `getProductImagePath` и `onError` на `<Image>` теперь резолвится в реальный файл.
 
 ---
 
@@ -302,30 +302,30 @@ _(заполнить после обсуждения)_
 
 ### B-10. Логика категорий: `else if` по подстрокам
 
-- **Статус:** Open
+- **Статус:** Done
 - **Приоритет:** Architecture
 - **Категория:** Maintainability
 
-**Что нашли:** Фильтрация по категории в [`src/utils/products.ts`](src/utils/products.ts) опирается на эвристики по русским подстрокам и отдельные slug’и — см. ветвление примерно в строках 100–127 (функция `getProductsByCategory`).
+**Что нашли (исторически):** Фильтрация по категории опиралась на эвристики по подстрокам и легаси‑английские slug’и.
 
-**Почему это важно:** Любая правка текста категории в данных может сломать фильтр; сложно тестировать и расширять.
+**Почему это важно:** Любая правка текста категории в данных могла сломать фильтр; сложно тестировать и расширять.
 
 **Предлагаемый подход:**
 - При миграции на CMS: поле «категория» как enum / relation + явный `slug` на товаре.
 - До миграции: сузить маппинг до явной таблицы `categoryName → navSlug` без «включает подстроку» где возможно.
 
 **Решение команды:**  
-_(заполнить после обсуждения)_
+Серверная фильтрация перенесена в [`src/lib/products.server.ts`](src/lib/products.server.ts): `getProductsByCategory` — прямое совпадение `getCategorySlug(p.category) === slug` (ветка «все» — `slug === 'all'`). Лестница `else if` и отдельные англ. slug’и удалены. Клиентский [`Catalog`](src/components/Catalog.tsx) фильтрует переданный с сервера массив тем же правилом. Для маршрута `/collection` slug из query читается на клиенте (`useSearchParams`), чтобы страница оставалась **Static** в `next build`.
 
 ---
 
 ### B-11. `products.json` на клиенте из‑за `'use client'` на каталоге
 
-- **Статус:** Open
+- **Статус:** Done
 - **Приоритет:** Architecture
 - **Категория:** Performance
 
-**Что нашли:** [`src/utils/products.ts`](src/utils/products.ts) импортирует JSON на верхнем уровне; при использовании утилит внутри клиентских компонентов (например, [`src/components/Catalog.tsx`](src/components/Catalog.tsx)) данные попадают в клиентский бандл.
+**Что нашли:** Ранее [`src/utils/products.ts`](src/utils/products.ts) импортировал JSON на верхнем уровне; при использовании утилит внутри клиентских компонентов каталог данных попадал в клиентский бандл.
 
 **Почему это важно:** Лишний объём JS и данные в браузере; при росте каталога станет заметнее.
 
@@ -334,7 +334,7 @@ _(заполнить после обсуждения)_
 - При CMS — данные через запрос на сервере.
 
 **Решение команды:**  
-_(заполнить после обсуждения)_
+JSON импортируется только в сервер‑only модуль [`src/lib/products.server.ts`](src/lib/products.server.ts) (`import 'server-only'` + зависимость `server-only`). [`src/utils/products.ts`](src/utils/products.ts) — типы и чистые хелперы без импорта данных. Клиентские [`Catalog`](src/components/Catalog.tsx), [`HomeCatalog`](src/components/HomeCatalog.tsx), [`Header`](src/components/Header.tsx) (через props `categories` / `currentProduct`), [`FavoritesClient`](src/components/FavoritesClient.tsx) получают товары и справочник категорий через props со страниц RSC (`page.tsx`, `collection`, `favorites`, `products/[id]`). Прямой импорт `products.server` в клиентский модуль сборкой запрещён.
 
 ---
 
@@ -458,4 +458,7 @@ _(заполнить после обсуждения)_
 | Дата | Пункт | Решение |
 |------|--------|---------|
 | 2026-04-30 | B-03 | Done — частично: [`src/app/page.tsx`](src/app/page.tsx) и [`src/app/collection/page.tsx`](src/app/collection/page.tsx) переведены в Server Components, клиентские хуки главной вынесены в [`src/components/HomeCatalog.tsx`](src/components/HomeCatalog.tsx). Подробности и «что на потом» — в теле B-03. |
+| 2026-04-30 | B-10, B-11 | Done — см. блоки **Решение команды** выше: `products.server` + props; фильтр по slug без легаси-веток; категория в URL на `/collection` синхронизируется на клиенте для Static. |
+| 2026-04-30 | B-01 | Done — частично: оригиналы `DSC_*.jpg` удалены из рабочего дерева (`public/images/products/` ≈ 8.9 МБ, только `_small`). История git не переписана — блобы остаются в `b6b13f9`. |
+| 2026-04-30 | B-05 | Done — добавлен файл `public/images/placeholder.jpg` (≈ 3.9 КБ); fallback`ы из кода теперь резолвятся. |
 | — | — | _(заполняется по мере обсуждения)_ |

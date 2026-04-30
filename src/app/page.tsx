@@ -7,17 +7,21 @@ import About from '@/components/About';
 import Contact from '@/components/Contact';
 import Footer from '@/components/Footer';
 import { SECTIONS } from '@/utils/theme';
+import { getAllProducts, getCategoriesForNav } from '@/lib/products.server';
 
-export default function Home() {
+export default async function Home() {
+  const products = getAllProducts();
+  const categories = getCategoriesForNav();
+
   return (
     <main>
       <Suspense>
-        <Header sectionColor={SECTIONS.hero.bg} />
+        <Header sectionColor={SECTIONS.hero.bg} categories={categories} />
       </Suspense>
       <Hero />
       <MemoriesSection />
       <Suspense>
-        <HomeCatalog />
+        <HomeCatalog products={products} categories={categories} />
       </Suspense>
       <About />
       <Contact />

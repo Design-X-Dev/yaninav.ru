@@ -2,6 +2,12 @@
 
 import { useState, useEffect } from 'react';
 import Catalog from '@/components/Catalog';
+import type { CatalogNavCategory, Product } from '@/utils/products';
+
+export interface HomeCatalogProps {
+  products: Product[];
+  categories: CatalogNavCategory[];
+}
 
 function useResponsiveCatalogLimit() {
   const [limit, setLimit] = useState(4);
@@ -32,9 +38,17 @@ function useHashScroll() {
  * Клиентская обёртка для главной: лимит колонок каталога по ширине экрана и скролл к якорям (#contact и т.п.).
  * См. B-03 в docs/backlog.md.
  */
-export default function HomeCatalog() {
+export default function HomeCatalog({ products, categories }: HomeCatalogProps) {
   const catalogLimit = useResponsiveCatalogLimit();
   useHashScroll();
 
-  return <Catalog limit={catalogLimit} showViewAll hideCategoryFilter />;
+  return (
+    <Catalog
+      products={products}
+      categories={categories}
+      limit={catalogLimit}
+      showViewAll
+      hideCategoryFilter
+    />
+  );
 }

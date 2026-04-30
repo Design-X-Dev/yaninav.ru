@@ -3,8 +3,6 @@
 import { useMemo, useState, useCallback } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import Header from '@/components/Header';
-import Footer from '@/components/Footer';
 import { ProductCard } from '@/components/Catalog';
 import { SECTIONS } from '@/utils/theme';
 import { PHONE_HREF, EMAIL_HREF } from '@/utils/social';
@@ -33,9 +31,7 @@ export default function ProductDetailsClient({ product, relatedProducts }: Produ
   const handlePrev = useCallback(() => setCurrentImageIndex((i) => (i - 1 + images.length) % images.length), [images.length]);
 
   return (
-    <main>
-      <Header sectionColor={bg} />
-
+    <>
       <div className="min-h-screen pt-4 pb-20 sm:pt-6" style={{ backgroundColor: bg }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-16">
@@ -229,8 +225,6 @@ export default function ProductDetailsClient({ product, relatedProducts }: Produ
           )}
         </div>
       </div>
-
-      <Footer />
-    </main>
+    </>
   );
 }
