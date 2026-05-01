@@ -6,6 +6,7 @@ import { usePathname, useSearchParams } from 'next/navigation';
 import { generateHeaderShadow } from '@/utils/shadowUtils';
 import { getCategorySlug } from '@/utils/products';
 import { scrollToHomeSection } from '@/utils/navigation';
+import LogoYV from '@/components/icons/LogoYV';
 
 const MenuHeartIcon = ({ className }: { className?: string }) => (
   <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
@@ -311,13 +312,14 @@ const Header = ({ sectionColor = '#f4f7f0', categories, currentProduct }: Header
                 style={shadowStyle}
               >
                 <div className="flex w-full items-center px-3 py-2.5 sm:px-4 sm:py-2.5 md:h-full md:px-5 md:py-0">
-                  <Link href="/" className="flex items-center gap-4 sm:gap-5 min-w-0 transition-opacity hover:opacity-90">
-                    <span
-                      className="font-display text-theme-secondary inline-block leading-none"
-                      style={{ letterSpacing: '-0.37em', fontWeight: 400, fontSize: '1.65rem' }}
-                    >
-                      YV
-                    </span>
+                  <Link
+                    href="/"
+                    className="flex items-center gap-2 sm:gap-2.5 min-w-0 leading-none focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-primary/35 focus-visible:ring-offset-2 rounded-sm"
+                  >
+                    <LogoYV
+                      title="ЯНИНА В"
+                      className="block shrink-0 h-[1.225rem] sm:h-[1.4rem] w-auto text-theme-secondary"
+                    />
                     <span className="font-display text-base sm:text-lg font-semibold text-theme-secondary whitespace-nowrap leading-none">
                       ЯНИНА В
                     </span>

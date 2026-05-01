@@ -5,6 +5,10 @@ import type { CollectionConfig } from 'payload';
 export const Media: CollectionConfig = {
   slug: 'media',
   labels: { singular: 'Медиа', plural: 'Медиа' },
+  admin: {
+    useAsTitle: 'filename',
+    defaultColumns: ['filename', 'sourceBasename', 'mimeType', 'filesize'],
+  },
   access: {
     read: () => true,
     create: ({ req }) => Boolean(req.user),

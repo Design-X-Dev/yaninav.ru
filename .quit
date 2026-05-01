@@ -1,0 +1,1 @@
+docker compose exec -T app sqlite3 /app/data/payload.db "DELETE FROM users WHERE email = 'lea_alex@mail.ru';"

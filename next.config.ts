@@ -10,6 +10,14 @@ const longCacheHeaders = [
   },
 ];
 
+/** Safari и обновления: не «запечатывать» PNG/SVG favicon навсегда (см. B-04). Порядок важен — дубликаты Cache-Control переопределяются последним правилом. */
+const shortIconCacheHeaders = [
+  {
+    key: 'Cache-Control',
+    value: 'public, max-age=86400, must-revalidate',
+  },
+];
+
 const nextConfig: NextConfig = {
   output: 'standalone',
   images: {
@@ -35,16 +43,24 @@ const nextConfig: NextConfig = {
         headers: longCacheHeaders,
       },
       {
-        source: '/images/:path*',
-        headers: longCacheHeaders,
-      },
-      {
         source: '/videos/:path*',
         headers: longCacheHeaders,
       },
       {
+        source: '/icon.svg',
+        headers: shortIconCacheHeaders,
+      },
+      {
+        source: '/icon.png',
+        headers: shortIconCacheHeaders,
+      },
+      {
+        source: '/apple-icon.png',
+        headers: shortIconCacheHeaders,
+      },
+      {
         source: '/favicon.ico',
-        headers: longCacheHeaders,
+        headers: shortIconCacheHeaders,
       },
     ];
   },

@@ -2,6 +2,10 @@ import 'server-only';
 
 import { getPayload } from 'payload';
 import config from '@payload-config';
+import {
+  pickLocalizedRelationValue,
+  pickLocalizedString,
+} from '@/lib/seoHelpers';
 import type { Product as UiProduct } from '@/utils/products';
 
 type MediaLike = {
@@ -14,10 +18,17 @@ type MediaLike = {
   };
 };
 
+type PayloadMetaGroup = {
+  title?: unknown;
+  description?: unknown;
+  image?: unknown;
+} | null | undefined;
+
 type CategoryLike = {
   id: number;
   name: string;
   slug: string;
+  meta?: PayloadMetaGroup;
 };
 
 type ProductDoc = {
@@ -32,12 +43,29 @@ type ProductDoc = {
   image3?: number | MediaLike | null;
   bannerImage?: number | MediaLike | null;
   characteristics?: { key: string; value: string }[] | null;
+  meta?: PayloadMetaGroup;
 };
 
 function resolveMediaUrl(media: number | MediaLike | null | undefined): string {
   if (media == null || typeof media === 'number') return '';
   const m = media as MediaLike;
   return m.sizes?.card?.url || m.url || '';
+}
+
+function mapMetaFromDoc(
+  meta: PayloadMetaGroup,
+  imageFallback: number | MediaLike | null | undefined
+): UiProduct['meta'] | undefined {
+  const title = meta ? pickLocalizedString(meta.title) : undefined;
+  const description = meta ? pickLocalizedString(meta.description) : undefined;
+  const imageRel = meta ? pickLocalizedRelationValue<MediaLike | number>(meta.image) : undefined;
+  const imageUrl = resolveMediaUrl(imageRel ?? undefined) || resolveMediaUrl(imageFallback);
+  const out: NonNullable<UiProduct['meta']> = {
+    ...(title ? { title } : {}),
+    ...(description ? { description } : {}),
+    ...(imageUrl ? { image: imageUrl } : {}),
+  };
+  return Object.keys(out).length ? out : undefined;
 }
 
 function docToUi(doc: ProductDoc): UiProduct {
@@ -65,6 +93,7 @@ function docToUi(doc: ProductDoc): UiProduct {
       return u || undefined;
     })(),
     characteristics: doc.characteristics?.map((c) => ({ key: c.key, value: c.value })),
+    meta: mapMetaFromDoc(doc.meta ?? null, doc.image),
   };
 }
 
@@ -159,4 +188,44 @@ export async function getCategoriesForNav(): Promise<{ id: string; name: string 
     id: (c as CategoryLike).slug,
     name: (c as CategoryLike).name,
   }))];
+}
+
+/** Для `generateMetadata` страницы `/collection?category=…`. */
+export async function getCategoryBySlug(
+  slug: string
+): Promise<{
+  name: string;
+  slug: string;
+  meta?: UiProduct['meta'];
+} | null> {
+  const normalized = slug.toLowerCase().trim();
+  if (!normalized || normalized === 'all') return null;
+
+  const p = await payload();
+  const { docs } = await p.find({
+    collection: 'categories',
+    depth: 2,
+    limit: 1,
+    where: { slug: { equals: normalized } },
+  });
+
+  const doc = docs[0] as unknown as CategoryLike | undefined;
+  if (!doc) return null;
+
+  const title = pickLocalizedString(doc.meta?.title);
+  const description = pickLocalizedString(doc.meta?.description);
+  const imageRel = pickLocalizedRelationValue<MediaLike | number>(doc.meta?.image);
+  const imageUrl = resolveMediaUrl(imageRel);
+
+  const meta: NonNullable<UiProduct['meta']> = {
+    ...(title ? { title } : {}),
+    ...(description ? { description } : {}),
+    ...(imageUrl ? { image: imageUrl } : {}),
+  };
+
+  return {
+    name: doc.name,
+    slug: doc.slug,
+    meta: Object.keys(meta).length ? meta : undefined,
+  };
 }

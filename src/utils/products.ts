@@ -5,6 +5,14 @@ export interface ProductCharacteristic {
   value: string;
 }
 
+/** Поля вкладки SEO (Payload `@payloadcms/plugin-seo`, группа `meta`). */
+export type ProductSeoMeta = {
+  title?: string;
+  description?: string;
+  /** URL превью для OG/twitter (sizes.card или url медиа). */
+  image?: string;
+};
+
 export interface Product {
   /** ID из Payload (sqlite). */
   id: number;
@@ -22,6 +30,8 @@ export interface Product {
   /** null — цена по запросу */
   price: number | null;
   bannerImage?: string;
+  /** SEO для `generateMetadata` */
+  meta?: ProductSeoMeta;
 }
 
 /** Slug категории для `?category=` и сравнения с фильтром коллекции. */

@@ -43,6 +43,7 @@
   - [B-07](#b-07-нет-robotstxt-и-sitemap) — Нет `robots.txt` и `sitemap`
   - [B-08](#b-08-nextimage-с-unoptimized-true) — `next/image` с `unoptimized: true`
   - [B-09](#b-09-нет-единого-ог-image--twitter-card-в-metadata) — Нет единого OG-image / Twitter card в metadata
+  - [B-18](#b-18-внешние-уведомления-o-form-submissions-telegramsmtp) — Внешние уведомления о form-submissions (Telegram/SMTP)
 - [Архитектура и техдолг](#архитектура--техдолг)
   - [B-10](#b-10-логика-категорий-else-if-по-подстрокам) — Логика категорий: `else if` по подстрокам
   - [B-11](#b-11-productsjson-на-клиенте-изза-use-client-на-каталоге) — `products.json` на клиенте из‑за `'use client'` на каталоге
@@ -53,6 +54,7 @@
   - [B-15](#b-15-readme-устарел-относительно-реальной-структуры) — README устарел относительно реальной структуры
   - [B-16](#b-16-зависимость-react-icons) — Зависимость `react-icons`
   - [B-17](#b-17-логирование-ошибок-видео-и-мониторинг) — Логирование ошибок видео и мониторинг
+  - [B-19](#b-19-загрузка-файла-в-форме-обратной-связи) — Загрузка файла в форме обратной связи
 - [История решений](#история-решений)
 
 ---
@@ -83,29 +85,21 @@
 
 ### B-02. Форма обратной связи ничего не отправляет
 
-- **Статус:** Open
+- **Статус:** Done — частично (хранение в Payload; без внешних уведомлений и без файла — см. **B-18**, **B-19**)
 - **Приоритет:** Critical
 - **Категория:** Bug / Product
 
-**Что нашли:** Отправка формы только сбрасывает состояние, данные никуда не уходят:
+**Что нашли (аудит до 2026-04-30):** Отправка формы только сбрасывала состояние, данные никуда не уходили (см. старый код в [`Contact.tsx`](../src/components/Contact.tsx)).
 
-```85:89:src/components/Contact.tsx
-const handleSubmit = (e: React.FormEvent) => {
-  e.preventDefault();
-  setFormData(INITIAL_FORM);
-  setConsentAccepted(false);
-};
-```
+**Почему это важно:** Пользователь считает, что сообщение отправлено; лиды теряются. Ранее в форме было поле прикрепления файла — **в текущей реализации главной убрано** (плагин Form Builder не поддерживает upload без отдельной доработки; возврат — **B-19**).
 
-**Почему это важно:** Пользователь считает, что сообщение отправлено; лиды теряются. Есть загрузка файла — её тоже нужно решать при появлении бэкенда.
-
-**Предлагаемый подход:**
-- Route Handler `app/api/contact/route.ts` + внешний канал (почта через Resend/Brevo/SMTP; или Telegram Bot API для быстрой доставки владельцу).
-- Либо встроенный виджет/CRM при готовности.
-- Спам‑защита: honeypot, rate limit (позже можно Cloudflare Turnstile).
+**Предлагаемый подход (частично сделано):**
+- Встроенный Form Builder в Payload + записи в коллекции **`form-submissions`**; публичный `POST /api/form-submissions`.
+- Внешние каналы (SMTP / Resend / Telegram) — **не настроены**, отдельный пункт **B-18**.
+- Спам‑защита: honeypot, rate limit, Turnstile — на потом.
 
 **Решение команды:**  
-_(заполнить после обсуждения)_
+Подключён `@payloadcms/plugin-form-builder` ([`payload.config.ts`](../payload.config.ts)). Схема формы с slug `contact`: [`docs/contact-form-setup.md`](../docs/contact-form-setup.md), идемпотентное заполнение БД — **`npm run seed:contact-form`** (нужны `PAYLOAD_SECRET` и `DATABASE_URI`). Сервер: [`src/lib/forms.server.ts`](../src/lib/forms.server.ts) → [`Contact`](../src/components/Contact.tsx) → клиент [`ContactForm`](../src/components/ContactForm.tsx) (динамический рендер полей + согласие с политиками). Лиды смотреть в **`/admin/collections/form-submissions`**. Внешняя доставка — **B-18**; прикрепление файла к заявке — **B-19**.
 
 ---
 
@@ -194,7 +188,7 @@ _(заполнить после обсуждения)_
 
 ### B-06. Нет `generateMetadata` на страницах товаров
 
-- **Статус:** Open
+- **Статус:** Done
 - **Приоритет:** Important
 - **Категория:** SEO
 
@@ -206,13 +200,13 @@ _(заполнить после обсуждения)_
 - Добавить `export async function generateMetadata({ params })` с `title`, `description`, `openGraph.images` (и при необходимости `alternates.canonical`).
 
 **Решение команды:**  
-_(заполнить после обсуждения)_
+Подключён `@payloadcms/plugin-seo` для `products` и `categories` (вкладка SEO в админке). На [`src/app/(site)/products/[id]/page.tsx`](../src/app/(site)/products/[id]/page.tsx) добавлен `generateMetadata`: `title` / `description` / `openGraph` / `twitter` / `canonical` из `product.meta.*` с фолбэками по названию и описанию товара. Для фильтра каталога см. [`src/app/(site)/collection/page.tsx`](../src/app/(site)/collection/page.tsx) (`?category=` + `getCategoryBySlug`). Локализованные поля плагина нормализуются в [`src/lib/seoHelpers.ts`](../src/lib/seoHelpers.ts).
 
 ---
 
 ### B-07. Нет `robots.txt` и `sitemap`
 
-- **Статус:** Open
+- **Статус:** Done
 - **Приоритет:** Important
 - **Категория:** SEO
 
@@ -225,7 +219,7 @@ _(заполнить после обсуждения)_
 - Добавить `src/app/robots.ts` с `sitemap: 'https://<домен>/sitemap.xml'` (домен вынести в env при необходимости).
 
 **Решение команды:**  
-_(заполнить после обсуждения)_
+[`src/app/sitemap.ts`](../src/app/sitemap.ts) (`MetadataRoute.Sitemap`): статика + `/collection?category=<slug>` + `/products/[id]` из `getAllProducts` / `getAllCategories`, базовый URL — `NEXT_PUBLIC_SITE_URL` через [`siteUrlNormalized`](../src/lib/seoHelpers.ts). `dynamic = 'force-dynamic'`, чтобы карта не пререндерилась на билде без актуальной схемы SQLite. [`src/app/robots.ts`](../src/app/robots.ts): allow `/`, disallow `/admin` и `/api`, `sitemap` и `host` на том же базовом URL.
 
 ---
 
@@ -258,7 +252,7 @@ _(заполнить после обсуждения)_
 
 ### B-09. Нет единого OG-image / Twitter card в metadata
 
-- **Статус:** Open
+- **Статус:** Done
 - **Приоритет:** Important
 - **Категория:** SEO / Marketing
 
@@ -285,7 +279,26 @@ export const metadata: Metadata = {
 - Для товаров — дополнять в B-06 на уровне `generateMetadata`.
 
 **Решение команды:**  
-_(заполнить после обсуждения)_
+На странице товара и при `?category=` на каталоге в `generateMetadata` заданы `openGraph.images` и `twitter` (`summary_large_image` при наличии картинки) из `meta.image` плагина SEO с резолвом URL медиа, иначе — основное изображение товара / без превью для списков. [`src/app/(site)/layout.tsx`](../src/app/(site)/layout.tsx): `metadataBase: new URL(NEXT_PUBLIC_SITE_URL)` для корректных абсолютных OG URL.
+
+---
+
+### B-18. Внешние уведомления о form-submissions (Telegram/SMTP)
+
+- **Статус:** Open
+- **Приоритет:** Important
+- **Категория:** Product / Ops
+
+**Что:** Заявки с главной попадают в коллекцию **`form-submissions`**, но владельцу **не отправляются** ни письма, ни пуш — только просмотр в `/admin`. В плагине Form Builder возможны email-rules в документе формы и/или конфиг **`payload.email` + SMTP**, либо кастомный хук **`afterChange`** по `form-submissions` для вызова Telegram Bot API или Resend.
+
+**Почему важно:** Без канала уведомлений лиды остаются невидимыми до ручной проверки админки.
+
+**Предлагаемый подход:**
+- минимально: Telegram-бот (`TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID` в [.env.example](../.env.example)) из хука;
+- альтернатива: Resend/Brevo/SMTP через `payload.config` `email` + шаблоны формы.
+
+**Решение команды:**  
+Отложено; связано с частичным закрытием **B-02**. Плейсхолдеры env обновлены под будущую интеграцию.
 
 ---
 
@@ -343,7 +356,7 @@ _(заполнить после обсуждения)_
 - Добавить `.env.example` с пустыми/фиктивными значениями и комментариями после появления первых реальных ключей.
 
 **Решение команды:**  
-В корне репозитория добавлен [`.env.example`](../.env.example): плейсхолдеры для `NEXT_PUBLIC_SITE_URL`, SMTP, `TELEGRAM_BOT_TOKEN`, S3, а также `PAYLOAD_SECRET` и `DATABASE_URI` (Payload + SQLite). Реальные ключи по-прежнему только в `.env` (не в git).
+В корне репозитория добавлен [`.env.example`](../.env.example): плейсхолдеры для `NEXT_PUBLIC_SITE_URL`, SMTP, `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID` (для будущего **B-18**), S3, а также `PAYLOAD_SECRET` и `DATABASE_URI` (Payload + SQLite). Реальные ключи по-прежнему только в `.env` (не в git).
 
 ## Менее критично
 
@@ -442,6 +455,19 @@ _(заполнить после обсуждения)_
 
 ---
 
+### B-19. Загрузка файла в форме обратной связи
+
+- **Статус:** Open
+- **Приоритет:** Nice-to-have
+- **Категория:** Product / UX
+
+**Что:** В старой вёрстке [`Contact.tsx`](../src/components/Contact.tsx) было поле «Прикрепить файл». При переходе на `@payloadcms/plugin-form-builder` оно **намеренно убрано**: нативного upload-блока в связке «публичный сабмит → form-submissions» без доработки нет (либо включаются `fields.upload` + `uploadCollections` + `submissionUploads`, либо отдельный `POST` в коллекцию `media`, затем в `submissionData` сохранять URL/`id`).
+
+**Решение команды:**  
+Вернуть в отдельной итерации: предзагрузка в `media` + ссылка в заявке, лимиты размера и MIME, возможно связка с **B-18** (оповещение с вложением). См. также [docs/contact-form-setup.md](../docs/contact-form-setup.md).
+
+---
+
 ## История решений
 
 | Дата | Пункт | Решение |
@@ -451,4 +477,6 @@ _(заполнить после обсуждения)_
 | 2026-04-30 | B-10, B-11 | Done — см. блоки **Решение команды** выше: `products.server` + props; фильтр по slug без легаси-веток; категория в URL на `/collection` синхронизируется на клиенте для Static. |
 | 2026-04-30 | B-01 | Done — частично: оригиналы `DSC_*.jpg` удалены из рабочего дерева; превью ранее жили в `public/images/products/` (~8.9 МБ `_small`), затем каталог перенесён в Payload (`data/media`). История git не переписана — блобы остаются. |
 | 2026-04-30 | B-05 | Done — добавлен файл `public/images/placeholder.jpg` (≈ 3.9 КБ); fallback`ы из кода теперь резолвятся. |
+| 2026-05-01 | B-06, B-07, B-09 | Done: `@payloadcms/plugin-seo` на товары и категории; `generateMetadata` на товаре и каталоге (`?category=`); [`sitemap.ts`](../src/app/sitemap.ts), [`robots.ts`](../src/app/robots.ts), OG/Twitter через `meta` + `metadataBase` в `(site)/layout`. |
+| 2026-05-01 | B-02 (часть 1), B-18, B-19 | Частично **B-02**: `@payloadcms/plugin-form-builder`, сабмиты в **`form-submissions`**, главная через [`forms.server`](../src/lib/forms.server.ts) + [`ContactForm`](../src/components/ContactForm.tsx), док [`contact-form-setup.md`](../docs/contact-form-setup.md), **`npm run seed:contact-form`**. Поле файла убрано → **Open B-19**. Внешние уведомления (Telegram/SMTP) не делали → **Open B-18**. |
 | — | — | _(заполняется по мере обсуждения)_ |

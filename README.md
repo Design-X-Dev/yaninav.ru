@@ -38,6 +38,8 @@
 
 ## 🚀 Установка и запуск
 
+Форма на главной (Payload Form Builder): после первого запуска см. **[docs/contact-form-setup.md](./docs/contact-form-setup.md)** — `npm run seed:contact-form`.
+
 1. Клонируйте репозиторий:
 ```bash
 git clone <your-repo-url>

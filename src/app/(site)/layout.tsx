@@ -1,8 +1,13 @@
+import '../globals.css';
+
 import type { Metadata } from 'next';
 import { Playfair_Display, Inter } from 'next/font/google';
 import localFont from 'next/font/local';
 import AppLoader from '@/components/AppLoader';
 import ContactMessengerFab from '@/components/ContactMessengerFab';
+import { siteUrlNormalized } from '@/lib/seoHelpers';
+
+const siteBaseUrl = siteUrlNormalized();
 
 const playfair = Playfair_Display({
   variable: '--font-playfair',
@@ -21,6 +26,7 @@ const disruptorScript = localFont({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(siteBaseUrl),
   title: 'ЯНИНА В - Ювелирная студия | Эксклюзивные украшения',
   description:
     'Ювелирная студия ЯНИНА В - помолвочные и обручальные кольца, эксклюзивные украшения ручной работы. Индивидуальный подход к каждому клиенту.',
@@ -40,12 +46,15 @@ export default function SiteLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <div
-      className={`${playfair.variable} ${inter.variable} ${disruptorScript.variable} antialiased min-h-screen`}
+    <html
+      lang="ru"
+      className={`${playfair.variable} ${inter.variable} ${disruptorScript.variable}`}
     >
-      <AppLoader />
-      {children}
-      <ContactMessengerFab />
-    </div>
+      <body className="antialiased min-h-screen">
+        <AppLoader />
+        {children}
+        <ContactMessengerFab />
+      </body>
+    </html>
   );
 }

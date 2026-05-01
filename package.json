@@ -8,12 +8,17 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
+    "icons:raster": "node scripts/raster-favicons.js",
     "migrate:payload:build": "esbuild scripts/migrate-json-to-payload.ts --bundle --format=esm --platform=node --packages=external --outfile=.migrate-bundle/migrate.mjs",
-    "migrate:payload": "npm run migrate:payload:build && cross-env NODE_OPTIONS=--no-deprecation node .migrate-bundle/migrate.mjs"
+    "migrate:payload": "npm run migrate:payload:build && cross-env NODE_OPTIONS=--no-deprecation node .migrate-bundle/migrate.mjs",
+    "seed:contact-form:build": "esbuild scripts/seed-contact-form.ts --bundle --format=esm --platform=node --packages=external --outfile=.migrate-bundle/seed-contact-form.mjs",
+    "seed:contact-form": "npm run seed:contact-form:build && cross-env NODE_OPTIONS=--no-deprecation node .migrate-bundle/seed-contact-form.mjs"
   },
   "dependencies": {
     "@payloadcms/db-sqlite": "^3.84.1",
     "@payloadcms/next": "^3.84.1",
+    "@payloadcms/plugin-form-builder": "^3.84.1",
+    "@payloadcms/plugin-seo": "^3.84.1",
     "@payloadcms/richtext-lexical": "^3.84.1",
     "graphql": "^16.10.0",
     "next": "15.3.9",
@@ -35,6 +40,7 @@
     "eslint": "^9",
     "eslint-config-next": "15.3.9",
     "tailwindcss": "^4",
+    "to-ico": "^1.1.5",
     "typescript": "^5"
   }
 }
