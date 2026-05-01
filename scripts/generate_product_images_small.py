@@ -1,7 +1,11 @@
 #!/usr/bin/env python3
 """
-Создаёт в public/images/products/ сжатые превью с суффиксом _small (например DSC_2367_small.jpg).
-Оригиналы не изменяются. Запуск из корня репозитория:
+Легаси: создавала в `public/images/products/` сжатые превью `_small` (например DSC_2367_small.jpg).
+
+Сайт переведён на Payload — актуальный пайплайн через коллекцию `media` и `npm run migrate:payload`.
+Скрипт оставлен для восстановления превью из истории git / локальных оригиналов.
+
+Оригиналы не изменяются. Запуск из корня репозитория (папка `public/images/products` должна существовать):
   python3 scripts/generate_product_images_small.py
 Требуется Pillow (pip install -r scripts/requirements.txt).
 """

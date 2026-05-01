@@ -5,7 +5,12 @@ services:
     ports:
       - "127.0.0.1:3000:3000"
     environment:
-      - NODE_ENV=production
+      NODE_ENV: production
+      DATABASE_URI: file:/app/data/payload.db
+      PAYLOAD_SECRET: ${PAYLOAD_SECRET:?set PAYLOAD_SECRET in .env}
+      NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL:-http://localhost:3000}
+    volumes:
+      - ./data:/app/data
     restart: unless-stopped
     deploy:
       resources:

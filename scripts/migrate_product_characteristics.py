@@ -1,7 +1,11 @@
 #!/usr/bin/env python3
-"""One-off: extract Характеристики section from product descriptions into characteristics[]."""
+"""One-off (легаси): патч описаний и characteristics[] в products.json перед импортом в Payload.
+
+Исходный JSON удалён из репозитория — восстановите из git перед запуском.
+"""
 import json
 import re
+import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -101,6 +105,10 @@ def extract(text: str) -> tuple[list[dict], str, str]:
 
 
 def main() -> None:
+    if not JSON_PATH.is_file():
+        sys.exit(
+            f"Нет файла {JSON_PATH}. Каталог в Payload; восстановите JSON из git для этого one-off скрипта."
+        )
     data = json.loads(JSON_PATH.read_text(encoding="utf-8"))
     for p in data:
         desc = p.get("description", "")

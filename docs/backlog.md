@@ -3,7 +3,7 @@
 Сводка находок аудита кода и инфраструктуры репозитория. Документ предназначен для обсуждения с командой: по каждому пункту принимается решение (сделать сейчас / отложить / не делать) и обновляются поля **Статус** и **Решение команды**.
 
 **Дата аудита:** 2026-04-30  
-**Стек:** Next.js 15, React 19, Tailwind 4, статический каталог через `src/data/products.json`.
+**Стек:** Next.js 15, React 19, Tailwind 4, Payload CMS v3 + SQLite (каталог), динамический рендер публичных страниц каталога через Local API.
 
 ---
 
@@ -65,16 +65,9 @@
 - **Приоритет:** Critical
 - **Категория:** Performance / DX / Infra
 
-**Что нашли:** В `public/images/products/` лежали пары файлов на товар — полноразмерные `DSC_*.jpg` (~10–15 МБ каждый) и версии `_small.jpg` (~80 КБ). В UI для превью используются только `_small`:
+**Что нашли:** В `public/images/products/` лежали пары файлов на товар — полноразмерные `DSC_*.jpg` (~10–15 МБ каждый) и версии `_small.jpg` (~80 КБ). В UI для превью использовались только `_small` (логика была в `src/utils/products.ts`, сейчас URL картинок отдаёт Payload / коллекция `media`).
 
-```56:59:src/utils/products.ts
-export function getProductImagePath(imageName: string): string {
-  if (!imageName) return '/images/placeholder.jpg';
-  return `/images/products/${toSmallProductImageFileName(imageName)}`;
-}
-```
-
-Папка `public/images` суммарно занимала сотни МБ (~795 МБ на момент аудита дискового снимка), большая часть — неиспользуемые для сайта оригиналы. Они утолщают clone, билды и Docker-слои с артефактами.
+Каталог перенесён в Payload: файлы превью живут в volume `data/media` (репозиторий не хранит ни JSON, ни `public/images/products/`).
 
 **Почему это важно:** Долгое время CI/CD и деплоя, дорогий трафик, риск упереться в лимиты хостинга. История Git может сохранять блобы даже после удаления файлов — может понадобиться очистка истории (`git filter-repo` / BFG).
 
@@ -84,7 +77,7 @@ export function getProductImagePath(imageName: string): string {
 - Для Retina: рассмотреть промежуточный размер (например `_medium`) вместо или вместе с `_small`, не светя 15 МБ на пользователя.
 
 **Решение команды:**  
-Оригиналы (`DSC_*.jpg`) удалены из рабочего дерева — `public/images/products/` теперь содержит только `_small`-превью (общий объём ~8.9 МБ). Дальше нужно: (1) при необходимости переписать историю git (`git filter-repo` / BFG), чтобы не таскать ~795 МБ блобов в clone, (2) договориться о месте хранения оригиналов (S3/локально у заказчика).
+Оригиналы (`DSC_*.jpg`) удалены из рабочего дерева; превью исторически были в `public/images/products/` (~8.9 МБ). После внедрения Payload превью загружаются в коллекцию `media` (`data/media` на диске/volume). История git по-прежнему может содержать старые блобы — при необходимости `git filter-repo` / BFG. Оригиналы хранить отдельно (S3 / локально у заказчика).
 
 ---
 
@@ -185,9 +178,7 @@ _(заполнить после обсуждения)_
 
 **Что нашли:** Fallback на `/images/placeholder.jpg` объявлен в коде, файла в `public/` не было на момент аудита:
 
-- [`src/utils/products.ts`](src/utils/products.ts) — `getProductImagePath` возвращает плейсхолдер для пустого имени файла (см. строки 56–58 выше в B-01).
-- [`src/components/Catalog.tsx`](src/components/Catalog.tsx) — `onError` на `<Image>` подменяет `src` на `/images/placeholder.jpg`.
-- [`src/components/ProductDetailsClient.tsx`](src/components/ProductDetailsClient.tsx) — аналогично `onError`.
+- Пустой `src` или битый URL в [`src/components/Catalog.tsx`](src/components/Catalog.tsx) / [`src/components/ProductDetailsClient.tsx`](src/components/ProductDetailsClient.tsx) подменяются на `/images/placeholder.jpg` через `onError` / явные проверки.
 
 **Почему это важно:** При битой ссылке на картинку пользователь получит сломанную иконку вместо контролируемого плейсхолдера.
 
@@ -195,7 +186,7 @@ _(заполнить после обсуждения)_
 - Добавить лёгкий `public/images/placeholder.jpg` (или `.webp`) в стиле бренда.
 
 **Решение команды:**  
-Файл [`public/images/placeholder.jpg`](../public/images/placeholder.jpg) добавлен (~3.9 КБ); fallback в `getProductImagePath` и `onError` на `<Image>` теперь резолвится в реальный файл.
+Файл [`public/images/placeholder.jpg`](../public/images/placeholder.jpg) добавлен (~3.9 КБ); плейсхолдер и `onError` на `<Image>` резолвятся в реальный файл.
 
 ---
 
@@ -207,7 +198,7 @@ _(заполнить после обсуждения)_
 - **Приоритет:** Important
 - **Категория:** SEO
 
-**Что нашли:** [`src/app/products/[id]/page.tsx`](src/app/products/[id]/page.tsx) — серверный рендер и `generateStaticParams` есть, уникальных `metadata` на товар нет; используются только общие значения из [`src/app/layout.tsx`](src/app/layout.tsx).
+**Что нашли:** [`src/app/(site)/products/[id]/page.tsx`](../src/app/(site)/products/[id]/page.tsx) — серверный рендер, страница динамическая (`dynamic = 'force-dynamic'`); уникальных `metadata` на товар нет; используются только общие значения из [`src/app/(site)/layout.tsx`](../src/app/(site)/layout.tsx).
 
 **Почему это важно:** В поиске и при шаринге ссылки на товар заголовки и описание не отражают конкретное изделие; теряются клики и CTR.
 
@@ -315,7 +306,7 @@ _(заполнить после обсуждения)_
 - До миграции: сузить маппинг до явной таблицы `categoryName → navSlug` без «включает подстроку» где возможно.
 
 **Решение команды:**  
-Серверная фильтрация перенесена в [`src/lib/products.server.ts`](src/lib/products.server.ts): `getProductsByCategory` — прямое совпадение `getCategorySlug(p.category) === slug` (ветка «все» — `slug === 'all'`). Лестница `else if` и отдельные англ. slug’и удалены. Клиентский [`Catalog`](src/components/Catalog.tsx) фильтрует переданный с сервера массив тем же правилом. Для маршрута `/collection` slug из query читается на клиенте (`useSearchParams`), чтобы страница оставалась **Static** в `next build`.
+Серверная фильтрация в [`src/lib/products.server.ts`](src/lib/products.server.ts): `getProductsByCategory(slug)` использует Payload `where` по `category.slug` (relation, `depth`). Клиентский [`Catalog`](src/components/Catalog.tsx) фильтрует переданный с сервера массив тем же правилом по slug. Категории в админке имеют явные поля `slug` и `order` (порядок в навигации). Для маршрута `/collection` slug из query по-прежнему читается на клиенте (`useSearchParams`).
 
 ---
 
@@ -334,7 +325,7 @@ _(заполнить после обсуждения)_
 - При CMS — данные через запрос на сервере.
 
 **Решение команды:**  
-JSON импортируется только в сервер‑only модуль [`src/lib/products.server.ts`](src/lib/products.server.ts) (`import 'server-only'` + зависимость `server-only`). [`src/utils/products.ts`](src/utils/products.ts) — типы и чистые хелперы без импорта данных. Клиентские [`Catalog`](src/components/Catalog.tsx), [`HomeCatalog`](src/components/HomeCatalog.tsx), [`Header`](src/components/Header.tsx) (через props `categories` / `currentProduct`), [`FavoritesClient`](src/components/FavoritesClient.tsx) получают товары и справочник категорий через props со страниц RSC (`page.tsx`, `collection`, `favorites`, `products/[id]`). Прямой импорт `products.server` в клиентский модуль сборкой запрещён.
+Данные каталога живут в Payload (SQLite / `DATABASE_URI`). Серверный вход — [`src/lib/products.server.ts`](src/lib/products.server.ts) (`import 'server-only'`, `getPayload` + Local API). [`src/utils/products.ts`](src/utils/products.ts) — типы и чистые хелперы без импорта CMS. Клиентские [`Catalog`](src/components/Catalog.tsx), [`HomeCatalog`](src/components/HomeCatalog.tsx), [`Header`](src/components/Header.tsx), [`FavoritesClient`](src/components/FavoritesClient.tsx) получают массивы через props с RSC (`(site)/page.tsx`, `collection`, `favorites`, `products/[id]`). Файл `src/data/products.json` удалён после миграции; повторный импорт — [`npm run migrate:payload`](../package.json) из восстановленного JSON (см. историю git).
 
 ---
 
@@ -352,9 +343,7 @@ JSON импортируется только в сервер‑only модуль
 - Добавить `.env.example` с пустыми/фиктивными значениями и комментариями после появления первых реальных ключей.
 
 **Решение команды:**  
-В корне репозитория добавлен [`.env.example`](../.env.example): плейсхолдеры для `NEXT_PUBLIC_SITE_URL`, SMTP, `TELEGRAM_BOT_TOKEN`, S3. Реальные ключи по-прежнему только в `.env` (не в git).
-
----
+В корне репозитория добавлен [`.env.example`](../.env.example): плейсхолдеры для `NEXT_PUBLIC_SITE_URL`, SMTP, `TELEGRAM_BOT_TOKEN`, S3, а также `PAYLOAD_SECRET` и `DATABASE_URI` (Payload + SQLite). Реальные ключи по-прежнему только в `.env` (не в git).
 
 ## Менее критично
 
@@ -398,7 +387,7 @@ _(заполнить после обсуждения)_
 - **Приоритет:** Nice-to-have
 - **Категория:** DX
 
-**Что нашли:** [`README.md`](README.md) описывает упрощённую картину (например, добавление товаров через правку компонента), тогда как каталог — `src/data/products.json`, есть Docker, скрипты в `scripts/`, страницы `/collection`, `/products/[id]` и др.
+**Что нашли:** [`README.md`](README.md) описывает упрощённую картину (например, добавление товаров через правку компонента), тогда как каталог сейчас в **Payload** (`/admin`), есть Docker, скрипты в `scripts/`, страницы `/collection`, `/products/[id]` и др.
 
 **Почему это важно:** Ожидания новых участников не совпадают с кодом.
 
@@ -457,8 +446,9 @@ _(заполнить после обсуждения)_
 
 | Дата | Пункт | Решение |
 |------|--------|---------|
-| 2026-04-30 | B-03 | Done — частично: [`src/app/page.tsx`](src/app/page.tsx) и [`src/app/collection/page.tsx`](src/app/collection/page.tsx) переведены в Server Components, клиентские хуки главной вынесены в [`src/components/HomeCatalog.tsx`](src/components/HomeCatalog.tsx). Подробности и «что на потом» — в теле B-03. |
+| 2026-04-30 | B-03 | Done — частично: [`src/app/(site)/page.tsx`](../src/app/(site)/page.tsx) и [`src/app/(site)/collection/page.tsx`](../src/app/(site)/collection/page.tsx) переведены в Server Components, клиентские хуки главной вынесены в [`src/components/HomeCatalog.tsx`](../src/components/HomeCatalog.tsx). Подробности и «что на потом» — в теле B-03. |
+| 2026-04-30 | Payload + SQLite | Done: каталог и медиа в Payload v3 (`@payloadcms/db-sqlite`), файлы БД/медиа в `data/`, публичные страницы каталога с `dynamic = 'force-dynamic'`, импорт из JSON — `npm run migrate:payload` (bundle esbuild + `node`). Postgres — отложен до лимитов SQLite. |
 | 2026-04-30 | B-10, B-11 | Done — см. блоки **Решение команды** выше: `products.server` + props; фильтр по slug без легаси-веток; категория в URL на `/collection` синхронизируется на клиенте для Static. |
-| 2026-04-30 | B-01 | Done — частично: оригиналы `DSC_*.jpg` удалены из рабочего дерева (`public/images/products/` ≈ 8.9 МБ, только `_small`). История git не переписана — блобы остаются в `b6b13f9`. |
+| 2026-04-30 | B-01 | Done — частично: оригиналы `DSC_*.jpg` удалены из рабочего дерева; превью ранее жили в `public/images/products/` (~8.9 МБ `_small`), затем каталог перенесён в Payload (`data/media`). История git не переписана — блобы остаются. |
 | 2026-04-30 | B-05 | Done — добавлен файл `public/images/placeholder.jpg` (≈ 3.9 КБ); fallback`ы из кода теперь резолвятся. |
 | — | — | _(заполняется по мере обсуждения)_ |

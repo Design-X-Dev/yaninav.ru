@@ -50,3 +50,10 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
+# Payload + SQLite локально
+/data/*.db*
+/data/media/*
+
+# Одноразовая сборка migrate (генерируется `npm run migrate:payload:build`)
+.migrate-bundle/
+

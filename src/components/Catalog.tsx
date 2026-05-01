@@ -5,14 +5,14 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { SECTIONS } from '@/utils/theme';
-import { getProductImagePath, formatPrice, getCategorySlug, type Product } from '@/utils/products';
+import { formatPrice, getCategorySlug, type Product } from '@/utils/products';
 import { nbspAfterSi } from '@/utils/typography';
 
 // ─── Компоненты изображений ─────────────────────────────────────────────────
 
 const ProductImage = ({ src, alt, isActive }: { src: string; alt: string; isActive: boolean }) => (
   <Image
-    src={getProductImagePath(src)}
+    src={src?.trim() ? src : '/images/placeholder.jpg'}
     alt={alt}
     fill
     className="object-cover transition-opacity duration-300"

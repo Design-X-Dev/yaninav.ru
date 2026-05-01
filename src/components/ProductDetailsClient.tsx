@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { ProductCard } from '@/components/Catalog';
 import { SECTIONS } from '@/utils/theme';
 import { PHONE_HREF, EMAIL_HREF } from '@/utils/social';
-import { getProductImagePath, formatPrice, type Product } from '@/utils/products';
+import { formatPrice, type Product } from '@/utils/products';
 import { capitalizeFirstLetter } from '@/utils/typography';
 
 interface ProductDetailsClientProps {
@@ -41,7 +41,7 @@ export default function ProductDetailsClient({ product, relatedProducts }: Produ
                 {images.map((image, index) => (
                   <Image
                     key={`img-${index}`}
-                    src={getProductImagePath(image)}
+                    src={image?.trim() ? image : '/images/placeholder.jpg'}
                     alt={index === 0 ? product.name : `${product.name} — вид ${index + 1}`}
                     fill
                     className="object-cover transition-opacity duration-300"

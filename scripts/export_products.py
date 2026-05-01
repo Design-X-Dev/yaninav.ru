@@ -1,10 +1,15 @@
 #!/usr/bin/env python3
-"""Экспорт товаров из products.json: папка на товар с фото, description.md и description.docx."""
+"""Экспорт товаров из products.json: папка на товар с фото, description.md и description.docx.
+
+Легаси: после перехода на Payload исходный `src/data/products.json` удалён из репозитория;
+для работы скрипта восстановите JSON из истории git или экспортируйте каталог из админки.
+"""
 from __future__ import annotations
 
 import json
 import re
 import shutil
+import sys
 from pathlib import Path
 
 from docx import Document
@@ -207,7 +212,10 @@ def write_docx(
 
 def main() -> None:
     if not PRODUCTS_JSON.is_file():
-        raise SystemExit(f"Не найден файл каталога: {PRODUCTS_JSON}")
+        sys.exit(
+            f"Нет файла {PRODUCTS_JSON}: каталог в Payload. "
+            "Восстановите products.json из git или адаптируйте скрипт под экспорт из CMS."
+        )
     if not IMAGES_DIR.is_dir():
         raise SystemExit(f"Не найдена папка с фото: {IMAGES_DIR}")
 

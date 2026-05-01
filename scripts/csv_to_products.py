@@ -1,8 +1,12 @@
 #!/usr/bin/env python3
-"""One-off: Товары на сайт (1).csv -> src/data/products.json"""
+"""One-off (легаси): Товары на сайт (1).csv -> JSON для последующего `npm run migrate:payload`.
+
+Сайт читает каталог из Payload; сгенерированный файл нужен только как промежуточный импорт.
+"""
 import csv
 import json
 import re
+import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -52,6 +56,9 @@ def strip_boilerplate(desc: str) -> str:
 
 
 def main():
+    if not CSV_PATH.is_file():
+        sys.exit(f"Нет входного файла {CSV_PATH}")
+    OUT_PATH.parent.mkdir(parents=True, exist_ok=True)
     with CSV_PATH.open("r", encoding="utf-8-sig") as f:
         reader = csv.reader(f, delimiter=";", quotechar='"')
         rows = list(reader)

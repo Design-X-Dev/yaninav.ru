@@ -1,4 +1,6 @@
-import type { NextConfig } from "next";
+import type { NextConfig } from 'next';
+
+import { withPayload } from '@payloadcms/next/withPayload';
 
 const LONG_CACHE = 'public, max-age=31536000, immutable';
 const longCacheHeaders = [
@@ -9,15 +11,15 @@ const longCacheHeaders = [
 ];
 
 const nextConfig: NextConfig = {
-  output: "standalone",
+  output: 'standalone',
   images: {
     unoptimized: true,
   },
   async redirects() {
     return [
       {
-        source: "/catalog",
-        destination: "/collection",
+        source: '/catalog',
+        destination: '/collection',
         permanent: true,
       },
     ];
@@ -25,17 +27,14 @@ const nextConfig: NextConfig = {
   async headers() {
     return [
       {
-        // Агрессивно кешируем пререндеренные страницы и RSC-навигацию.
         source: '/:path*',
         headers: longCacheHeaders,
       },
       {
-        // Статические файлы Next.js - кешируем навсегда
         source: '/_next/static/:path*',
         headers: longCacheHeaders,
       },
       {
-        // Public media - подготовленные изображения и видео.
         source: '/images/:path*',
         headers: longCacheHeaders,
       },
@@ -51,4 +50,4 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default nextConfig;
+export default withPayload(nextConfig);
