@@ -9,7 +9,7 @@ function slugFromName(name: string): string {
 export const Categories: CollectionConfig = {
   slug: 'categories',
   labels: { singular: 'Категория', plural: 'Категории' },
-  admin: { group: PAYLOAD_ADMIN_GROUPS.catalog, useAsTitle: 'name', defaultColumns: ['name', 'slug', 'order'] },
+  admin: { group: PAYLOAD_ADMIN_GROUPS.pagesAndCatalog, useAsTitle: 'name', defaultColumns: ['name', 'slug', 'order'] },
   access: {
     read: () => true,
     create: ({ req }) => Boolean(req.user),

@@ -120,8 +120,16 @@ export default buildConfig({
     supportedLanguages: { ru, en },
     fallbackLanguage: 'ru',
   },
+  localization: {
+    locales: [
+      { label: 'Русский', code: 'ru' },
+      { label: 'English', code: 'en' },
+    ],
+    defaultLocale: 'ru',
+    fallback: true,
+  },
   /** Порядок регистрации задаёт порядок внутри групп в Payload Admin. */
-  collections: [Categories, Products, Media, MediaVideo, Pages, Users],
+  collections: [Pages, Categories, Products, Media, MediaVideo, Users],
   globals: [Memories, Hero, About],
   plugins: [
     formBuilderPlugin({

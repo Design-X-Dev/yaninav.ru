@@ -21,7 +21,7 @@ export const Pages: CollectionConfig = {
   admin: {
     useAsTitle: 'title',
     defaultColumns: ['title', 'slug', 'updatedAt'],
-    group: PAYLOAD_ADMIN_GROUPS.pages,
+    group: PAYLOAD_ADMIN_GROUPS.pagesAndCatalog,
   },
   versions: {
     drafts: true,

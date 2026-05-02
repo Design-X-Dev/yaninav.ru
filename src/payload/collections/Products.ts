@@ -6,7 +6,7 @@ export const Products: CollectionConfig = {
   slug: 'products',
   labels: { singular: 'Товар', plural: 'Товары' },
   admin: {
-    group: PAYLOAD_ADMIN_GROUPS.catalog,
+    group: PAYLOAD_ADMIN_GROUPS.pagesAndCatalog,
     useAsTitle: 'name',
     defaultColumns: ['name', 'category', 'price'],
   },

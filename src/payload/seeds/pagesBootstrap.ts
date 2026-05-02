@@ -1,7 +1,25 @@
 import type { Payload } from 'payload';
 
+import { pickLocalizedString } from '@/lib/seoHelpers';
+
 import { PAGES_COLLECTION_SLUG } from '../collections/Pages';
 import { PAGES_SEED } from './pagesDefinition';
+
+/** Есть ли сохранённое Lexical-состояние (в т.ч. в карте локалей). */
+function hasLocalizedLexicalBody(value: unknown): boolean {
+  if (value != null && typeof value === 'object' && 'root' in (value as object)) return true;
+  if (typeof value === 'object' && value !== null) {
+    const preferredKeys = ['ru', 'ru-RU', 'en', 'en-US'];
+    for (const key of preferredKeys) {
+      const inner = (value as Record<string, unknown>)[key];
+      if (inner != null && typeof inner === 'object' && 'root' in inner) return true;
+    }
+    for (const inner of Object.values(value)) {
+      if (inner != null && typeof inner === 'object' && 'root' in inner) return true;
+    }
+  }
+  return false;
+}
 
 export async function seedPagesFromDisk(payload: Payload, opts?: { force?: boolean }): Promise<void> {
   const force = opts?.force === true;
@@ -18,6 +36,35 @@ export async function seedPagesFromDisk(payload: Payload, opts?: { force?: boole
 
       const doc = existing.docs[0];
       if (doc && !force) {
+        const ruDoc = await payload.findByID({
+          collection: PAGES_COLLECTION_SLUG,
+          id: doc.id,
+          locale: 'ru',
+          depth: 0,
+          overrideAccess: true,
+        });
+
+        const titleRu =
+          pickLocalizedString((ruDoc as { title?: unknown }).title)?.trim() ?? '';
+        const hasBody = hasLocalizedLexicalBody((ruDoc as { body?: unknown }).body);
+
+        if (titleRu && hasBody) {
+          continue;
+        }
+
+        await payload.update({
+          collection: PAGES_COLLECTION_SLUG,
+          id: doc.id,
+          locale: 'ru',
+          draft: false,
+          overrideAccess: true,
+          data: {
+            ...(titleRu ? {} : { title: def.titleRu }),
+            ...(hasBody ? {} : { body: def.body as unknown as Record<string, unknown> }),
+          },
+        });
+
+        payload.logger.info({ msg: `[payload] Page ru backfill: ${def.slug}` });
         continue;
       }
 
