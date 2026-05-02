@@ -43,6 +43,7 @@
   - [B-10](#b-10-логика-категорий-else-if-по-подстрокам) — Логика категорий: `else if` по подстрокам
   - [B-20](#b-20-управление-блоком-воспоминания-через-payload) — Управление блоком «Воспоминания» через Payload
   - [B-21](#b-21-управление-hero-видео-через-payload) — Управление Hero-видео через Payload
+  - [B-22](#b-22-управление-блоком-философия-бренда-через-payload) — Управление блоком «Философия бренда» через Payload
 - [Менее критично](#менее-критично)
   - [B-13](#b-13-нет-ci) — Нет CI
   - [B-14](#b-14-нет-тестов) — Нет тестов
@@ -229,6 +230,19 @@ export const metadata: Metadata = {
 
 ---
 
+### B-22. Управление блоком «Философия бренда» через Payload
+
+- **Статус:** Done
+- **Приоритет:** Architecture
+- **Категория:** Content / CMS
+
+**Что было:** Заголовок, тексты левой колонки и 6 карточек блока захардкожены в [`About.tsx`](../src/components/About.tsx).
+
+**Решение команды:**  
+Глобал **`about`** ([`globals/About.ts`](../src/payload/globals/About.ts)): **`enabled`**, **`heading`**, rich-text **`lead`** (лексическая разметка, жирное отображение на главной через [`lexicalToReact.tsx`](../src/lib/lexicalToReact.tsx)), массив **`features`** (до 6 элементов): `title`, `description`, `icon` из фиксированного пресета (heart / sparkles / check / sparkle4 / clock / shield). Редактор: **`/admin/globals/about`**. Главная: [`getAboutContent`](../src/lib/about.server.ts) → props в [`About`](../src/components/About.tsx); при **`enabled === false`**, без карточек или без заголовка/`features` блок не показывается. Первичное наполнение: **`npm run seed:about`**, автосид без перезаписи уже заполненного — [`seedAboutIfMissing`](../src/payload/seeds/aboutBootstrap.ts) в [`onInit`](../payload.config.ts).
+
+---
+
 ## Менее критично
 
 ### B-13. Нет CI
@@ -354,4 +368,5 @@ _(заполнить после обсуждения)_
 | 2026-05-02 | B-04, B-08 | Done: [`next.config.ts`](../next.config.ts) — убран `/:path*` с годовым immutable; long-cache для `/_next/static`, `/images`, `/videos`; включена оптимизация `next/image` (AVIF/WebP, `deviceSizes`/`imageSizes`); `sizes` на слайдах Memories. |
 | 2026-05-02 | B-20 | Done: глобал **`memories`** ([`payload.config.ts`](../payload.config.ts), [`globals/Memories.ts`](../src/payload/globals/Memories.ts)), загрузка [`getMemoriesContent`](../src/lib/memories.server.ts) на главной и [`MemoriesSection`](../src/components/MemoriesSection.tsx); первичное наполнение **`npm run seed:memories`**, авто‑сид в `onInit` без перезаписи уже заполненного. |
 | 2026-05-02 | B-21 | Done: коллекция **`media-video`**, глобал **`hero`**, [`getHeroContent`](../src/lib/hero.server.ts) + CMS-driven [`Hero`](../src/components/Hero.tsx); **`npm run seed:hero`**, [`seedHeroIfMissing`](../src/payload/seeds/heroBootstrap.ts) в `onInit`; long-cache в [`next.config.ts`](../next.config.ts) для `/api/media-video/file/:path*`. |
+| 2026-05-02 | B-22 | Done: глобал **`about`**, [`getAboutContent`](../src/lib/about.server.ts), CMS-driven [`About`](../src/components/About.tsx); **`npm run seed:about`**, [`seedAboutIfMissing`](../src/payload/seeds/aboutBootstrap.ts) в `onInit`; rich-text **`lead`** + 6 пресет-иконок в карточках. |
 | — | — | _(заполняется по мере обсуждения)_ |
