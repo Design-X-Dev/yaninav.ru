@@ -14,6 +14,7 @@ import sharp from 'sharp';
 import { Categories } from './src/payload/collections/Categories';
 import { Media } from './src/payload/collections/Media';
 import { MediaVideo } from './src/payload/collections/MediaVideo';
+import { Pages } from './src/payload/collections/Pages';
 import { Products } from './src/payload/collections/Products';
 import { Users } from './src/payload/collections/Users';
 import { About } from './src/payload/globals/About';
@@ -24,6 +25,7 @@ import { seedAboutIfMissing } from './src/payload/seeds/aboutBootstrap';
 import { seedContactFormIfMissing } from './src/payload/seeds/contactFormBootstrap';
 import { seedHeroIfMissing } from './src/payload/seeds/heroBootstrap';
 import { seedMemoriesIfMissing } from './src/payload/seeds/memoriesBootstrap';
+import { seedPagesIfMissing } from './src/payload/seeds/pagesBootstrap';
 import { pickLocalizedString, siteUrlNormalized, truncateDescription } from './src/lib/seoHelpers';
 
 const filename = fileURLToPath(import.meta.url);
@@ -31,7 +33,10 @@ const dirname = path.dirname(filename);
 
 const siteUrl = siteUrlNormalized();
 
-const generateTitle: GenerateTitle<{ name?: unknown; slug?: unknown }> = ({ doc, collectionSlug }) => {
+const generateTitle: GenerateTitle<{ name?: unknown; slug?: unknown; title?: unknown }> = ({
+  doc,
+  collectionSlug,
+}) => {
   if (collectionSlug === 'products') {
     const name = pickLocalizedString(doc?.name);
     const base = name || 'Ювелирное изделие';
@@ -42,13 +47,19 @@ const generateTitle: GenerateTitle<{ name?: unknown; slug?: unknown }> = ({ doc,
     const base = name || 'Каталог';
     return `${base} | Каталог ЯНИНА В`;
   }
+  if (collectionSlug === 'pages') {
+    const title = pickLocalizedString(doc?.title);
+    const base = title || 'Страница';
+    return `${base} | ЯНИНА В`;
+  }
   return 'ЯНИНА В';
 };
 
-const generateDescription: GenerateDescription<{ description?: unknown; name?: unknown }> = ({
-  doc,
-  collectionSlug,
-}) => {
+const generateDescription: GenerateDescription<{
+  description?: unknown;
+  name?: unknown;
+  title?: unknown;
+}> = ({ doc, collectionSlug }) => {
   if (collectionSlug === 'products') {
     const raw = pickLocalizedString(doc?.description);
     return truncateDescription(raw || '');
@@ -57,6 +68,12 @@ const generateDescription: GenerateDescription<{ description?: unknown; name?: u
     const name = pickLocalizedString(doc?.name);
     return truncateDescription(
       `${name ?? 'Раздел каталога'} — эксклюзивные ювелирные украшения ручной работы.`,
+    );
+  }
+  if (collectionSlug === 'pages') {
+    const title = pickLocalizedString(doc?.title);
+    return truncateDescription(
+      `${title ?? 'Информационная страница'} — ювелирная студия ЯНИНА В.`,
     );
   }
   return '';
@@ -71,6 +88,11 @@ const generateURL: GenerateURL<{ id?: unknown; slug?: unknown }> = ({ doc, colle
     const slugRaw = typeof doc?.slug === 'string' ? doc.slug : '';
     const slug = slugRaw.trim().toLowerCase();
     if (slug) return `${siteUrl}/collection?category=${encodeURIComponent(slug)}`;
+  }
+  if (collectionSlug === 'pages') {
+    const slugRaw = typeof doc?.slug === 'string' ? doc.slug : '';
+    const slug = slugRaw.trim().toLowerCase();
+    if (slug) return `${siteUrl}/${slug}`;
   }
   return siteUrl;
 };
@@ -97,7 +119,7 @@ export default buildConfig({
     supportedLanguages: { ru, en },
     fallbackLanguage: 'ru',
   },
-  collections: [Users, Media, MediaVideo, Categories, Products],
+  collections: [Users, Media, MediaVideo, Categories, Products, Pages],
   globals: [Memories, Hero, About],
   plugins: [
     formBuilderPlugin({
@@ -147,7 +169,7 @@ export default buildConfig({
       },
     }),
     seoPlugin({
-      collections: ['products', 'categories'],
+      collections: ['products', 'categories', 'pages'],
       uploadsCollection: 'media',
       tabbedUI: true,
       generateTitle,
@@ -171,6 +193,7 @@ export default buildConfig({
     await seedMemoriesIfMissing(payload);
     await seedHeroIfMissing(payload);
     await seedAboutIfMissing(payload);
+    await seedPagesIfMissing(payload);
   },
   sharp,
 });

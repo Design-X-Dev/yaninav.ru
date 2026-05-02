@@ -18,7 +18,9 @@
     "seed:hero:build": "esbuild scripts/seed-hero.ts --bundle --format=esm --platform=node --packages=external --outfile=.migrate-bundle/seed-hero.mjs",
     "seed:hero": "npm run seed:hero:build && cross-env NODE_OPTIONS=--no-deprecation node .migrate-bundle/seed-hero.mjs",
     "seed:about:build": "esbuild scripts/seed-about.ts --bundle --format=esm --platform=node --packages=external --outfile=.migrate-bundle/seed-about.mjs",
-    "seed:about": "npm run seed:about:build && cross-env NODE_OPTIONS=--no-deprecation node .migrate-bundle/seed-about.mjs"
+    "seed:about": "npm run seed:about:build && cross-env NODE_OPTIONS=--no-deprecation node .migrate-bundle/seed-about.mjs",
+    "seed:pages:build": "esbuild scripts/seed-pages.ts --bundle --format=esm --platform=node --packages=external --outfile=.migrate-bundle/seed-pages.mjs",
+    "seed:pages": "npm run seed:pages:build && cross-env NODE_OPTIONS=--no-deprecation node .migrate-bundle/seed-pages.mjs"
   },
   "dependencies": {
     "@payloadcms/db-sqlite": "^3.84.1",
