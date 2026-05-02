@@ -2,15 +2,8 @@
 
 import Image from 'next/image';
 import { useState, useEffect, useRef } from 'react';
+import type { MemoriesContent } from '@/types/memories';
 import { SECTIONS } from '@/utils/theme';
-
-const slides = [
-  { id: 1, image: '/images/001.jpeg', text: 'Сохраняем уникальные моменты' },
-  { id: 2, image: '/images/002.jpeg', text: 'Превращаем эмоции в\u00A0чувства' },
-  { id: 3, image: '/images/003.jpeg', text: 'Для\u00A0тех, кто верит в\u00A0любовь' },
-  { id: 4, image: '/images/004.jpeg', text: 'Истинная ценность ювелирных изделий - в\u00A0эмоциональной связи' },
-  { id: 5, image: '/images/005.jpeg', text: 'Созданы друг для\u00A0друга' },
-] as const;
 
 const ANIM_MS = 800;
 const AUTO_PLAY_MS = 5000;
@@ -22,7 +15,7 @@ function getSlideRotation(index: number, currentIndex: number): number {
 }
 
 interface PolaroidCardProps {
-  slide: typeof slides[number];
+  slide: MemoriesContent['slides'][number];
   isCenter: boolean;
   textColor: string;
 }
@@ -51,7 +44,7 @@ function PolaroidCard({ slide, isCenter, textColor }: PolaroidCardProps) {
           alt={slide.text}
           fill
           className="object-cover"
-          sizes="400px"
+          sizes="(max-width: 480px) 92vw, 400px"
           priority={isCenter}
         />
         {/* Внутренняя тень */}
@@ -111,7 +104,13 @@ function SlideNavArrows({ onPrev, onNext, disabled, backgroundColor, headingColo
   );
 }
 
-const MemoriesSection = () => {
+interface MemoriesSectionProps {
+  memories: MemoriesContent;
+}
+
+const MemoriesSection = ({ memories }: MemoriesSectionProps) => {
+  const slides = memories.slides;
+
   const { bg: backgroundColor, heading: headingColor, subheading: subheadingColor, text: textColor } = SECTIONS.memories;
 
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -158,7 +157,7 @@ const MemoriesSection = () => {
       if (autoPlayRef.current) clearInterval(autoPlayRef.current);
       if (animTimerRef.current) clearTimeout(animTimerRef.current);
     };
-  }, [sliderType]);
+  }, [sliderType, slides.length]);
 
   // Cleanup on unmount
   useEffect(() => {
@@ -245,16 +244,16 @@ const MemoriesSection = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-12 sm:pt-16 lg:pt-20 pb-8 sm:pb-12">
         <div className="text-center">
           <h2 className="font-display text-3xl md:text-4xl font-bold mb-2" style={{ color: headingColor }}>
-            ЯНИНА В
+            {memories.heading}
           </h2>
           <h3
             className="font-display text-[1.5rem] sm:text-[1.8rem] lg:text-[2.1rem] font-medium mb-3"
             style={{ color: subheadingColor }}
           >
-            Украшения, в которых живут воспоминания
+            {memories.subheading}
           </h3>
           <p className="text-lg sm:text-xl max-w-3xl mx-auto leading-relaxed" style={{ color: textColor }}>
-            Главная цель и задача — сохранить ценные воспоминания и значимые моменты
+            {memories.description}
           </p>
         </div>
       </div>

@@ -10,7 +10,7 @@ const longCacheHeaders = [
   },
 ];
 
-/** Safari и обновления: не «запечатывать» PNG/SVG favicon навсегда (см. B-04). Порядок важен — дубликаты Cache-Control переопределяются последним правилом. */
+/** Иконки: короткий кэш для обновления favicon (Safari/B-04); не для HTML/API. */
 const shortIconCacheHeaders = [
   {
     key: 'Cache-Control',
@@ -21,7 +21,9 @@ const shortIconCacheHeaders = [
 const nextConfig: NextConfig = {
   output: 'standalone',
   images: {
-    unoptimized: true,
+    formats: ['image/avif', 'image/webp'],
+    deviceSizes: [320, 640, 750, 828, 1080, 1200, 1920],
+    imageSizes: [16, 32, 64, 96, 128, 256, 384, 640, 900],
   },
   async redirects() {
     return [
@@ -35,15 +37,19 @@ const nextConfig: NextConfig = {
   async headers() {
     return [
       {
-        source: '/:path*',
-        headers: longCacheHeaders,
-      },
-      {
         source: '/_next/static/:path*',
         headers: longCacheHeaders,
       },
       {
+        source: '/images/:path*',
+        headers: longCacheHeaders,
+      },
+      {
         source: '/videos/:path*',
+        headers: longCacheHeaders,
+      },
+      {
+        source: '/api/media-video/file/:path*',
         headers: longCacheHeaders,
       },
       {

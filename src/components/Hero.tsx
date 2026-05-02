@@ -2,8 +2,12 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { SECTIONS } from '@/utils/theme';
+import type { HeroContent } from '@/types/hero';
 
-const Hero = () => {
+const Hero = ({ hero }: { hero: HeroContent }) => {
+  const { poster, sources, overlayText } = hero;
+  const isReady = Boolean(poster && sources.length > 0);
+
   const [isVideoPlaying, setIsVideoPlaying] = useState(true);
   const videoRef = useRef<HTMLVideoElement>(null);
 
@@ -30,6 +34,8 @@ const Hero = () => {
     }
   }, [isVideoPlaying]);
 
+  if (!isReady) return null;
+
   const { bg } = SECTIONS.hero;
 
   return (
@@ -44,7 +50,7 @@ const Hero = () => {
           <video
             ref={videoRef}
             className="w-full h-full object-cover object-center"
-            poster="/videos/jewelry-hero.png"
+            poster={poster}
             autoPlay
             muted
             loop
@@ -52,8 +58,9 @@ const Hero = () => {
             controls={false}
             preload="auto"
           >
-            <source src="/videos/jewelry-hero.mp4" type="video/mp4" />
-            <source src="/videos/jewelry-hero.webm" type="video/webm" />
+            {sources.map((s) => (
+              <source key={s.type} src={s.src} type={s.type} />
+            ))}
             Ваш браузер не поддерживает видео.
           </video>
 
@@ -81,7 +88,7 @@ const Hero = () => {
                       <path d="M8 5v14l11-7z" />
                     </svg>
                   </button>
-                  <p className="text-white font-display text-xl sm:text-2xl drop-shadow-md">Смотреть видео</p>
+                  <p className="text-white font-display text-xl sm:text-2xl drop-shadow-md">{overlayText}</p>
                 </div>
               </div>
               <button

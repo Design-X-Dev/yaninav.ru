@@ -13,10 +13,15 @@ import sharp from 'sharp';
 
 import { Categories } from './src/payload/collections/Categories';
 import { Media } from './src/payload/collections/Media';
+import { MediaVideo } from './src/payload/collections/MediaVideo';
 import { Products } from './src/payload/collections/Products';
 import { Users } from './src/payload/collections/Users';
+import { Hero } from './src/payload/globals/Hero';
+import { Memories } from './src/payload/globals/Memories';
 import { applyRussianFormLabels, applyRussianSubmissionLabels } from './src/payload/i18n/formBuilderLabels';
 import { seedContactFormIfMissing } from './src/payload/seeds/contactFormBootstrap';
+import { seedHeroIfMissing } from './src/payload/seeds/heroBootstrap';
+import { seedMemoriesIfMissing } from './src/payload/seeds/memoriesBootstrap';
 import { pickLocalizedString, siteUrlNormalized, truncateDescription } from './src/lib/seoHelpers';
 
 const filename = fileURLToPath(import.meta.url);
@@ -90,7 +95,8 @@ export default buildConfig({
     supportedLanguages: { ru, en },
     fallbackLanguage: 'ru',
   },
-  collections: [Users, Media, Categories, Products],
+  collections: [Users, Media, MediaVideo, Categories, Products],
+  globals: [Memories, Hero],
   plugins: [
     formBuilderPlugin({
       fields: {
@@ -160,6 +166,8 @@ export default buildConfig({
   }),
   onInit: async (payload) => {
     await seedContactFormIfMissing(payload);
+    await seedMemoriesIfMissing(payload);
+    await seedHeroIfMissing(payload);
   },
   sharp,
 });

@@ -36,18 +36,13 @@
   - [B-01](#b-01-изображения-оригиналы-в-repo-и-большой-объём-publicimages) — Изображения: оригиналы в repo и большой объём `public/images`
   - [B-02](#b-02-форма-обратной-связи-ничего-не-отправляет) — Форма обратной связи ничего не отправляет
   - [B-03](#b-03-главная-и-ещё-страницы-целиком-use-client) — Главная (и ещё страницы) целиком `'use client'`
-  - [B-04](#b-04-cache-control-на-год-для-всех-маршрутов) — Cache-Control на год для всех маршрутов
-  - [B-05](#b-05-отсутствует-publicimagesplaceholderjpg) — Отсутствует `/images/placeholder.jpg`
 - [Важно — SEO / UX](#важно--seo--ux)
-  - [B-06](#b-06-нет-generatemetadata-на-страницах-товаров) — Нет `generateMetadata` на страницах товаров
-  - [B-07](#b-07-нет-robotstxt-и-sitemap) — Нет `robots.txt` и `sitemap`
-  - [B-08](#b-08-nextimage-с-unoptimized-true) — `next/image` с `unoptimized: true`
   - [B-09](#b-09-нет-единого-ог-image--twitter-card-в-metadata) — Нет единого OG-image / Twitter card в metadata
   - [B-18](#b-18-внешние-уведомления-o-form-submissions-telegramsmtp) — Внешние уведомления о form-submissions (Telegram/SMTP)
 - [Архитектура и техдолг](#архитектура--техдолг)
   - [B-10](#b-10-логика-категорий-else-if-по-подстрокам) — Логика категорий: `else if` по подстрокам
-  - [B-11](#b-11-productsjson-на-клиенте-изза-use-client-на-каталоге) — `products.json` на клиенте из‑за `'use client'` на каталоге
-  - [B-12](#b-12-нет-envexample) — Нет `.env.example`
+  - [B-20](#b-20-управление-блоком-воспоминания-через-payload) — Управление блоком «Воспоминания» через Payload
+  - [B-21](#b-21-управление-hero-видео-через-payload) — Управление Hero-видео через Payload
 - [Менее критично](#менее-критично)
   - [B-13](#b-13-нет-ci) — Нет CI
   - [B-14](#b-14-нет-тестов) — Нет тестов
@@ -125,7 +120,7 @@
 - [`src/app/favorites/page.tsx`](src/app/favorites/page.tsx) — **Server Component**; клиент только в [`FavoritesClient`](src/components/FavoritesClient.tsx) (чтение избранного из `localStorage` через `useFavoriteIds`).
 
 **Что осталось на потом:**
-- Полный перенос загрузки списка товаров на внешний fetch / CMS (сейчас данные пробрасываются с сервера из `products.server` через props — см. **B-11**).
+- Полный перенос загрузки списка товаров на внешний fetch / CMS (сейчас данные пробрасываются с сервера из `products.server` через props — см. **История решений**, 2026-04-30: Payload + SQLite, **B-10**, **B-11**).
 - Сейчас [`Catalog`](src/components/Catalog.tsx) по‑прежнему целиком клиентский (`usePathname`, `useRouter`, `useSearchParams` для `?category=`) — это осознанный компромисс минимального рефакторинга.
 
 **Решение команды:**  
@@ -133,122 +128,7 @@
 
 ---
 
-### B-04. Cache-Control на год для всех маршрутов
-
-- **Статус:** Open
-- **Приоритет:** Critical
-- **Категория:** Bug / Ops
-
-**Что нашли:** Для любого пути задаётся кэш «на год» с `immutable`:
-
-```25:31:next.config.ts
-async headers() {
-  return [
-    {
-      // Агрессивно кешируем пререндеренные страницы и RSC-навигацию.
-      source: '/:path*',
-      headers: longCacheHeaders,
-    },
-```
-
-`longCacheHeaders` = `public, max-age=31536000, immutable`.
-
-**Почему это важно:** HTML и маршруты приложения могут долго отдаваться из браузерного кэша без проверки; изменения текстов и цен не видны без жёсткого сброса кэша.
-
-**Предлагаемый подход:**
-- Убрать правило `/:path*` с годовым кэшем.
-- Оставить длинный кэш только для `/_next/static/*`, `/images/*`, `/videos/*`, `favicon.ico` (и при необходимости уточнить политику для HTML: `no-cache` / короткий `max-age` + `stale-while-revalidate`).
-
-**Решение команды:**  
-_(заполнить после обсуждения)_
-
----
-
-### B-05. Отсутствует `/images/placeholder.jpg`
-
-- **Статус:** Done
-- **Приоритет:** Critical
-- **Категория:** Bug / UX
-
-**Что нашли:** Fallback на `/images/placeholder.jpg` объявлен в коде, файла в `public/` не было на момент аудита:
-
-- Пустой `src` или битый URL в [`src/components/Catalog.tsx`](src/components/Catalog.tsx) / [`src/components/ProductDetailsClient.tsx`](src/components/ProductDetailsClient.tsx) подменяются на `/images/placeholder.jpg` через `onError` / явные проверки.
-
-**Почему это важно:** При битой ссылке на картинку пользователь получит сломанную иконку вместо контролируемого плейсхолдера.
-
-**Предлагаемый подход:**
-- Добавить лёгкий `public/images/placeholder.jpg` (или `.webp`) в стиле бренда.
-
-**Решение команды:**  
-Файл [`public/images/placeholder.jpg`](../public/images/placeholder.jpg) добавлен (~3.9 КБ); плейсхолдер и `onError` на `<Image>` резолвятся в реальный файл.
-
----
-
 ## Важно — SEO / UX
-
-### B-06. Нет `generateMetadata` на страницах товаров
-
-- **Статус:** Done
-- **Приоритет:** Important
-- **Категория:** SEO
-
-**Что нашли:** [`src/app/(site)/products/[id]/page.tsx`](../src/app/(site)/products/[id]/page.tsx) — серверный рендер, страница динамическая (`dynamic = 'force-dynamic'`); уникальных `metadata` на товар нет; используются только общие значения из [`src/app/(site)/layout.tsx`](../src/app/(site)/layout.tsx).
-
-**Почему это важно:** В поиске и при шаринге ссылки на товар заголовки и описание не отражают конкретное изделие; теряются клики и CTR.
-
-**Предлагаемый подход:**
-- Добавить `export async function generateMetadata({ params })` с `title`, `description`, `openGraph.images` (и при необходимости `alternates.canonical`).
-
-**Решение команды:**  
-Подключён `@payloadcms/plugin-seo` для `products` и `categories` (вкладка SEO в админке). На [`src/app/(site)/products/[id]/page.tsx`](../src/app/(site)/products/[id]/page.tsx) добавлен `generateMetadata`: `title` / `description` / `openGraph` / `twitter` / `canonical` из `product.meta.*` с фолбэками по названию и описанию товара. Для фильтра каталога см. [`src/app/(site)/collection/page.tsx`](../src/app/(site)/collection/page.tsx) (`?category=` + `getCategoryBySlug`). Локализованные поля плагина нормализуются в [`src/lib/seoHelpers.ts`](../src/lib/seoHelpers.ts).
-
----
-
-### B-07. Нет `robots.txt` и `sitemap`
-
-- **Статус:** Done
-- **Приоритет:** Important
-- **Категория:** SEO
-
-**Что нашли:** В проекте нет [`app/robots.ts`](https://nextjs.org/docs/app/api-reference/file-conventions/metadata/robots) / статического `robots.txt` и нет [`app/sitemap.ts`](https://nextjs.org/docs/app/api-reference/file-conventions/metadata/sitemap) для генерации карты сайта со страницами товаров и инфостраницами.
-
-**Почему это важно:** Упрощается индексация, явно задаётся политика для ботов на продакшен‑домене.
-
-**Предлагаемый подход:**
-- Добавить `src/app/sitemap.ts` с перечислением статических путей + URL товаров из `getAllProducts()`.
-- Добавить `src/app/robots.ts` с `sitemap: 'https://<домен>/sitemap.xml'` (домен вынести в env при необходимости).
-
-**Решение команды:**  
-[`src/app/sitemap.ts`](../src/app/sitemap.ts) (`MetadataRoute.Sitemap`): статика + `/collection?category=<slug>` + `/products/[id]` из `getAllProducts` / `getAllCategories`, базовый URL — `NEXT_PUBLIC_SITE_URL` через [`siteUrlNormalized`](../src/lib/seoHelpers.ts). `dynamic = 'force-dynamic'`, чтобы карта не пререндерилась на билде без актуальной схемы SQLite. [`src/app/robots.ts`](../src/app/robots.ts): allow `/`, disallow `/admin` и `/api`, `sitemap` и `host` на том же базовом URL.
-
----
-
-### B-08. `next/image` с `unoptimized: true`
-
-- **Статус:** Open
-- **Приоритет:** Important
-- **Категория:** Performance / UX
-
-**Что нашли:**
-
-```11:15:next.config.ts
-const nextConfig: NextConfig = {
-  output: "standalone",
-  images: {
-    unoptimized: true,
-  },
-```
-
-**Почему это важно:** Отключена встроенная оптимизация форматов/размеров для `next/image`; на больших экранах `_small` может выглядеть мягко/размыто, на маленьких — не использоваться максимально эффективная ширина без ручной сетки размеров.
-
-**Предлагаемый подход:**
-- Включить оптимизацию (`unoptimized: false`) после решения источников изображений (локальный `public` vs remote patterns vs CDN).
-- Либо оставить `unoptimized`, но расшифровать в README причину (например, ограничения хостинга) и явно поддерживать набор файлов `_small` / `_medium`.
-
-**Решение команды:**  
-_(заполнить после обсуждения)_
-
----
 
 ### B-09. Нет единого OG-image / Twitter card в metadata
 
@@ -276,7 +156,7 @@ export const metadata: Metadata = {
 
 **Предлагаемый подход:**
 - Завести одно качественное изображение (1200×630) для главной OG + заполнить `twitter: { card, title, description, images }`.
-- Для товаров — дополнять в B-06 на уровне `generateMetadata`.
+- На странице товара `generateMetadata` реализован (см. **История решений**, 2026-05-01: B-06, B-07).
 
 **Решение команды:**  
 На странице товара и при `?category=` на каталоге в `generateMetadata` заданы `openGraph.images` и `twitter` (`summary_large_image` при наличии картинки) из `meta.image` плагина SEO с резолвом URL медиа, иначе — основное изображение товара / без превью для списков. [`src/app/(site)/layout.tsx`](../src/app/(site)/layout.tsx): `metadataBase: new URL(NEXT_PUBLIC_SITE_URL)` для корректных абсолютных OG URL.
@@ -323,40 +203,31 @@ export const metadata: Metadata = {
 
 ---
 
-### B-11. `products.json` на клиенте из‑за `'use client'` на каталоге
+### B-20. Управление блоком «Воспоминания» через Payload
 
 - **Статус:** Done
-- **Приоритет:** Architecture
-- **Категория:** Performance
+- **Приоритет:** Important
+- **Категория:** Content / CMS
 
-**Что нашли:** Ранее [`src/utils/products.ts`](src/utils/products.ts) импортировал JSON на верхнем уровне; при использовании утилит внутри клиентских компонентов каталог данных попадал в клиентский бандл.
-
-**Почему это важно:** Лишний объём JS и данные в браузере; при росте каталога станет заметнее.
-
-**Предлагаемый подход:**
-- Связано с B-03: после разделения серверных/клиентских границ — выбирать товары на сервере и передавать на клиент только необходимое, либо грузить с API/route.
-- При CMS — данные через запрос на сервере.
+**Что было:** Заголовки и слайды блока «Воспоминания» захардкожены в [`src/components/MemoriesSection.tsx`](src/components/MemoriesSection.tsx), картинки — из `public/images/00*.jpeg`; тяжёлые файлы и `next/image` давали проблемы с оптимизатором.
 
 **Решение команды:**  
-Данные каталога живут в Payload (SQLite / `DATABASE_URI`). Серверный вход — [`src/lib/products.server.ts`](src/lib/products.server.ts) (`import 'server-only'`, `getPayload` + Local API). [`src/utils/products.ts`](src/utils/products.ts) — типы и чистые хелперы без импорта CMS. Клиентские [`Catalog`](src/components/Catalog.tsx), [`HomeCatalog`](src/components/HomeCatalog.tsx), [`Header`](src/components/Header.tsx), [`FavoritesClient`](src/components/FavoritesClient.tsx) получают массивы через props с RSC (`(site)/page.tsx`, `collection`, `favorites`, `products/[id]`). Файл `src/data/products.json` удалён после миграции; повторный импорт — [`npm run migrate:payload`](../package.json) из восстановленного JSON (см. историю git).
+Глобал [`memories`](../src/payload/globals/Memories.ts): тексты полей `heading`, `subheading`, `description`, массив `slides` (upload → `media` + подпись), минимум 5 элементов карусели. Редактор: **`/admin/globals/memories`**. Данные на главной: [`getMemoriesContent`](../src/lib/memories.server.ts) в [`(site)/page.tsx`](../src/app/(site)/page.tsx) → props в [`MemoriesSection`](../src/components/MemoriesSection.tsx); URL через `sizes.card` и `/_next/image`. Идемпотентный первичный контент из `public/images/`: **`npm run seed:memories`**; при первом запуске без данных — попытка в `onInit` ([`memoriesBootstrap`](../src/payload/seeds/memoriesBootstrap.ts)) без перезаписи существующих слайдов.
 
 ---
 
-### B-12. `.env.example`
+### B-21. Управление Hero-видео через Payload
 
 - **Статус:** Done
 - **Приоритет:** Architecture
-- **Категория:** DX
+- **Категория:** Content / CMS
 
-**Что нашли:** Секретов в коде почти нет, но переменные окружения появятся при форме (SMTP, Telegram token, URL сайта для sitemap, S3 credentials). `.env.example` отсутствовал.
-
-**Почему это важно:** Онбординг нового разработчика и воспроизводимость деплоя без «угадать имя переменной».
-
-**Предлагаемый подход:**
-- Добавить `.env.example` с пустыми/фиктивными значениями и комментариями после появления первых реальных ключей.
+**Что было:** Полноэкранное Hero-видео и постер зашиты в [`Hero.tsx`](../src/components/Hero.tsx) (`/videos/jewelry-hero.*`).
 
 **Решение команды:**  
-В корне репозитория добавлен [`.env.example`](../.env.example): плейсхолдеры для `NEXT_PUBLIC_SITE_URL`, SMTP, `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID` (для будущего **B-18**), S3, а также `PAYLOAD_SECRET` и `DATABASE_URI` (Payload + SQLite). Реальные ключи по-прежнему только в `.env` (не в git).
+Коллекция **`media-video`** ([`MediaVideo.ts`](../src/payload/collections/MediaVideo.ts), `data/media-video`), глобал **`hero`** ([`globals/Hero.ts`](../src/payload/globals/Hero.ts)): флаг **`enabled`** (скрыть секцию без удаления медиа), `overlayText`, постер в `media`, обязательный `videoMp4`, опционально `videoWebm`. Редактор: **`/admin/globals/hero`**. Главная: [`getHeroContent`](../src/lib/hero.server.ts) → props в [`Hero`](../src/components/Hero.tsx); при `enabled === false` или отсутствии постера/источников секция не рендерится. Первичное наполнение из `public/videos/`: **`npm run seed:hero`**, в `onInit` — [`seedHeroIfMissing`](../src/payload/seeds/heroBootstrap.ts) без перезаписи при уже заданных постере и mp4. Long-cache заголовки для отдачи видеофайлов через API: [`next.config.ts`](../next.config.ts) — `/api/media-video/file/:path*`.
+
+---
 
 ## Менее критично
 
@@ -474,9 +345,13 @@ _(заполнить после обсуждения)_
 |------|--------|---------|
 | 2026-04-30 | B-03 | Done — частично: [`src/app/(site)/page.tsx`](../src/app/(site)/page.tsx) и [`src/app/(site)/collection/page.tsx`](../src/app/(site)/collection/page.tsx) переведены в Server Components, клиентские хуки главной вынесены в [`src/components/HomeCatalog.tsx`](../src/components/HomeCatalog.tsx). Подробности и «что на потом» — в теле B-03. |
 | 2026-04-30 | Payload + SQLite | Done: каталог и медиа в Payload v3 (`@payloadcms/db-sqlite`), файлы БД/медиа в `data/`, публичные страницы каталога с `dynamic = 'force-dynamic'`, импорт из JSON — `npm run migrate:payload` (bundle esbuild + `node`). Postgres — отложен до лимитов SQLite. |
-| 2026-04-30 | B-10, B-11 | Done — см. блоки **Решение команды** выше: `products.server` + props; фильтр по slug без легаси-веток; категория в URL на `/collection` синхронизируется на клиенте для Static. |
+| 2026-04-30 | B-10, B-11 | Done: `products.server` + данные через RSC/props; фильтр по slug без легаси-веток; категория в URL на `/collection` синхронизируется на клиенте. По серверной фильтрации — блок **B-10** ниже. |
 | 2026-04-30 | B-01 | Done — частично: оригиналы `DSC_*.jpg` удалены из рабочего дерева; превью ранее жили в `public/images/products/` (~8.9 МБ `_small`), затем каталог перенесён в Payload (`data/media`). История git не переписана — блобы остаются. |
 | 2026-04-30 | B-05 | Done — добавлен файл `public/images/placeholder.jpg` (≈ 3.9 КБ); fallback`ы из кода теперь резолвятся. |
+| 2026-04-30 | B-12 | Done — добавлен [`.env.example`](../.env.example): `NEXT_PUBLIC_SITE_URL`, SMTP, `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID` (для будущего **B-18**), S3, `PAYLOAD_SECRET`, `DATABASE_URI`. |
 | 2026-05-01 | B-06, B-07, B-09 | Done: `@payloadcms/plugin-seo` на товары и категории; `generateMetadata` на товаре и каталоге (`?category=`); [`sitemap.ts`](../src/app/sitemap.ts), [`robots.ts`](../src/app/robots.ts), OG/Twitter через `meta` + `metadataBase` в `(site)/layout`. |
 | 2026-05-01 | B-02 (часть 1), B-18, B-19 | Частично **B-02**: `@payloadcms/plugin-form-builder`, сабмиты в **`form-submissions`**, главная через [`forms.server`](../src/lib/forms.server.ts) + [`ContactForm`](../src/components/ContactForm.tsx), док [`contact-form-setup.md`](../docs/contact-form-setup.md), **`npm run seed:contact-form`**. Поле файла убрано → **Open B-19**. Внешние уведомления (Telegram/SMTP) не делали → **Open B-18**. |
+| 2026-05-02 | B-04, B-08 | Done: [`next.config.ts`](../next.config.ts) — убран `/:path*` с годовым immutable; long-cache для `/_next/static`, `/images`, `/videos`; включена оптимизация `next/image` (AVIF/WebP, `deviceSizes`/`imageSizes`); `sizes` на слайдах Memories. |
+| 2026-05-02 | B-20 | Done: глобал **`memories`** ([`payload.config.ts`](../payload.config.ts), [`globals/Memories.ts`](../src/payload/globals/Memories.ts)), загрузка [`getMemoriesContent`](../src/lib/memories.server.ts) на главной и [`MemoriesSection`](../src/components/MemoriesSection.tsx); первичное наполнение **`npm run seed:memories`**, авто‑сид в `onInit` без перезаписи уже заполненного. |
+| 2026-05-02 | B-21 | Done: коллекция **`media-video`**, глобал **`hero`**, [`getHeroContent`](../src/lib/hero.server.ts) + CMS-driven [`Hero`](../src/components/Hero.tsx); **`npm run seed:hero`**, [`seedHeroIfMissing`](../src/payload/seeds/heroBootstrap.ts) в `onInit`; long-cache в [`next.config.ts`](../next.config.ts) для `/api/media-video/file/:path*`. |
 | — | — | _(заполняется по мере обсуждения)_ |

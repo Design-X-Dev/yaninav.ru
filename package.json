@@ -12,7 +12,11 @@
     "migrate:payload:build": "esbuild scripts/migrate-json-to-payload.ts --bundle --format=esm --platform=node --packages=external --outfile=.migrate-bundle/migrate.mjs",
     "migrate:payload": "npm run migrate:payload:build && cross-env NODE_OPTIONS=--no-deprecation node .migrate-bundle/migrate.mjs",
     "seed:contact-form:build": "esbuild scripts/seed-contact-form.ts --bundle --format=esm --platform=node --packages=external --outfile=.migrate-bundle/seed-contact-form.mjs",
-    "seed:contact-form": "npm run seed:contact-form:build && cross-env NODE_OPTIONS=--no-deprecation node .migrate-bundle/seed-contact-form.mjs"
+    "seed:contact-form": "npm run seed:contact-form:build && cross-env NODE_OPTIONS=--no-deprecation node .migrate-bundle/seed-contact-form.mjs",
+    "seed:memories:build": "esbuild scripts/seed-memories.ts --bundle --format=esm --platform=node --packages=external --outfile=.migrate-bundle/seed-memories.mjs",
+    "seed:memories": "npm run seed:memories:build && cross-env NODE_OPTIONS=--no-deprecation node .migrate-bundle/seed-memories.mjs",
+    "seed:hero:build": "esbuild scripts/seed-hero.ts --bundle --format=esm --platform=node --packages=external --outfile=.migrate-bundle/seed-hero.mjs",
+    "seed:hero": "npm run seed:hero:build && cross-env NODE_OPTIONS=--no-deprecation node .migrate-bundle/seed-hero.mjs"
   },
   "dependencies": {
     "@payloadcms/db-sqlite": "^3.84.1",
