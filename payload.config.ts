@@ -27,6 +27,7 @@ import { seedHeroIfMissing } from './src/payload/seeds/heroBootstrap';
 import { seedMemoriesIfMissing } from './src/payload/seeds/memoriesBootstrap';
 import { seedPagesIfMissing } from './src/payload/seeds/pagesBootstrap';
 import { pickLocalizedString, siteUrlNormalized, truncateDescription } from './src/lib/seoHelpers';
+import { PAYLOAD_ADMIN_GROUPS } from './src/payload/adminSidebarGroups';
 
 const filename = fileURLToPath(import.meta.url);
 const dirname = path.dirname(filename);
@@ -119,7 +120,8 @@ export default buildConfig({
     supportedLanguages: { ru, en },
     fallbackLanguage: 'ru',
   },
-  collections: [Users, Media, MediaVideo, Categories, Products, Pages],
+  /** Порядок регистрации задаёт порядок внутри групп в Payload Admin. */
+  collections: [Categories, Products, Media, MediaVideo, Pages, Users],
   globals: [Memories, Hero, About],
   plugins: [
     formBuilderPlugin({
@@ -139,7 +141,7 @@ export default buildConfig({
       },
       formOverrides: {
         labels: { singular: 'Форма', plural: 'Формы' },
-        admin: { group: 'Формы и заявки', useAsTitle: 'title' },
+        admin: { group: PAYLOAD_ADMIN_GROUPS.forms, useAsTitle: 'title' },
         fields: ({ defaultFields }) => [
           {
             name: 'slug',
@@ -158,7 +160,7 @@ export default buildConfig({
       },
       formSubmissionOverrides: {
         labels: { singular: 'Заявка', plural: 'Заявки' },
-        admin: { group: 'Формы и заявки' },
+        admin: { group: PAYLOAD_ADMIN_GROUPS.forms },
         access: {
           create: () => true,
           read: ({ req: { user } }) => Boolean(user),

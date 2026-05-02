@@ -2,13 +2,15 @@ import path from 'path';
 
 import type { CollectionConfig } from 'payload';
 
+import { PAYLOAD_ADMIN_GROUPS } from '../adminSidebarGroups';
+
 export const MEDIA_VIDEO_COLLECTION_SLUG = 'media-video';
 
 export const MediaVideo: CollectionConfig = {
   slug: MEDIA_VIDEO_COLLECTION_SLUG,
-  labels: { singular: 'Видео (файлы)', plural: 'Видео (файлы)' },
+  labels: { singular: 'Видеофайл', plural: 'Видеофайлы' },
   admin: {
-    group: 'Медиа',
+    group: PAYLOAD_ADMIN_GROUPS.media,
     useAsTitle: 'filename',
     defaultColumns: ['filename', 'sourceBasename', 'mimeType', 'filesize'],
   },

@@ -1,5 +1,7 @@
 import type { GlobalConfig } from 'payload';
 
+import { PAYLOAD_ADMIN_GROUPS } from '../adminSidebarGroups';
+
 export const MEMORIES_GLOBAL_SLUG = 'memories';
 
 export const Memories: GlobalConfig = {
@@ -10,7 +12,8 @@ export const Memories: GlobalConfig = {
     update: ({ req }) => Boolean(req.user),
   },
   admin: {
-    group: 'Контент сайта',
+    group: PAYLOAD_ADMIN_GROUPS.homeGlobals,
+    description: 'Карусель на главной. Не менее 5 слайдов с картинками.',
   },
   fields: [
     { name: 'heading', type: 'text', required: true, label: 'Заголовок (логотип)' },

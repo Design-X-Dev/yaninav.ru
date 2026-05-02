@@ -1,5 +1,7 @@
 import type { CollectionConfig } from 'payload';
 
+import { PAYLOAD_ADMIN_GROUPS } from '../adminSidebarGroups';
+
 export const PAGES_COLLECTION_SLUG = 'pages';
 
 /** Не создавать страницы с этими slug — пересекаются с системными маршрутами Next.js / Payload. */
@@ -19,7 +21,7 @@ export const Pages: CollectionConfig = {
   admin: {
     useAsTitle: 'title',
     defaultColumns: ['title', 'slug', 'updatedAt'],
-    group: 'Контент сайта',
+    group: PAYLOAD_ADMIN_GROUPS.pages,
   },
   versions: {
     drafts: true,

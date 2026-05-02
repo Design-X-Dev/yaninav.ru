@@ -1,5 +1,7 @@
 import type { CollectionConfig } from 'payload';
 
+import { PAYLOAD_ADMIN_GROUPS } from '../adminSidebarGroups';
+
 function slugFromName(name: string): string {
   return name.trim().toLowerCase().replace(/\s+/g, '-');
 }
@@ -7,7 +9,7 @@ function slugFromName(name: string): string {
 export const Categories: CollectionConfig = {
   slug: 'categories',
   labels: { singular: 'Категория', plural: 'Категории' },
-  admin: { useAsTitle: 'name', defaultColumns: ['name', 'slug', 'order'] },
+  admin: { group: PAYLOAD_ADMIN_GROUPS.catalog, useAsTitle: 'name', defaultColumns: ['name', 'slug', 'order'] },
   access: {
     read: () => true,
     create: ({ req }) => Boolean(req.user),

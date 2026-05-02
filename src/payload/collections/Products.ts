@@ -1,9 +1,12 @@
 import type { CollectionConfig } from 'payload';
 
+import { PAYLOAD_ADMIN_GROUPS } from '../adminSidebarGroups';
+
 export const Products: CollectionConfig = {
   slug: 'products',
   labels: { singular: 'Товар', plural: 'Товары' },
   admin: {
+    group: PAYLOAD_ADMIN_GROUPS.catalog,
     useAsTitle: 'name',
     defaultColumns: ['name', 'category', 'price'],
   },

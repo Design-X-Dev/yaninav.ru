@@ -1,5 +1,7 @@
 import type { GlobalConfig } from 'payload';
 
+import { PAYLOAD_ADMIN_GROUPS } from '../adminSidebarGroups';
+
 export const ABOUT_GLOBAL_SLUG = 'about';
 
 const ICON_OPTIONS = [
@@ -19,7 +21,8 @@ export const About: GlobalConfig = {
     update: ({ req }) => Boolean(req.user),
   },
   admin: {
-    group: 'Контент сайта',
+    group: PAYLOAD_ADMIN_GROUPS.homeGlobals,
+    description: 'Левая колонка («Философия») и карточки справа. Иконки — из фиксированного набора.',
   },
   fields: [
     {

@@ -2,10 +2,13 @@ import path from 'path';
 
 import type { CollectionConfig } from 'payload';
 
+import { PAYLOAD_ADMIN_GROUPS } from '../adminSidebarGroups';
+
 export const Media: CollectionConfig = {
   slug: 'media',
-  labels: { singular: 'Медиа', plural: 'Медиа' },
+  labels: { singular: 'Изображение', plural: 'Изображения' },
   admin: {
+    group: PAYLOAD_ADMIN_GROUPS.media,
     useAsTitle: 'filename',
     defaultColumns: ['filename', 'sourceBasename', 'mimeType', 'filesize'],
   },

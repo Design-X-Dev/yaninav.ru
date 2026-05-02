@@ -1,9 +1,11 @@
 import type { CollectionConfig } from 'payload';
 
+import { PAYLOAD_ADMIN_GROUPS } from '../adminSidebarGroups';
+
 export const Users: CollectionConfig = {
   slug: 'users',
   labels: { singular: 'Пользователь', plural: 'Пользователи' },
-  admin: { useAsTitle: 'email' },
+  admin: { group: PAYLOAD_ADMIN_GROUPS.system, useAsTitle: 'email', defaultColumns: ['email', 'role'] },
   auth: true,
   fields: [
     {

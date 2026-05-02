@@ -1,6 +1,7 @@
 import type { GlobalConfig } from 'payload';
 
 import { MEDIA_VIDEO_COLLECTION_SLUG } from '../collections/MediaVideo';
+import { PAYLOAD_ADMIN_GROUPS } from '../adminSidebarGroups';
 
 export const HERO_GLOBAL_SLUG = 'hero';
 
@@ -12,7 +13,8 @@ export const Hero: GlobalConfig = {
     update: ({ req }) => Boolean(req.user),
   },
   admin: {
-    group: 'Контент сайта',
+    group: PAYLOAD_ADMIN_GROUPS.homeGlobals,
+    description: 'Первый экран с видео на главной. Поле «Показывать секцию» выключает блок без удаления файлов.',
   },
   fields: [
     {
