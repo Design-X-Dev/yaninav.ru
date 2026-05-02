@@ -57,3 +57,6 @@ next-env.d.ts
 # Одноразовая сборка migrate (генерируется `npm run migrate:payload:build`)
 .migrate-bundle/
 
+# Payload CLI: сборка конфига без tsx/tsconfig paths (esbuild)
+.payload-bundle/
+

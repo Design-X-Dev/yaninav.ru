@@ -27,7 +27,9 @@ async function main(): Promise<void> {
     await payload.update({
       collection: 'forms',
       id: existing.id,
-      data: contactFormSeedData,
+      // Lexical-подграф формы допускает в рантайме структуру из контактного сида,
+      // строго сопоставить с автогёнными типами Form builder неудобно — скрипт «ручной».
+      data: contactFormSeedData as never,
     });
     console.info(`Updated form slug=${CONTACT_FORM_SLUG} (id=${existing.id})`);
     return;
@@ -35,7 +37,7 @@ async function main(): Promise<void> {
 
   const created = await payload.create({
     collection: 'forms',
-    data: contactFormSeedData,
+    data: contactFormSeedData as never,
   });
 
   console.info(`Created form slug=${CONTACT_FORM_SLUG} (id=${created.id})`);

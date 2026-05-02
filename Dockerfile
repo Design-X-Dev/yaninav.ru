@@ -6,6 +6,7 @@ RUN apk add --no-cache libc6-compat python3 make g++ vips-dev
 WORKDIR /app
 
 COPY package.json package-lock.json* ./
+COPY patches ./patches
 RUN npm ci
 
 COPY . .
@@ -31,6 +32,8 @@ COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 COPY --from=builder /app/package.json ./package.json
 
+COPY --from=builder --chown=nextjs:nodejs /app/scripts/remove-dev-push-marker.mjs ./scripts/remove-dev-push-marker.mjs
+
 USER nextjs
 
 EXPOSE 3000
@@ -38,4 +41,4 @@ EXPOSE 3000
 ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
 
-CMD ["node", "server.js"]
+CMD ["sh","-c","node scripts/remove-dev-push-marker.mjs && node server.js"]

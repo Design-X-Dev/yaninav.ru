@@ -1,5 +1,4 @@
 import path from 'path';
-import { fileURLToPath } from 'url';
 
 import { sqliteAdapter } from '@payloadcms/db-sqlite';
 import { lexicalEditor } from '@payloadcms/richtext-lexical';
@@ -28,9 +27,7 @@ import { seedMemoriesIfMissing } from './src/payload/seeds/memoriesBootstrap';
 import { seedPagesIfMissing } from './src/payload/seeds/pagesBootstrap';
 import { pickLocalizedString, siteUrlNormalized, truncateDescription } from './src/lib/seoHelpers';
 import { PAYLOAD_ADMIN_GROUPS } from './src/payload/adminSidebarGroups';
-
-const filename = fileURLToPath(import.meta.url);
-const dirname = path.dirname(filename);
+import { migrations as payloadProdMigrations } from './src/payload/migrations';
 
 const siteUrl = siteUrlNormalized();
 
@@ -190,13 +187,16 @@ export default buildConfig({
   ],
   secret: process.env.PAYLOAD_SECRET || 'dev-local-payload-secret-change-me',
   typescript: {
-    outputFile: path.resolve(dirname, 'src/payload-types.ts'),
+    outputFile: path.resolve(process.cwd(), 'src/payload-types.ts'),
   },
   editor: lexicalEditor({}),
   db: sqliteAdapter({
     client: {
       url: process.env.DATABASE_URI || 'file:./data/payload.db',
     },
+    push: false,
+    migrationDir: path.resolve(process.cwd(), 'src/payload/migrations'),
+    prodMigrations: payloadProdMigrations,
   }),
   onInit: async (payload) => {
     await seedContactFormIfMissing(payload);

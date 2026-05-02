@@ -130,7 +130,7 @@ export async function getSerializedContactForm(slug: string): Promise<ContactSer
     limit: 1,
     depth: 0,
   });
-  const doc = res.docs[0] as Record<string, unknown> | undefined;
+  const doc = res.docs[0] as unknown as Record<string, unknown> | undefined;
   if (!doc) return null;
   return serializeFormDoc(doc);
 }

@@ -1,6 +1,32 @@
 import type { SerializedEditorState } from 'lexical';
 
-export type AboutIconKey = 'heart' | 'sparkles' | 'check' | 'sparkle4' | 'clock' | 'shield';
+export type AboutIconKey =
+  | 'heart'
+  | 'sparkles'
+  | 'check'
+  | 'sparkle4'
+  | 'clock'
+  | 'shield'
+  | 'gem'
+  | 'diamond'
+  | 'crown'
+  | 'leaf'
+  | 'flower'
+  | 'feather'
+  | 'palette'
+  | 'pen'
+  | 'handHeart'
+  | 'handshake'
+  | 'badgeCheck'
+  | 'lock'
+  | 'scale'
+  | 'compass'
+  | 'eye'
+  | 'star'
+  | 'sun'
+  | 'moon'
+  | 'wand'
+  | 'gift';
 
 const ABOUT_ICON_KEYS: readonly AboutIconKey[] = [
   'heart',
@@ -9,6 +35,26 @@ const ABOUT_ICON_KEYS: readonly AboutIconKey[] = [
   'sparkle4',
   'clock',
   'shield',
+  'gem',
+  'diamond',
+  'crown',
+  'leaf',
+  'flower',
+  'feather',
+  'palette',
+  'pen',
+  'handHeart',
+  'handshake',
+  'badgeCheck',
+  'lock',
+  'scale',
+  'compass',
+  'eye',
+  'star',
+  'sun',
+  'moon',
+  'wand',
+  'gift',
 ];
 
 export function isAboutIconKey(v: unknown): v is AboutIconKey {

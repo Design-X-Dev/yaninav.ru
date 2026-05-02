@@ -30,13 +30,13 @@ export const contactFormConfirmationLexical = {
       },
     ],
   },
-} as const;
+};
 
 /** Документ формы для `payload.create` / `payload.update` (коллекция `forms` из plugin-form-builder). */
 export const contactFormSeedData = {
   slug: CONTACT_FORM_SLUG,
   title: 'Свяжитесь с нами',
-  submitButtonLabel: { ru: 'Отправить сообщение' },
+  submitButtonLabel: 'Отправить сообщение',
   confirmationType: 'message' as const,
   confirmationMessage: contactFormConfirmationLexical,
   emails: [] as Record<string, unknown>[],

@@ -16,7 +16,7 @@ export async function seedContactFormIfMissing(payload: Payload): Promise<void> 
 
     await payload.create({
       collection: 'forms',
-      data: contactFormSeedData,
+      data: contactFormSeedData as never,
     });
 
     payload.logger.info({

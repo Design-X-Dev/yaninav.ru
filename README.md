@@ -64,6 +64,11 @@ npm run dev
 - `npm run build` - Сборка для продакшена
 - `npm run start` - Запуск продакшн сервера
 - `npm run lint` - Проверка кода с ESLint
+- `npm run payload:migrate` — применить SQLite-миграции Payload перед работой после `pull`/`schema` (см. **[docs/payload-migrations.md](./docs/payload-migrations.md)**)
+- `npm run payload:migrate:create -- имя` — создать новый файл миграции локально после изменений схемы (аргумент после `--`)
+- Контейнер dev (`docker compose up`) сам вызывает `payload:migrate` перед `next dev`; prod-образ выполняет миграции при старте (`prodMigrations`).
+
+Контент и каталог живут в **Payload** (`/admin`), см. также сидеры вида `npm run seed:*` и [docs/contact-form-setup.md](./docs/contact-form-setup.md).
 
 ## 🎨 Дизайн-система
 

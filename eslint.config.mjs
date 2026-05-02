@@ -10,7 +10,7 @@ const compat = new FlatCompat({
 });
 
 const eslintConfig = [
-  { ignores: ["src/payload-types.ts"] },
+  { ignores: ["src/payload-types.ts", "src/payload/migrations/*.ts"] },
   ...compat.extends("next/core-web-vitals", "next/typescript"),
 ];
 

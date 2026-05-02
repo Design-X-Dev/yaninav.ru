@@ -84,7 +84,7 @@ export async function seedPagesFromDisk(payload: Payload, opts?: { force?: boole
         data: {
           title: def.titleRu,
           slug: def.slug,
-          body: def.body as unknown as Record<string, unknown>,
+          body: def.body as never,
           showLegalDivider: def.showLegalDivider ?? false,
         },
       });
