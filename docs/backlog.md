@@ -141,18 +141,18 @@
 
 ### B-24. Production hardening Payload API и секретов
 
-- **Статус:** Open
+- **Статус:** Open — частично (закрыта публичная регистрация админов)
 - **Приоритет:** Critical
 - **Категория:** Security / Ops / CMS
 
 **Что нашли:** После внедрения Payload остались открытые поверхности, которые допустимы в dev, но опасны для production:
 
-- [`src/payload/collections/Users.ts`](../src/payload/collections/Users.ts): `access.create: () => true` разрешает создание пользователей через API. При `auth: true` это нужно явно проверить и закрыть до production, чтобы регистрация админов не была публичной.
+- ~~[`src/payload/collections/Users.ts`](../src/payload/collections/Users.ts): `access.create: () => true` разрешает создание пользователей через API.~~ **Закрыто (2026-05-21):** `create`/`update`/`delete` — только для аутентифицированных пользователей; первый admin создаётся идемпотентно из `ADMIN_EMAIL`/`ADMIN_PASSWORD` в [`usersBootstrap.ts`](../src/payload/seeds/usersBootstrap.ts) при `onInit` (prod — fail-fast, если env не задан и `users` пуста).
 - [`payload.config.ts`](../payload.config.ts): `secret: process.env.PAYLOAD_SECRET || 'dev-local-payload-secret-change-me'` оставляет известный fallback для подписи cookies/JWT, если env забыли задать.
 - [`payload.config.ts`](../payload.config.ts): `form-submissions` принимают `create: () => true` без rate limit / CAPTCHA / honeypot. Это нужно для публичной формы, но без защиты превращается в канал спама и раздувания БД.
 - Публичные коллекции/globals с `read: () => true` доступны через Payload REST/GraphQL API: товары, категории, медиа, страницы и главные globals можно массово выгружать, если не ограничить API surface.
 - [`src/app/(payload)/api/graphql-playground/route.ts`](../src/app/(payload)/api/graphql-playground/route.ts) оставляет GraphQL Playground route в приложении; для production нужно решить, отключать ли Playground и introspection.
-- В [`Users.ts`](../src/payload/collections/Users.ts) заданы только `read` и `create`; defaults для `update` / `delete` нужно проверить отдельно, чтобы не оставить неожиданные мутации пользователей.
+- ~~В [`Users.ts`](../src/payload/collections/Users.ts) заданы только `read` и `create`; defaults для `update` / `delete` нужно проверить отдельно, чтобы не оставить неожиданные мутации пользователей.~~ **Закрыто (2026-05-21):** явно заданы `update`/`delete` — только для аутентифицированных.
 - [`docker-compose.yml`](../docker-compose.yml) задаёт `PAYLOAD_SECRET: ${PAYLOAD_SECRET:-change-me-local-dev-secret}` — это удобно локально, но файл нельзя использовать как production-шаблон без явного override.
 - `form-submissions` хранят персональные данные заявок; backlog пока описывает доставку и спам, но не retention/export/delete/backups для этих данных.
 
@@ -167,7 +167,7 @@
 - Зафиксировать политику хранения заявок: срок retention, экспорт, удаление по запросу, попадание в backup.
 
 **Решение команды:**  
-_(заполнить после обсуждения)_
+Публичная регистрация админов закрыта: env `ADMIN_EMAIL`/`ADMIN_PASSWORD` + [`seedAdminIfMissing`](../src/payload/seeds/usersBootstrap.ts) в `onInit`. Остальные подпункты (PAYLOAD_SECRET fallback, антиспам формы, GraphQL Playground, retention заявок) — в работе.
 
 ---
 

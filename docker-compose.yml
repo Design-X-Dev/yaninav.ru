@@ -9,6 +9,8 @@ services:
       NODE_ENV: development
       DATABASE_URI: file:/app/data/payload.db
       PAYLOAD_SECRET: ${PAYLOAD_SECRET:-change-me-local-dev-secret}
+      ADMIN_EMAIL: ${ADMIN_EMAIL:-admin@local.dev}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-changeme-local-only}
       NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL:-http://localhost:3000}
     volumes:
       - .:/app

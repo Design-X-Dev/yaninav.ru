@@ -31,6 +31,7 @@ import { seedHomeCatalogIfMissing } from './src/payload/seeds/homeCatalogBootstr
 import { seedHomepageSeoIfMissing } from './src/payload/seeds/homepageBootstrap';
 import { seedMemoriesIfMissing } from './src/payload/seeds/memoriesBootstrap';
 import { seedPagesIfMissing } from './src/payload/seeds/pagesBootstrap';
+import { seedAdminIfMissing } from './src/payload/seeds/usersBootstrap';
 import {
   HOMEPAGE_DEFAULT_DESCRIPTION,
   HOMEPAGE_DEFAULT_TITLE,
@@ -227,6 +228,7 @@ export default buildConfig({
     prodMigrations: payloadProdMigrations,
   }),
   onInit: async (payload) => {
+    await seedAdminIfMissing(payload);
     await seedContactFormIfMissing(payload);
     await seedHomepageSeoIfMissing(payload);
     await seedMemoriesIfMissing(payload);
