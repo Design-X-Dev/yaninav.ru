@@ -59,11 +59,10 @@ export async function ensureContactChannelsFromDefaults(payload: Payload): Promi
     overrideAccess: true,
   });
 
-  const d = doc as Record<string, unknown>;
-  const pd = trim(d?.phoneDisplay);
-  const ph = trim(d?.phoneHref);
-  const ed = trim(d?.emailDisplay);
-  const eh = trim(d?.emailHref);
+  const pd = trim(doc.phoneDisplay);
+  const ph = trim(doc.phoneHref);
+  const ed = trim(doc.emailDisplay);
+  const eh = trim(doc.emailHref);
 
   if (pd && ph && ed && eh) return;
 

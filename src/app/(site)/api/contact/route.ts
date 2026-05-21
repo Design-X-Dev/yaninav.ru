@@ -88,9 +88,14 @@ function parseSubmissionData(raw: unknown): SubmissionRow[] | null {
   return rows;
 }
 
-function parseFormId(raw: unknown): string | number | null {
+function parseFormId(raw: unknown): number | null {
   if (typeof raw === 'number' && Number.isFinite(raw)) return raw;
-  if (typeof raw === 'string' && raw.trim()) return raw.trim();
+  if (typeof raw === 'string') {
+    const trimmed = raw.trim();
+    if (!trimmed) return null;
+    const n = Number(trimmed);
+    return Number.isFinite(n) ? n : null;
+  }
   return null;
 }
 
