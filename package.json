@@ -8,6 +8,7 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
+    "prod:up": "bash scripts/prod-up.sh",
     "lint": "next lint",
     "icons:raster": "node scripts/raster-favicons.js",
     "migrate:payload:build": "esbuild scripts/migrate-json-to-payload.ts --bundle --format=esm --platform=node --packages=external --outfile=.migrate-bundle/migrate.mjs",

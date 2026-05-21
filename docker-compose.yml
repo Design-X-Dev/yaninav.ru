@@ -8,6 +8,7 @@ services:
     environment:
       NODE_ENV: development
       DATABASE_URI: file:/app/data/payload.db
+      # DEV ONLY: fallback secret. Для production используйте scripts/prod-up.sh + docker-compose.prod.yml.
       PAYLOAD_SECRET: ${PAYLOAD_SECRET:-change-me-local-dev-secret}
       ADMIN_EMAIL: ${ADMIN_EMAIL:-admin@local.dev}
       ADMIN_PASSWORD: ${ADMIN_PASSWORD:-changeme-local-only}

@@ -42,6 +42,18 @@ import { migrations as payloadProdMigrations } from './src/payload/migrations';
 
 const siteUrl = siteUrlNormalized();
 
+function resolvePayloadSecret(): string {
+  const secret = process.env.PAYLOAD_SECRET?.trim();
+  if (secret) return secret;
+  if (process.env.NODE_ENV === 'production') {
+    throw new Error(
+      '[payload] PAYLOAD_SECRET is required in production. ' +
+        'Set it in .env or run scripts/prod-up.sh to bootstrap.',
+    );
+  }
+  return 'dev-local-payload-secret-change-me';
+}
+
 const generateTitle: GenerateTitle<{ name?: unknown; slug?: unknown; title?: unknown }> = ({
   doc,
   collectionSlug,
@@ -214,7 +226,7 @@ export default buildConfig({
       generateImage,
     }),
   ],
-  secret: process.env.PAYLOAD_SECRET || 'dev-local-payload-secret-change-me',
+  secret: resolvePayloadSecret(),
   typescript: {
     outputFile: path.resolve(process.cwd(), 'src/payload-types.ts'),
   },
