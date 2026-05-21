@@ -149,7 +149,7 @@
 
 - ~~[`src/payload/collections/Users.ts`](../src/payload/collections/Users.ts): `access.create: () => true` разрешает создание пользователей через API.~~ **Закрыто (2026-05-21):** `create`/`update`/`delete` — только для аутентифицированных пользователей; первый admin создаётся идемпотентно из `ADMIN_EMAIL`/`ADMIN_PASSWORD` в [`usersBootstrap.ts`](../src/payload/seeds/usersBootstrap.ts) при `onInit` (prod — fail-fast, если env не задан и `users` пуста).
 - ~~[`payload.config.ts`](../payload.config.ts): `secret: process.env.PAYLOAD_SECRET || 'dev-local-payload-secret-change-me'` оставляет известный fallback для подписи cookies/JWT, если env забыли задать.~~ **Закрыто (2026-05-21):** `resolvePayloadSecret()` — fail-fast в production; dev fallback сохранён. Bootstrap: [`scripts/prod-up.sh`](../scripts/prod-up.sh) + `npm run prod:up`.
-- [`payload.config.ts`](../payload.config.ts): `form-submissions` принимают `create: () => true` без rate limit / CAPTCHA / honeypot. Это нужно для публичной формы, но без защиты превращается в канал спама и раздувания БД.
+- ~~[`payload.config.ts`](../payload.config.ts): `form-submissions` принимают `create: () => true` без rate limit / CAPTCHA / honeypot.~~ **Закрыто частично (2026-05-21):** прямой `create` закрыт для анонимов; публичная форма идёт через [`/api/contact`](../src/app/(site)/api/contact/route.ts) (Origin-check, honeypot, IP cooldown, `overrideAccess`). CAPTCHA/Turnstile — отдельная задача при росте спама.
 - Публичные коллекции/globals с `read: () => true` доступны через Payload REST/GraphQL API: товары, категории, медиа, страницы и главные globals можно массово выгружать, если не ограничить API surface.
 - [`src/app/(payload)/api/graphql-playground/route.ts`](../src/app/(payload)/api/graphql-playground/route.ts) оставляет GraphQL Playground route в приложении; для production нужно решить, отключать ли Playground и introspection.
 - ~~В [`Users.ts`](../src/payload/collections/Users.ts) заданы только `read` и `create`; defaults для `update` / `delete` нужно проверить отдельно, чтобы не оставить неожиданные мутации пользователей.~~ **Закрыто (2026-05-21):** явно заданы `update`/`delete` — только для аутентифицированных.
@@ -167,7 +167,7 @@
 - Зафиксировать политику хранения заявок: срок retention, экспорт, удаление по запросу, попадание в backup.
 
 **Решение команды:**  
-Публичная регистрация админов закрыта: env `ADMIN_EMAIL`/`ADMIN_PASSWORD` + [`seedAdminIfMissing`](../src/payload/seeds/usersBootstrap.ts) в `onInit`. `PAYLOAD_SECRET` fail-fast + [`scripts/prod-up.sh`](../scripts/prod-up.sh) для первого prod-деплоя. Остальные подпункты (антиспам формы, GraphQL Playground, retention заявок) — в работе.
+Публичная регистрация админов закрыта: env `ADMIN_EMAIL`/`ADMIN_PASSWORD` + [`seedAdminIfMissing`](../src/payload/seeds/usersBootstrap.ts) в `onInit`. `PAYLOAD_SECRET` fail-fast + [`scripts/prod-up.sh`](../scripts/prod-up.sh) для первого prod-деплоя. Форма: [`/api/contact`](../src/app/(site)/api/contact/route.ts) + honeypot + Origin + IP cooldown; прямой `POST /api/form-submissions` для анонимов закрыт. Осталось: GraphQL Playground, retention заявок, CAPTCHA при необходимости.
 
 ---
 

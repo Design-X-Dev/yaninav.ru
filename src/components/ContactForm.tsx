@@ -33,6 +33,7 @@ export default function ContactForm({ serialized }: ContactFormProps) {
   const [sent, setSent] = useState(false);
   const [errorText, setErrorText] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [honeypot, setHoneypot] = useState('');
 
   const inputCls =
     'w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-accent-primary focus:border-transparent transition-all duration-300 backdrop-blur-sm';
@@ -83,14 +84,23 @@ export default function ContactForm({ serialized }: ContactFormProps) {
 
     setBusy(true);
     try {
-      const res = await fetch('/api/form-submissions', {
+      const res = await fetch('/api/contact', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           form: serialized.id,
           submissionData,
+          hp: honeypot,
         }),
       });
+
+      if (res.status === 204) {
+        setSent(true);
+        setFormData(buildInitialFormState(serialized.fields));
+        setConsentAccepted(false);
+        setHoneypot('');
+        return;
+      }
 
       const rawText = await res.text().catch(() => '');
       let bodyUnknown: unknown = null;
@@ -104,25 +114,16 @@ export default function ContactForm({ serialized }: ContactFormProps) {
       const bodyErr =
         bodyUnknown &&
         typeof bodyUnknown === 'object' &&
-        'errors' in bodyUnknown &&
-        Array.isArray((bodyUnknown as { errors: unknown }).errors)
-          ? (bodyUnknown as { errors: { message?: string }[] }).errors[0]?.message
+        'error' in bodyUnknown &&
+        typeof (bodyUnknown as { error: unknown }).error === 'string'
+          ? (bodyUnknown as { error: string }).error
           : undefined;
 
-      if (!res.ok) {
-        setErrorText(
-          nbspAfterSi(
-            typeof bodyErr === 'string'
-              ? bodyErr
-              : 'Не удалось отправить сообщение. Попробуйте позже или позвоните нам.',
-          ),
-        );
-        return;
-      }
-
-      setSent(true);
-      setFormData(buildInitialFormState(serialized.fields));
-      setConsentAccepted(false);
+      setErrorText(
+        nbspAfterSi(
+          bodyErr ?? 'Не удалось отправить сообщение. Попробуйте позже или позвоните нам.',
+        ),
+      );
     } finally {
       setBusy(false);
     }
@@ -276,6 +277,16 @@ export default function ContactForm({ serialized }: ContactFormProps) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
+      <input
+        type="text"
+        name="hp"
+        value={honeypot}
+        onChange={(e) => setHoneypot(e.target.value)}
+        autoComplete="off"
+        tabIndex={-1}
+        aria-hidden="true"
+        className="absolute left-[-10000px] h-0 w-0 opacity-0 overflow-hidden"
+      />
       {serialized.fields.length === 0 ? (
         <p className="text-sm" style={{ color: textColor }}>
           {nbspAfterSi('В форме нет полей. Настройте блоки в админке Payload → Forms.')}

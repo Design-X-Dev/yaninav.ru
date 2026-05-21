@@ -207,7 +207,7 @@ export default buildConfig({
         labels: { singular: 'Заявка', plural: 'Заявки' },
         admin: { group: PAYLOAD_ADMIN_GROUPS.forms },
         access: {
-          create: () => true,
+          create: ({ req: { user } }) => Boolean(user),
           read: ({ req: { user } }) => Boolean(user),
           update: () => false,
           delete: ({ req: { user } }) => Boolean(user),
