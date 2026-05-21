@@ -1,4 +1,3 @@
-import { revalidatePath, revalidateTag } from 'next/cache';
 import type {
   CollectionAfterChangeHook,
   CollectionAfterDeleteHook,
@@ -8,12 +7,19 @@ import type {
 type DocWithSlug = { slug?: string | null };
 type DocWithId = { id?: number | string | null };
 
-function runRevalidation(tags: string[], paths: string[]): void {
-  for (const tag of tags) {
-    revalidateTag(tag);
-  }
-  for (const path of paths) {
-    revalidatePath(path);
+async function runRevalidation(tags: string[], paths: string[]): Promise<void> {
+  try {
+    const { revalidateTag, revalidatePath } = await import('next/cache');
+    for (const tag of tags) {
+      revalidateTag(tag);
+    }
+    for (const path of paths) {
+      revalidatePath(path);
+    }
+  } catch (err) {
+    if (process.env.PAYLOAD_MIGRATING !== 'true') {
+      console.warn('[revalidate] next/cache недоступен, пропускаю инвалидацию', err);
+    }
   }
 }
 
@@ -21,9 +27,9 @@ export function makeRevalidateAfterChange(
   tags: string[],
   paths: string[] | ((doc: DocWithSlug & DocWithId) => string[]) = []
 ): CollectionAfterChangeHook {
-  return ({ doc }) => {
+  return async ({ doc }) => {
     const pathList = typeof paths === 'function' ? paths(doc as DocWithSlug & DocWithId) : paths;
-    runRevalidation(tags, pathList);
+    await runRevalidation(tags, pathList);
     return doc;
   };
 }
@@ -32,9 +38,9 @@ export function makeRevalidateAfterDelete(
   tags: string[],
   paths: string[] | ((doc: DocWithSlug & DocWithId) => string[]) = []
 ): CollectionAfterDeleteHook {
-  return ({ doc }) => {
+  return async ({ doc }) => {
     const pathList = typeof paths === 'function' ? paths(doc as DocWithSlug & DocWithId) : paths;
-    runRevalidation(tags, pathList);
+    await runRevalidation(tags, pathList);
     return doc;
   };
 }
@@ -43,8 +49,8 @@ export function makeGlobalRevalidateAfterChange(
   tags: string[],
   paths: string[] = []
 ): GlobalAfterChangeHook {
-  return ({ doc }) => {
-    runRevalidation(tags, paths);
+  return async ({ doc }) => {
+    await runRevalidation(tags, paths);
     return doc;
   };
 }
