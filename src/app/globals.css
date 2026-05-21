@@ -36,6 +36,12 @@ html {
   --accent-secondary-light: #4d6344;
   --accent-secondary-dark: #2a3525;
   --shadow-color: rgba(89, 21, 31, 0.25);
+  --section-color: var(--background);
+}
+
+main[data-section='about'] {
+  --section-color: var(--accent-primary);
+  --shadow-color: rgba(89, 21, 31, 0.35);
 }
 
 @theme inline {
@@ -52,6 +58,7 @@ html {
   --color-text-primary: var(--text-primary);
   --color-text-secondary: var(--text-secondary);
   --color-text-muted: var(--text-muted);
+  --color-theme-inverse: var(--background);
   --font-sans: var(--font-inter);
   --font-display: var(--font-playfair);
 }
@@ -89,6 +96,154 @@ body {
 .text-accent-primary-strong  { color: var(--accent-primary-dark); }
 .bg-accent-primary-strong    { background-color: var(--accent-primary-dark); }
 .border-accent-primary-strong { border-color: var(--accent-primary-dark); }
+
+.text-theme-inverse { color: var(--background); }
+.bg-theme-inverse { background-color: var(--background); }
+.border-theme-inverse { border-color: var(--background); }
+
+/* Header veil + shadow (uses --section-color from main[data-section]) */
+.header-veil-tint {
+  background: linear-gradient(
+    to bottom,
+    var(--section-color) 0%,
+    var(--section-color) 22%,
+    color-mix(in srgb, var(--section-color) 45%, transparent) 52%,
+    color-mix(in srgb, var(--section-color) 12%, transparent) 82%,
+    transparent 100%
+  );
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 1) 0%,
+    rgba(0, 0, 0, 1) 18%,
+    rgba(0, 0, 0, 0.92) 30%,
+    rgba(0, 0, 0, 0.75) 42%,
+    rgba(0, 0, 0, 0.35) 72%,
+    rgba(0, 0, 0, 0) 100%
+  );
+  mask-image: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 1) 0%,
+    rgba(0, 0, 0, 1) 18%,
+    rgba(0, 0, 0, 0.92) 30%,
+    rgba(0, 0, 0, 0.75) 42%,
+    rgba(0, 0, 0, 0.35) 72%,
+    rgba(0, 0, 0, 0) 100%
+  );
+  -webkit-mask-size: 100% 100%;
+  mask-size: 100% 100%;
+}
+
+.header-veil-blur {
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0.92) 0%,
+    rgba(0, 0, 0, 0.75) 40%,
+    rgba(0, 0, 0, 0.35) 72%,
+    rgba(0, 0, 0, 0) 100%
+  );
+  mask-image: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0.92) 0%,
+    rgba(0, 0, 0, 0.75) 40%,
+    rgba(0, 0, 0, 0.35) 72%,
+    rgba(0, 0, 0, 0) 100%
+  );
+  -webkit-mask-size: 100% 100%;
+  mask-size: 100% 100%;
+}
+
+.shadow-header {
+  box-shadow:
+    0 4px 20px -2px var(--shadow-color),
+    0 2px 8px -2px var(--shadow-color),
+    0 1px 4px -1px var(--shadow-color);
+  transition: box-shadow 0.3s ease;
+}
+
+/* Catalog category pill */
+.catalog-pill {
+  background-color: var(--background);
+  color: var(--text-secondary);
+  border-color: var(--accent-primary);
+}
+.catalog-pill[aria-pressed='true'] {
+  background-color: var(--accent-primary);
+  color: var(--background);
+}
+
+/* Product card */
+.product-card {
+  background-color: var(--background);
+  border-color: var(--accent-primary);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* Polaroid carousel */
+.polaroid-card {
+  width: 400px;
+  padding: 12px 12px 130px 12px;
+  background-color: #ffffff;
+  background-image: url('/images/texture.jpg');
+  background-size: cover;
+  background-position: center;
+  border-radius: 8px;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  transition: box-shadow 0.7s ease-out;
+}
+
+.polaroid-card--center {
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+}
+
+.polaroid-card__image-wrap {
+  border-radius: 4px;
+  height: 400px;
+}
+
+.polaroid-card__inset-shadow {
+  box-shadow:
+    inset 0 2px 8px rgba(0, 0, 0, 0.11),
+    inset 0 -2px 8px rgba(0, 0, 0, 0.09),
+    inset 2px 0 6px rgba(0, 0, 0, 0.08),
+    inset -2px 0 6px rgba(0, 0, 0, 0.08);
+}
+
+.polaroid-card__caption {
+  height: 100px;
+}
+
+.polaroid-card__text {
+  font-family: var(--font-disruptor-script), cursive;
+  font-size: 3.645rem;
+  line-height: 0.4;
+  transform: rotate(-3deg);
+}
+
+.memories-nav-btn {
+  background-color: var(--background);
+  color: var(--text-secondary);
+  border: 1px solid var(--accent-primary);
+}
+
+/* Loader overlay */
+.loader-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  height: 150dvh;
+  min-height: -webkit-fill-available;
+  top: 0;
+  bottom: -50vh;
+  background-color: #ffffff;
+  opacity: 1;
+  pointer-events: auto;
+  transition: opacity 300ms ease-out;
+}
+
+.loader-overlay[data-visible='false'] {
+  opacity: 0;
+  pointer-events: none;
+}
 
 /* Hide scrollbar for horizontal scroll */
 .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }

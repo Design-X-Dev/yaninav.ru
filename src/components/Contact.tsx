@@ -5,7 +5,6 @@ import { getContactContent } from '@/lib/contact.server';
 import { getSerializedContactForm } from '@/lib/forms.server';
 import { CONTACT_FORM_SLUG } from '@/payload/seeds/contactFormDefinition';
 import type { ContactSectionContent } from '@/types/contact';
-import { SECTIONS } from '@/utils/theme';
 import { nbspAfterSi } from '@/utils/typography';
 
 const ADDRESS_ICON = (
@@ -71,13 +70,13 @@ function renderIntro(intro: string) {
   );
 }
 
-function renderHours(text: string, textColor: string) {
+function renderHours(text: string) {
   const lines = text
     .split('\n')
     .map((l) => l.trim())
     .filter(Boolean);
   return (
-    <p style={{ color: textColor }}>
+    <p className="text-theme-secondary">
       {lines.map((line, i) => (
         <Fragment key={i}>
           {i > 0 ? <br /> : null}
@@ -88,14 +87,14 @@ function renderHours(text: string, textColor: string) {
   );
 }
 
-function contactRows(content: ContactSectionContent, textColor: string) {
+function contactRows(content: ContactSectionContent) {
   return [
     {
       key: 'address',
       icon: ADDRESS_ICON,
       label: 'Адрес',
       body: (
-        <p className="whitespace-pre-line" style={{ color: textColor }}>
+        <p className="whitespace-pre-line text-theme-secondary">
           {nbspAfterSi(content.address.trim())}
         </p>
       ),
@@ -105,7 +104,7 @@ function contactRows(content: ContactSectionContent, textColor: string) {
       icon: PHONE_ICON,
       label: 'Телефон',
       body: (
-        <a href={content.phoneHref} style={{ color: textColor }} className="hover:opacity-80 transition-colors">
+        <a href={content.phoneHref} className="text-theme-secondary hover:opacity-80 transition-colors">
           {content.phoneDisplay}
         </a>
       ),
@@ -117,8 +116,7 @@ function contactRows(content: ContactSectionContent, textColor: string) {
       body: (
         <a
           href={content.emailHref}
-          style={{ color: textColor }}
-          className="hover:opacity-80 transition-colors break-all"
+          className="text-theme-secondary hover:opacity-80 transition-colors break-all"
         >
           {content.emailDisplay}
         </a>
@@ -128,7 +126,7 @@ function contactRows(content: ContactSectionContent, textColor: string) {
       key: 'hours',
       icon: HOURS_ICON,
       label: 'Режим работы',
-      body: renderHours(content.hours, textColor),
+      body: renderHours(content.hours),
     },
   ];
 }
@@ -137,22 +135,17 @@ const Contact = async () => {
   const content = await getContactContent();
   if (!content) return null;
 
-  const { bg: backgroundColor, heading: headingColor, subheading: subheadingColor, text: textColor } =
-    SECTIONS.contact;
-
-  const iconWrapStyle = { backgroundColor };
-
   const serializedForm = await getSerializedContactForm(CONTACT_FORM_SLUG);
-  const rows = contactRows(content, textColor);
+  const rows = contactRows(content);
 
   return (
-    <section id="contact" className="relative scroll-mt-28 py-20" style={{ backgroundColor }}>
+    <section id="contact" className="relative scroll-mt-28 py-20 bg-theme">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div id="contact-reach" className="text-center mb-16 scroll-mt-28">
-          <h2 className="font-display text-3xl md:text-4xl font-bold mb-4" style={{ color: headingColor }}>
+          <h2 className="font-display text-3xl md:text-4xl font-bold mb-4 text-accent-primary">
             {content.heading}
           </h2>
-          <p className="text-lg max-w-2xl mx-auto" style={{ color: textColor }}>
+          <p className="text-lg max-w-2xl mx-auto text-theme-secondary">
             {renderIntro(content.intro)}
           </p>
         </div>
@@ -160,21 +153,18 @@ const Contact = async () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
           <div className="space-y-8">
             <div>
-              <h3 className="font-display text-2xl font-semibold mb-6" style={{ color: subheadingColor }}>
+              <h3 className="font-display text-2xl font-semibold mb-6 text-accent-primary">
                 {content.contactInfoHeading}
               </h3>
 
               <div className="space-y-6">
                 {rows.map((item) => (
                   <div key={item.key} className="flex items-start space-x-4">
-                    <div
-                      className="w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 backdrop-blur-sm"
-                      style={{ ...iconWrapStyle, color: headingColor }}
-                    >
+                    <div className="w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 backdrop-blur-sm bg-theme text-accent-primary">
                       {item.icon}
                     </div>
-                    <div style={{ color: textColor }}>
-                      <h4 className="font-semibold mb-1" style={{ color: headingColor }}>
+                    <div className="text-theme-secondary">
+                      <h4 className="font-semibold mb-1 text-accent-primary">
                         {item.label}
                       </h4>
                       {item.body}
@@ -187,36 +177,26 @@ const Contact = async () => {
                 <button
                   type="button"
                   disabled
-                  className="inline-block w-full cursor-not-allowed rounded-full border-0 px-8 py-4 text-center font-medium opacity-60 shadow-lg transition-opacity"
-                  style={{ backgroundColor: headingColor, color: backgroundColor }}
+                  className="inline-block w-full cursor-not-allowed rounded-full border-0 px-8 py-4 text-center font-medium opacity-60 shadow-lg transition-opacity bg-accent-primary text-theme-inverse"
                   aria-disabled="true"
                   title="Запись на встречу скоро будет доступна"
                 >
                   {content.appointmentButtonText}
                 </button>
-                <p className="mt-2 text-center text-xs leading-snug opacity-80" style={{ color: textColor }}>
+                <p className="mt-2 text-center text-xs leading-snug opacity-80 text-theme-secondary">
                   {nbspAfterSi(content.appointmentNote)}
                 </p>
               </div>
             </div>
           </div>
 
-          <div
-            id="contact-form"
-            className="glass-card p-8 rounded-2xl"
-            style={{
-              backgroundColor,
-              borderColor: headingColor,
-              borderWidth: '1px',
-              borderStyle: 'solid',
-            }}
-          >
-            <h3 className="font-display text-2xl font-semibold mb-6" style={{ color: subheadingColor }}>
+          <div id="contact-form" className="glass-card p-8 rounded-2xl">
+            <h3 className="font-display text-2xl font-semibold mb-6 text-accent-primary">
               {content.formHeading}
             </h3>
 
             {!serializedForm ? (
-              <div className="space-y-4 text-sm leading-snug" style={{ color: textColor }}>
+              <div className="space-y-4 text-sm leading-snug text-theme-secondary">
                 <p>
                   {nbspAfterSi('Форма временно недоступна: нет записи со slug')} «{CONTACT_FORM_SLUG}»{' '}
                   {nbspAfterSi('в коллекции Forms.')}

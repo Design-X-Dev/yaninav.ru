@@ -7,7 +7,6 @@ import HomeCatalog from '@/components/HomeCatalog';
 import About from '@/components/About';
 import Contact from '@/components/Contact';
 import Footer from '@/components/Footer';
-import { SECTIONS } from '@/utils/theme';
 import { getAboutContent } from '@/lib/about.server';
 import { getHeroContent } from '@/lib/hero.server';
 import { getMemoriesContent } from '@/lib/memories.server';
@@ -73,7 +72,7 @@ export default async function Home() {
   return (
     <main>
       <Suspense>
-        <Header sectionColor={SECTIONS.hero.bg} categories={categories} />
+        <Header categories={categories} />
       </Suspense>
       {hero ? <Hero hero={hero} /> : null}
       {memories.slides.length >= 5 ? <MemoriesSection memories={memories} /> : null}

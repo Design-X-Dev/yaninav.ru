@@ -57,17 +57,8 @@ const Loader = ({ onLoadComplete }: LoaderProps) => {
 
   return (
     <div
-      className="loader-root fixed inset-0 z-[9999] flex flex-col items-center justify-center min-h-screen w-full pb-[50vh]"
-      style={{
-        height: '150dvh',
-        minHeight: '-webkit-fill-available',
-        top: 0,
-        bottom: '-50vh',
-        backgroundColor: '#ffffff',
-        opacity: isVisible ? 1 : 0,
-        transition: 'opacity 300ms ease-out',
-        pointerEvents: isVisible ? 'auto' : 'none',
-      }}
+      className="loader-overlay flex flex-col items-center justify-center min-h-screen w-full pb-[50vh]"
+      data-visible={isVisible}
     >
       <div className="loader-brand flex flex-col items-center justify-center gap-4 px-6">
         <div className="loader-title-top font-display text-theme-secondary text-center leading-none tracking-wide">

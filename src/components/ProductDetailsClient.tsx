@@ -3,8 +3,7 @@
 import { useMemo, useState, useCallback } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { ProductCard } from '@/components/Catalog';
-import { SECTIONS } from '@/utils/theme';
+import ProductCard from '@/components/ProductCard';
 import { formatPrice, type Product } from '@/utils/products';
 import { capitalizeFirstLetter } from '@/utils/typography';
 
@@ -14,9 +13,6 @@ interface ProductDetailsClientProps {
   phoneHref: string;
   emailHref: string;
 }
-
-const { bg, heading, text } = SECTIONS.catalog;
-const orderBg = '#384a32';
 
 export default function ProductDetailsClient({
   product,
@@ -38,7 +34,7 @@ export default function ProductDetailsClient({
 
   return (
     <>
-      <div className="min-h-screen pt-4 pb-20 sm:pt-6" style={{ backgroundColor: bg }}>
+      <div className="min-h-screen pt-4 pb-20 sm:pt-6 bg-theme">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-16">
             {/* Слайдер изображений */}
@@ -106,8 +102,7 @@ export default function ProductDetailsClient({
 
               <Link
                 href="/gift-certificate"
-                className="mt-4 block w-full text-center px-6 py-3 rounded-full font-medium transition-all duration-300 border-2 hover:opacity-90 shadow-sm"
-                style={{ borderColor: heading, color: heading }}
+                className="mt-4 block w-full text-center px-6 py-3 rounded-full font-medium transition-all duration-300 border-2 hover:opacity-90 shadow-sm border-accent-primary text-accent-primary"
               >
                 Подарочный сертификат
               </Link>
@@ -116,21 +111,21 @@ export default function ProductDetailsClient({
             {/* Информация о товаре */}
             <div className="space-y-6">
               <div>
-                <h1 className="font-display text-4xl font-bold mb-4" style={{ color: heading }}>
+                <h1 className="font-display text-4xl font-bold mb-4 text-accent-primary">
                   {product.name}
                 </h1>
                 <div className="mb-6">
                   <div className="text-3xl font-bold text-accent-primary mb-2">
                     {product.price !== null ? `Цена от ${formatPrice(product.price)} ₽` : 'Цена по запросу'}
                   </div>
-                  <p className="text-sm" style={{ color: text }}>
+                  <p className="text-sm text-theme-secondary">
                     * для расчёта стоимости свяжитесь с нашим менеджером
                   </p>
                 </div>
               </div>
 
               <div className="prose max-w-none">
-                <div className="whitespace-pre-line leading-relaxed" style={{ color: text }}>
+                <div className="whitespace-pre-line leading-relaxed text-theme-secondary">
                   {product.description.split('\n').map((line, index, arr) => (
                     <span key={index}>
                       {line}
@@ -152,15 +147,11 @@ export default function ProductDetailsClient({
                           >
                             <th
                               scope="row"
-                              className="max-w-[11rem] px-3 py-3 pr-4 align-top font-semibold sm:max-w-[13rem] sm:pr-5"
-                              style={{ color: heading, textAlign: 'left' }}
+                              className="max-w-[11rem] px-3 py-3 pr-4 align-top font-semibold sm:max-w-[13rem] sm:pr-5 text-left text-accent-primary"
                             >
                               {capitalizeFirstLetter(row.key)}
                             </th>
-                            <td
-                              className="px-3 py-3 align-top leading-relaxed"
-                              style={{ color: text, textAlign: 'left' }}
-                            >
+                            <td className="px-3 py-3 align-top leading-relaxed text-left text-theme-secondary">
                               {capitalizeFirstLetter(row.value)}
                             </td>
                           </tr>
@@ -173,7 +164,7 @@ export default function ProductDetailsClient({
 
               {product.descriptionEnd && (
                 <div className="prose max-w-none mt-6">
-                  <div className="whitespace-pre-line leading-relaxed" style={{ color: text }}>
+                  <div className="whitespace-pre-line leading-relaxed text-theme-secondary">
                     {product.descriptionEnd.split('\n').map((line, index, arr) => (
                       <span key={`end-${index}`}>
                         {line}
@@ -187,22 +178,20 @@ export default function ProductDetailsClient({
               <div className="flex flex-col sm:flex-row gap-4 pt-6">
                 <a
                   href={phoneHref}
-                  className="flex-1 px-8 py-4 rounded-full font-medium text-center transition-all duration-300 transform hover:scale-105 shadow-lg"
-                  style={{ backgroundColor: orderBg, color: bg }}
+                  className="flex-1 px-8 py-4 rounded-full font-medium text-center transition-all duration-300 transform hover:scale-105 shadow-lg bg-accent-secondary text-theme-inverse"
                 >
                   Заказать по телефону
                 </a>
                 <a
                   href={emailHref}
-                  className="flex-1 px-8 py-4 rounded-full font-medium text-center transition-all duration-300 border-2"
-                  style={{ borderColor: orderBg, color: orderBg }}
+                  className="flex-1 px-8 py-4 rounded-full font-medium text-center transition-all duration-300 border-2 border-accent-secondary text-accent-secondary"
                 >
                   Написать нам
                 </a>
               </div>
 
               <div className="pt-6 border-t border-gray-200">
-                <p className="text-sm" style={{ color: text }}>
+                <p className="text-sm text-theme-secondary">
                   * Все изделия изготавливаются индивидуально под заказ.
                   Свяжитесь с нами для уточнения деталей и сроков изготовления.
                 </p>
@@ -213,18 +202,12 @@ export default function ProductDetailsClient({
           {/* Похожие товары */}
           {relatedProducts.length > 0 && (
             <div className="mt-16">
-              <h2 className="font-display text-3xl font-bold mb-8" style={{ color: heading }}>
+              <h2 className="font-display text-3xl font-bold mb-8 text-accent-primary">
                 Похожие товары
               </h2>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-8 items-stretch">
                 {relatedProducts.map((p) => (
-                  <ProductCard
-                    key={p.id}
-                    product={p}
-                    backgroundColor={bg}
-                    headingColor={heading}
-                    textColor={text}
-                  />
+                  <ProductCard key={p.id} product={p} />
                 ))}
               </div>
             </div>

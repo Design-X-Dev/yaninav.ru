@@ -6,7 +6,6 @@ import { RichText } from '@payloadcms/richtext-lexical/react';
 import InfoPageLayout from '@/components/InfoPageLayout';
 import { absoluteOgImageUrl, siteUrlNormalized, truncateDescription } from '@/lib/seoHelpers';
 import { getPageBySlug } from '@/lib/pages.server';
-import { THEME } from '@/utils/theme';
 
 export const revalidate = 300;
 
@@ -60,15 +59,13 @@ export default async function InfoSlugPage({ params }: InfoSlugPageProps) {
     notFound();
   }
 
-  const { heading, text } = THEME;
-
   return (
     <InfoPageLayout showLegalDivider={page.showLegalDivider}>
-      <h1 className="font-display text-3xl md:text-4xl font-bold mb-8" style={{ color: heading }}>
+      <h1 className="font-display text-3xl md:text-4xl font-bold mb-8 text-accent-primary">
         {page.title}
       </h1>
 
-      <div className={richTextArticleClass} style={{ color: text }}>
+      <div className={`${richTextArticleClass} text-theme-secondary`}>
         <RichText
           data={page.body as SerializedEditorState}
           converters={({ defaultConverters }) => ({
@@ -76,7 +73,7 @@ export default async function InfoSlugPage({ params }: InfoSlugPageProps) {
             heading: ({ node, nodesToJSX }) => {
               const Tag = node.tag as 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6';
               return (
-                <Tag className="font-display font-semibold" style={{ color: heading }}>
+                <Tag className="font-display font-semibold text-accent-primary">
                   {nodesToJSX({ nodes: node.children })}
                 </Tag>
               );

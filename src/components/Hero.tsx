@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { SECTIONS } from '@/utils/theme';
 import type { HeroContent } from '@/types/hero';
 
 const Hero = ({ hero }: { hero: HeroContent }) => {
@@ -36,13 +35,10 @@ const Hero = ({ hero }: { hero: HeroContent }) => {
 
   if (!isReady) return null;
 
-  const { bg } = SECTIONS.hero;
-
   return (
     <section
       id="hero"
-      className="relative w-full h-screen min-h-screen overflow-hidden z-10 scroll-mt-28"
-      style={{ backgroundColor: bg }}
+      className="relative w-full h-screen min-h-screen overflow-hidden z-10 scroll-mt-28 bg-theme"
       suppressHydrationWarning
     >
       <div className="w-full h-full relative">

@@ -2,7 +2,6 @@ import type { ReactNode } from 'react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import LegalFooterDivider from '@/components/LegalFooterDivider';
-import { THEME } from '@/utils/theme';
 
 interface InfoPageLayoutProps {
   children: ReactNode;
@@ -15,8 +14,8 @@ interface InfoPageLayoutProps {
  */
 export default function InfoPageLayout({ children, showLegalDivider }: InfoPageLayoutProps) {
   return (
-    <main className="min-h-screen" style={{ backgroundColor: THEME.bg }}>
-      <Header sectionColor={THEME.bg} />
+    <main className="min-h-screen bg-theme">
+      <Header />
       <article className="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-12 md:py-16 pb-24">
         {children}
       </article>

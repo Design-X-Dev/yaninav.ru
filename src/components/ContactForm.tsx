@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { SECTIONS } from '@/utils/theme';
 import { nbspAfterSi } from '@/utils/typography';
 import type { ContactSerializedForm, ContactSerializedFormField } from '@/types/contactFormSerialized';
 
@@ -25,9 +24,6 @@ interface ContactFormProps {
 }
 
 export default function ContactForm({ serialized }: ContactFormProps) {
-  const { heading: headingColor, text: textColor } = SECTIONS.contact;
-  const backgroundColor = SECTIONS.contact.bg;
-
   const [formData, setFormData] = useState<FormState>(() => buildInitialFormState(serialized.fields));
   const [consentAccepted, setConsentAccepted] = useState(false);
   const [sent, setSent] = useState(false);
@@ -36,8 +32,7 @@ export default function ContactForm({ serialized }: ContactFormProps) {
   const [honeypot, setHoneypot] = useState('');
 
   const inputCls =
-    'w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-accent-primary focus:border-transparent transition-all duration-300 backdrop-blur-sm';
-  const inputStyle = { backgroundColor, color: textColor, borderColor: headingColor };
+    'w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-accent-primary focus:border-transparent transition-all duration-300 backdrop-blur-sm bg-theme text-theme-secondary border-accent-primary';
 
   const serializeValue = (field: ContactSerializedFormField): string => {
     const raw = formData[field.name];
@@ -146,7 +141,7 @@ export default function ContactForm({ serialized }: ContactFormProps) {
                 : 'text';
         return (
           <div key={field.name}>
-            <label htmlFor={id} className="block text-sm font-medium mb-2" style={{ color: headingColor }}>
+            <label htmlFor={id} className="block text-sm font-medium mb-2 text-accent-primary">
               {field.required ? `${labelText} *` : labelText}
             </label>
             <input
@@ -162,7 +157,6 @@ export default function ContactForm({ serialized }: ContactFormProps) {
               }
               required={false}
               className={inputCls}
-              style={inputStyle}
               placeholder={field.placeholder}
               inputMode={field.inputType === 'tel' ? 'tel' : undefined}
               autoComplete={field.inputType === 'email' ? 'email' : undefined}
@@ -174,7 +168,7 @@ export default function ContactForm({ serialized }: ContactFormProps) {
       case 'textarea':
         return (
           <div key={field.name}>
-            <label htmlFor={id} className="block text-sm font-medium mb-2" style={{ color: headingColor }}>
+            <label htmlFor={id} className="block text-sm font-medium mb-2 text-accent-primary">
               {field.required ? `${labelText} *` : labelText}
             </label>
             <textarea
@@ -190,7 +184,6 @@ export default function ContactForm({ serialized }: ContactFormProps) {
               }
               required={false}
               className={`${inputCls} resize-none`}
-              style={inputStyle}
               placeholder={field.placeholder}
               disabled={sent}
             />
@@ -210,10 +203,9 @@ export default function ContactForm({ serialized }: ContactFormProps) {
                 }))
               }
               disabled={sent}
-              className="mt-1 h-[18px] w-[18px] shrink-0 rounded-none border-2 cursor-pointer accent-[#59151f]"
-              style={{ borderColor: headingColor }}
+              className="mt-1 h-[18px] w-[18px] shrink-0 rounded-none border-2 cursor-pointer accent-[var(--accent-primary)] border-accent-primary"
             />
-            <label htmlFor={id} className="text-sm leading-snug cursor-pointer select-none" style={{ color: textColor }}>
+            <label htmlFor={id} className="text-sm leading-snug cursor-pointer select-none text-theme-secondary">
               {field.required ? `${labelText} *` : labelText}
             </label>
           </div>
@@ -221,7 +213,7 @@ export default function ContactForm({ serialized }: ContactFormProps) {
       case 'select':
         return (
           <div key={field.name}>
-            <label htmlFor={id} className="block text-sm font-medium mb-2" style={{ color: headingColor }}>
+            <label htmlFor={id} className="block text-sm font-medium mb-2 text-accent-primary">
               {field.required ? `${labelText} *` : labelText}
             </label>
             <select
@@ -235,7 +227,6 @@ export default function ContactForm({ serialized }: ContactFormProps) {
                 }))
               }
               className={inputCls}
-              style={inputStyle}
               disabled={sent}
               required={false}
             >
@@ -258,7 +249,7 @@ export default function ContactForm({ serialized }: ContactFormProps) {
   if (sent) {
     return (
       <div className="space-y-4" role="status">
-        <p className="text-lg leading-snug whitespace-pre-wrap" style={{ color: textColor }}>
+        <p className="text-lg leading-snug whitespace-pre-wrap text-theme-secondary">
           {serialized.confirmationMessagePlain}
         </p>
         <button
@@ -288,7 +279,7 @@ export default function ContactForm({ serialized }: ContactFormProps) {
         className="absolute left-[-10000px] h-0 w-0 opacity-0 overflow-hidden"
       />
       {serialized.fields.length === 0 ? (
-        <p className="text-sm" style={{ color: textColor }}>
+        <p className="text-sm text-theme-secondary">
           {nbspAfterSi('В форме нет полей. Настройте блоки в админке Payload → Forms.')}
         </p>
       ) : (
@@ -303,10 +294,9 @@ export default function ContactForm({ serialized }: ContactFormProps) {
           onChange={(e) => setConsentAccepted(e.target.checked)}
           required
           aria-required="true"
-          className="mt-1 h-[18px] w-[18px] shrink-0 rounded-none border-2 cursor-pointer accent-[#59151f]"
-          style={{ borderColor: headingColor }}
+          className="mt-1 h-[18px] w-[18px] shrink-0 rounded-none border-2 cursor-pointer accent-[var(--accent-primary)] border-accent-primary"
         />
-        <label htmlFor="privacy-consent-cf" className="text-sm leading-snug cursor-pointer select-none" style={{ color: textColor }}>
+        <label htmlFor="privacy-consent-cf" className="text-sm leading-snug cursor-pointer select-none text-theme-secondary">
           Оставляя данные, вы соглашаетесь с{' '}
           <Link href="/privacy" className="text-accent-primary underline hover:no-underline" onClick={(ev) => ev.stopPropagation()}>
             Политикой конфиденциальности
@@ -328,14 +318,7 @@ export default function ContactForm({ serialized }: ContactFormProps) {
       <button
         type="submit"
         disabled={!consentAccepted || busy || serialized.fields.length === 0}
-        style={{
-          backgroundColor: headingColor,
-          color: backgroundColor,
-          borderColor: headingColor,
-          borderWidth: '1px',
-          borderStyle: 'solid',
-        }}
-        className="w-full hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed py-3 px-6 rounded-lg font-medium transition-all duration-300 transform hover:scale-105 shadow-luxury"
+        className="w-full hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed py-3 px-6 rounded-lg font-medium transition-all duration-300 transform hover:scale-105 shadow-luxury bg-accent-primary text-theme-inverse border border-accent-primary"
       >
         {busy ? nbspAfterSi('Отправка…') : nbspAfterSi(serialized.submitButtonLabel)}
       </button>

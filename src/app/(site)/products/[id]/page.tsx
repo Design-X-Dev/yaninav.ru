@@ -7,7 +7,6 @@ import ProductDetailsClient from '@/components/ProductDetailsClient';
 import { getSiteContactChannels } from '@/lib/contact.server';
 import { absoluteOgImageUrl, siteUrlNormalized, truncateDescription } from '@/lib/seoHelpers';
 import { getCategoriesForNav, getProductById, getRelatedProducts } from '@/lib/products.server';
-import { SECTIONS } from '@/utils/theme';
 
 export const revalidate = 60;
 
@@ -75,13 +74,10 @@ export default async function ProductPage({ params }: ProductPageProps) {
       ? await getRelatedProducts(product.id, product.categoryId)
       : [];
 
-  const catalogBg = SECTIONS.catalog.bg;
-
   return (
     <main>
       <Suspense>
         <Header
-          sectionColor={catalogBg}
           categories={categories}
           currentProduct={{
             category: product.category,

@@ -1,7 +1,6 @@
 'use client';
 
 import Link from 'next/link';
-import { SECTIONS } from '@/utils/theme';
 import { SOCIAL_LINKS } from '@/utils/social';
 import { scrollToHomeSection } from '@/utils/navigation';
 import { nbspAfterSi } from '@/utils/typography';
@@ -19,23 +18,22 @@ interface FooterClientProps {
 
 export default function FooterClient({ channels }: FooterClientProps) {
   const { phoneDisplay, phoneHref, emailDisplay, emailHref } = channels;
-  const { bg: backgroundColor, heading: headingColor, text: textColor } = SECTIONS.footer;
 
   return (
-    <footer id="footer" className="relative scroll-mt-28 text-theme-primary" style={{ backgroundColor }}>
+    <footer id="footer" className="relative scroll-mt-28 text-theme-primary bg-theme">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {/* О компании */}
           <div className="lg:col-span-2">
-            <Link href="/" className="font-display text-3xl font-bold inline-block mb-4" style={{ color: headingColor }}>
+            <Link href="/" className="font-display text-3xl font-bold inline-block mb-4 text-accent-primary">
               ЯНИНА В
             </Link>
-            <p className="mb-6 max-w-md" style={{ color: textColor }}>
+            <p className="mb-6 max-w-md text-theme-secondary">
               {nbspAfterSi(
                 'Ювелирная студия, создающая эксклюзивные украшения ручной работы. Каждое изделие — это произведение искусства, созданное с любовью и вниманием к деталям.'
               )}
             </p>
-            <p className="mb-3 text-base font-semibold" style={{ color: headingColor }}>
+            <p className="mb-3 text-base font-semibold text-accent-primary">
               Мы в социальных сетях
             </p>
             <div className="flex space-x-4">
@@ -45,8 +43,7 @@ export default function FooterClient({ channels }: FooterClientProps) {
                   href={href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-10 h-10 backdrop-blur-sm rounded-full flex items-center justify-center transition-all duration-300 hover:opacity-80"
-                  style={{ backgroundColor, color: textColor }}
+                  className="w-10 h-10 backdrop-blur-sm rounded-full flex items-center justify-center transition-all duration-300 hover:opacity-80 bg-theme text-theme-secondary"
                   aria-label={label}
                 >
                   <Icon className="w-5 h-5" />
@@ -57,7 +54,7 @@ export default function FooterClient({ channels }: FooterClientProps) {
 
           {/* Быстрые ссылки */}
           <div>
-            <h3 className="text-lg font-semibold mb-4" style={{ color: headingColor }}>Быстрые ссылки</h3>
+            <h3 className="text-lg font-semibold mb-4 text-accent-primary">Быстрые ссылки</h3>
             <ul className="space-y-2">
               {[
                 { href: '/collection', label: 'Коллекции' },
@@ -69,8 +66,7 @@ export default function FooterClient({ channels }: FooterClientProps) {
                 <li key={href}>
                   <Link
                     href={href}
-                    className="hover:text-accent-primary transition-colors duration-300"
-                    style={{ color: textColor }}
+                    className="text-theme-secondary hover:text-accent-primary transition-colors duration-300"
                     onClick={anchor ? (e: React.MouseEvent) => { e.preventDefault(); scrollToHomeSection(anchor); } : undefined}
                   >
                     {label}
@@ -82,8 +78,8 @@ export default function FooterClient({ channels }: FooterClientProps) {
 
           {/* Контакты */}
           <div>
-            <h3 className="text-lg font-semibold mb-4" style={{ color: headingColor }}>Контакты</h3>
-            <div className="space-y-3" style={{ color: textColor }}>
+            <h3 className="text-lg font-semibold mb-4 text-accent-primary">Контакты</h3>
+            <div className="space-y-3 text-theme-secondary">
               <div className="flex items-start space-x-2">
                 <svg className="w-5 h-5 text-accent-primary mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
@@ -119,7 +115,7 @@ export default function FooterClient({ channels }: FooterClientProps) {
 
         <div className="border-t border-theme-muted mt-12 pt-8">
           <div className="flex flex-col md:flex-row justify-between items-center">
-            <p className="text-sm" style={{ color: textColor }}>
+            <p className="text-sm text-theme-secondary">
               © 2016 – 2026 ЯНИНА В. Все права защищены.
             </p>
             <div className="flex flex-wrap justify-center gap-x-6 gap-y-2 mt-4 md:mt-0">
@@ -129,7 +125,7 @@ export default function FooterClient({ channels }: FooterClientProps) {
                 { href: '/warranty', label: 'Гарантии' },
                 { href: '/delivery', label: 'Доставка и оплата' },
               ].map(({ href, label }) => (
-                <Link key={href} href={href} className="hover:text-accent-primary text-sm transition-colors duration-300" style={{ color: textColor }}>
+                <Link key={href} href={href} className="text-theme-secondary hover:text-accent-primary text-sm transition-colors duration-300">
                   {label}
                 </Link>
               ))}

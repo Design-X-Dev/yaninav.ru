@@ -5,7 +5,7 @@
 
 import type { SerializedEditorState } from 'lexical';
 import { IS_BOLD } from 'lexical';
-import { Fragment, type CSSProperties, type ReactNode } from 'react';
+import { Fragment, type ReactNode } from 'react';
 
 type LexRecord = Record<string, unknown>;
 
@@ -15,9 +15,10 @@ function isRecord(v: unknown): v is LexRecord {
 
 export interface LexicalLeadRenderOptions {
   paragraphClassName: string;
-  textColor?: string;
-  /** Стили для фрагментов текста с format bold. */
-  getStrongStyle: (paragraphIndex: number) => CSSProperties | undefined;
+  /** Класс цвета текста параграфа (например `text-theme-muted`). */
+  textClassName?: string;
+  /** Класс для фрагментов bold по индексу параграфа. */
+  strongClassNameFor?: (paragraphIndex: number) => string | undefined;
   wrapPlainTextFragment: (text: string) => ReactNode;
 }
 
@@ -38,9 +39,9 @@ function renderParagraphChildren(children: unknown[], paragraphIndex: number, op
         key += 1;
         if (!text) continue;
         if (bold) {
-          const strongStyle = opts.getStrongStyle(paragraphIndex);
+          const strongClassName = opts.strongClassNameFor?.(paragraphIndex);
           out.push(
-            <strong key={key} style={strongStyle}>
+            <strong key={key} className={strongClassName}>
               {opts.wrapPlainTextFragment(text)}
             </strong>,
           );
@@ -81,8 +82,9 @@ export function lexicalRootToParagraphs(
 
     const children = Array.isArray(block.children) ? block.children : [];
     paragraphIndex += 1;
+    const paragraphClasses = [opts.paragraphClassName, opts.textClassName].filter(Boolean).join(' ');
     paragraphs.push(
-      <p key={i} className={opts.paragraphClassName} style={opts.textColor ? { color: opts.textColor } : undefined}>
+      <p key={i} className={paragraphClasses || undefined}>
         {renderParagraphChildren(children, paragraphIndex, opts)}
       </p>,
     );

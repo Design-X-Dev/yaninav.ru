@@ -2,7 +2,6 @@
 
 import type { AboutContent, AboutIconKey } from '@/types/about';
 import { lexicalRootToParagraphs } from '@/lib/lexicalToReact';
-import { SECTIONS } from '@/utils/theme';
 import { nbspAfterSi } from '@/utils/typography';
 
 import type { IconType } from 'react-icons';
@@ -64,27 +63,24 @@ const ICONS: Record<AboutIconKey, IconType> = {
 };
 
 const About = ({ about }: { about: AboutContent }) => {
-  const { bg, heading, subheading, text } = SECTIONS.about;
-
   const leadParagraphs = lexicalRootToParagraphs(about.lead, {
     paragraphClassName: 'text-lg leading-relaxed',
-    textColor: text,
+    textClassName: 'text-theme-muted',
     wrapPlainTextFragment: (s) => nbspAfterSi(s),
-    getStrongStyle: (paragraphIndex) =>
-      paragraphIndex === 3 ? { color: heading } : { color: subheading },
+    strongClassNameFor: () => 'text-theme-inverse',
   });
 
   const hasLead = leadParagraphs.length > 0;
 
   return (
-    <section id="about" className="relative scroll-mt-28 py-20" style={{ backgroundColor: bg }} suppressHydrationWarning>
+    <section id="about" className="relative scroll-mt-28 py-20 bg-accent-primary" suppressHydrationWarning>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Якорь для «О студии»: всегда, даже без параграфов в rich-text */}
         <div id="about-description" className="scroll-mt-28" aria-hidden />
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
           {hasLead ? (
             <div>
-              <h2 className="font-display text-3xl md:text-4xl font-bold mb-6" style={{ color: heading }}>
+              <h2 className="font-display text-3xl md:text-4xl font-bold mb-6 text-theme-inverse">
                 {about.heading}
               </h2>
               <div className="space-y-6">{leadParagraphs}</div>
@@ -99,16 +95,15 @@ const About = ({ about }: { about: AboutContent }) => {
               return (
                 <div
                   key={`${feature.icon}-${feature.title}`}
-                  className="p-6 rounded-2xl hover:shadow-luxury transition-all duration-300 transform hover:-translate-y-1"
-                  style={{ backgroundColor: bg, borderColor: heading, borderWidth: '1px', borderStyle: 'solid' }}
+                  className="p-6 rounded-2xl border border-theme-inverse hover:shadow-luxury transition-all duration-300 transform hover:-translate-y-1 bg-accent-primary"
                 >
-                  <div className="mb-3" aria-hidden style={{ color: heading }}>
+                  <div className="mb-3 text-theme-inverse" aria-hidden>
                     <Icon className="w-8 h-8" aria-hidden />
                   </div>
-                  <h3 className="font-display text-xl font-semibold mb-2" style={{ color: heading }}>
+                  <h3 className="font-display text-xl font-semibold mb-2 text-theme-inverse">
                     {feature.title}
                   </h3>
-                  <p className="text-sm" style={{ color: text }}>
+                  <p className="text-sm text-theme-muted">
                     {nbspAfterSi(feature.description)}
                   </p>
                 </div>

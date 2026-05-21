@@ -3,7 +3,6 @@ import { Suspense } from 'react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import Catalog from '@/components/Catalog';
-import { SECTIONS } from '@/utils/theme';
 import { absoluteOgImageUrl, siteUrlNormalized, truncateDescription } from '@/lib/seoHelpers';
 import { getAllProducts, getCategoriesForNav, getCategoryBySlug } from '@/lib/products.server';
 
@@ -84,7 +83,7 @@ export default async function CatalogPage() {
   return (
     <main>
       <Suspense>
-        <Header sectionColor={SECTIONS.catalog.bg} categories={categories} />
+        <Header categories={categories} />
       </Suspense>
       <Suspense>
         <Catalog products={products} categories={categories} hideCategoryFilter />
