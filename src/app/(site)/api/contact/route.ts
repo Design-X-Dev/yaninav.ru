@@ -94,6 +94,10 @@ function parseFormId(raw: unknown): string | number | null {
   return null;
 }
 
+function submissionFieldValue(rows: SubmissionRow[], field: string): string {
+  return rows.find((r) => r.field === field)?.value.trim() ?? '';
+}
+
 export async function POST(req: Request): Promise<Response> {
   if (!isAllowedOrigin(req)) {
     return jsonError(403, 'Forbidden');
@@ -131,6 +135,10 @@ export async function POST(req: Request): Promise<Response> {
       data: {
         form: formId,
         submissionData,
+        name: submissionFieldValue(submissionData, 'name'),
+        email: submissionFieldValue(submissionData, 'email'),
+        phone: submissionFieldValue(submissionData, 'phone'),
+        message: submissionFieldValue(submissionData, 'message'),
       },
     });
   } catch (err) {

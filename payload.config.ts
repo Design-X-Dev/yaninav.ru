@@ -205,14 +205,44 @@ export default buildConfig({
       },
       formSubmissionOverrides: {
         labels: { singular: 'Заявка', plural: 'Заявки' },
-        admin: { group: PAYLOAD_ADMIN_GROUPS.forms },
+        admin: {
+          group: PAYLOAD_ADMIN_GROUPS.forms,
+          useAsTitle: 'name',
+          defaultColumns: ['name', 'email', 'phone', 'createdAt'],
+        },
         access: {
           create: ({ req: { user } }) => Boolean(user),
           read: ({ req: { user } }) => Boolean(user),
           update: () => false,
           delete: ({ req: { user } }) => Boolean(user),
         },
-        fields: ({ defaultFields }) => applyRussianSubmissionLabels(defaultFields),
+        fields: ({ defaultFields }) => [
+          {
+            name: 'name',
+            type: 'text',
+            label: 'Имя',
+            admin: { readOnly: true, position: 'sidebar' },
+          },
+          {
+            name: 'email',
+            type: 'email',
+            label: 'Email',
+            admin: { readOnly: true, position: 'sidebar' },
+          },
+          {
+            name: 'phone',
+            type: 'text',
+            label: 'Телефон',
+            admin: { readOnly: true, position: 'sidebar' },
+          },
+          {
+            name: 'message',
+            type: 'textarea',
+            label: 'Сообщение',
+            admin: { readOnly: true },
+          },
+          ...applyRussianSubmissionLabels(defaultFields),
+        ],
       },
     }),
     seoPlugin({

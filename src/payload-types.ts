@@ -508,6 +508,10 @@ export interface Form {
  */
 export interface FormSubmission {
   id: number;
+  name?: string | null;
+  email?: string | null;
+  phone?: string | null;
+  message?: string | null;
   form: number | Form;
   submissionData?:
     | {
@@ -900,6 +904,10 @@ export interface FormsSelect<T extends boolean = true> {
  * via the `definition` "form-submissions_select".
  */
 export interface FormSubmissionsSelect<T extends boolean = true> {
+  name?: T;
+  email?: T;
+  phone?: T;
+  message?: T;
   form?: T;
   submissionData?:
     | T
@@ -1080,7 +1088,7 @@ export interface About {
   createdAt?: string | null;
 }
 /**
- * Тексты секции «Контакты» на главной. Телефон и email: если поля пустые, подставляются значения из кода сайта (футер и карточка товара не меняются).
+ * Тексты секции «Контакты» на главной. Телефон и email также показываются в футере и на странице товара.
  *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "contact".
@@ -1097,21 +1105,18 @@ export interface Contact {
   address: string;
   hours: string;
   /**
-   * Пусто — как в коде сайта.
+   * На сайте: блок контактов, футер.
    */
-  phoneDisplay?: string | null;
+  phoneDisplay: string;
   /**
    * Например tel:+79991234567
    */
-  phoneHref?: string | null;
-  /**
-   * Пусто — как в коде сайта.
-   */
-  emailDisplay?: string | null;
+  phoneHref: string;
+  emailDisplay: string;
   /**
    * Например mailto:hello@example.com
    */
-  emailHref?: string | null;
+  emailHref: string;
   formHeading: string;
   appointmentButtonText: string;
   appointmentNote: string;

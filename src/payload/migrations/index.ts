@@ -4,6 +4,7 @@ import * as migration_20260502_203000_homepage_global from './20260502_203000_ho
 import * as migration_20260502_204500_contact_global from './20260502_204500_contact_global';
 import * as migration_20260502_205000_home_catalog_global from './20260502_205000_home_catalog_global';
 import * as migration_20260502_210500_memories_enabled from './20260502_210500_memories_enabled';
+import * as migration_20260521_174700_form_submissions_flat_fields from './20260521_174700_form_submissions_flat_fields';
 
 export const migrations = [
   {
@@ -35,5 +36,10 @@ export const migrations = [
     up: migration_20260502_210500_memories_enabled.up,
     down: migration_20260502_210500_memories_enabled.down,
     name: '20260502_210500_memories_enabled'
+  },
+  {
+    up: migration_20260521_174700_form_submissions_flat_fields.up,
+    down: migration_20260521_174700_form_submissions_flat_fields.down,
+    name: '20260521_174700_form_submissions_flat_fields'
   },
 ];

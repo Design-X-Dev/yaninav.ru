@@ -26,7 +26,6 @@ interface HeaderProps {
 }
 
 const HOME_PAGE_ANCHORS: { id: string; label: string }[] = [
-  { id: 'memories', label: 'Воспоминания' },
   { id: 'catalog', label: 'Коллекция' },
   { id: 'about-description', label: 'О студии' },
   { id: 'contact-reach', label: 'Контакты' },
