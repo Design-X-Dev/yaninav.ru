@@ -61,3 +61,39 @@ npm run payload:migrate
 
 - При необходимости после бандла конфига:  
   `cross-env NODE_OPTIONS=--no-deprecation PAYLOAD_CONFIG_PATH=./.payload-bundle/payload.config.mjs npx payload migrate:status`
+
+## Production: одноразовый импорт каталога из products.json
+
+Prod-образ — standalone Next.js без `npm`/`esbuild`/исходников, поэтому
+`docker exec web npm run migrate:payload` не сработает. Используем
+сервис `migrate` (профиль `tools`) из docker-compose.prod.yml — он
+собирается из builder-stage Dockerfile, где есть всё нужное для
+`scripts/migrate-json-to-payload.ts`.
+
+### Однократно на сервере
+
+```bash
+cd /apps/yaninav.ru
+git fetch --tags
+npm run prod:migrate    # или ./scripts/migrate-prod.sh
+```
+
+Скрипт:
+1. Восстанавливает `src/data/products.json` и `public/images/products/` из тега `v1.0`.
+2. Останавливает `web` (избежать SQLite WAL race).
+3. Запускает `docker compose --profile tools run --rm migrate`.
+4. Возвращает `web` обратно.
+5. Удаляет восстановленные файлы из рабочей копии.
+
+### Повторный запуск
+
+Скрипт миграции [`scripts/migrate-json-to-payload.ts`](../scripts/migrate-json-to-payload.ts)
+идемпотентен: ищет существующие категории, изображения (`sourceBasename`)
+и товары (по `name`) — дубликаты пропускает с warning.
+
+### Очистка после миграции
+
+Builder-образ весит ~1.5 ГБ (devDeps + sharp + sqlite native).
+Когда импорт точно не нужен — удалить:
+
+`docker image prune -f`

@@ -19,3 +19,18 @@ services:
         limits:
           cpus: '0.90'
           memory: 1G
+
+  migrate:
+    profiles: ["tools"]
+    build:
+      context: .
+      target: builder
+    working_dir: /app
+    environment:
+      NODE_ENV: production
+      DATABASE_URI: file:/app/data/payload.db
+      PAYLOAD_SECRET: ${PAYLOAD_SECRET:?set PAYLOAD_SECRET in .env}
+    volumes:
+      - ./data:/app/data
+    # Builder /app is root-owned; chown data for web (uid 1001) after migration.
+    command: ["sh", "-c", "npm run migrate:payload && chown -R 1001:1001 /app/data"]
