@@ -1,5 +1,6 @@
 import type { CollectionConfig } from 'payload';
 
+import { IMAGE_COLLECTION_SLUG } from './Image';
 import { PAYLOAD_ADMIN_GROUPS } from '../adminSidebarGroups';
 
 export const Products: CollectionConfig = {
@@ -38,26 +39,26 @@ export const Products: CollectionConfig = {
     {
       name: 'image',
       type: 'upload',
-      relationTo: 'media',
+      relationTo: IMAGE_COLLECTION_SLUG,
       required: true,
       label: 'Главное изображение',
     },
     {
       name: 'image2',
       type: 'upload',
-      relationTo: 'media',
+      relationTo: IMAGE_COLLECTION_SLUG,
       label: 'Доп. изображение 2',
     },
     {
       name: 'image3',
       type: 'upload',
-      relationTo: 'media',
+      relationTo: IMAGE_COLLECTION_SLUG,
       label: 'Доп. изображение 3',
     },
     {
       name: 'bannerImage',
       type: 'upload',
-      relationTo: 'media',
+      relationTo: IMAGE_COLLECTION_SLUG,
       label: 'Баннер',
     },
     {

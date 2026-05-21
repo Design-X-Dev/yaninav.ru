@@ -1,0 +1,27 @@
+diff --git a/node_modules/@payloadcms/next/dist/elements/Nav/index.js b/node_modules/@payloadcms/next/dist/elements/Nav/index.js
+index a699693..7d96d04 100644
+--- a/node_modules/@payloadcms/next/dist/elements/Nav/index.js
++++ b/node_modules/@payloadcms/next/dist/elements/Nav/index.js
+@@ -40,16 +40,16 @@ export const DefaultNav = async props => {
+     collections,
+     globals
+   } = payload.config;
+-  const groups = groupNavItems([...collections.filter(({
+-    slug
+-  }) => visibleEntities.collections.includes(slug)).map(collection => ({
+-    type: EntityType.collection,
+-    entity: collection
+-  })), ...globals.filter(({
++  const groups = groupNavItems([...globals.filter(({
+     slug
+   }) => visibleEntities.globals.includes(slug)).map(global => ({
+     type: EntityType.global,
+     entity: global
++  })), ...collections.filter(({
++    slug
++  }) => visibleEntities.collections.includes(slug)).map(collection => ({
++    type: EntityType.collection,
++    entity: collection
+   }))], permissions, i18n);
+   const navPreferences = await getNavPrefs(req);
+   const LogoutComponent = RenderServerComponent({

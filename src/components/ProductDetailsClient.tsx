@@ -5,19 +5,25 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { ProductCard } from '@/components/Catalog';
 import { SECTIONS } from '@/utils/theme';
-import { PHONE_HREF, EMAIL_HREF } from '@/utils/social';
 import { formatPrice, type Product } from '@/utils/products';
 import { capitalizeFirstLetter } from '@/utils/typography';
 
 interface ProductDetailsClientProps {
   product: Product;
   relatedProducts: Product[];
+  phoneHref: string;
+  emailHref: string;
 }
 
 const { bg, heading, text } = SECTIONS.catalog;
 const orderBg = '#384a32';
 
-export default function ProductDetailsClient({ product, relatedProducts }: ProductDetailsClientProps) {
+export default function ProductDetailsClient({
+  product,
+  relatedProducts,
+  phoneHref,
+  emailHref,
+}: ProductDetailsClientProps) {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
   const images = useMemo(() => {
@@ -180,14 +186,14 @@ export default function ProductDetailsClient({ product, relatedProducts }: Produ
 
               <div className="flex flex-col sm:flex-row gap-4 pt-6">
                 <a
-                  href={PHONE_HREF}
+                  href={phoneHref}
                   className="flex-1 px-8 py-4 rounded-full font-medium text-center transition-all duration-300 transform hover:scale-105 shadow-lg"
                   style={{ backgroundColor: orderBg, color: bg }}
                 >
                   Заказать по телефону
                 </a>
                 <a
-                  href={EMAIL_HREF}
+                  href={emailHref}
                   className="flex-1 px-8 py-4 rounded-full font-medium text-center transition-all duration-300 border-2"
                   style={{ borderColor: orderBg, color: orderBg }}
                 >

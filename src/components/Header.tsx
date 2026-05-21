@@ -27,17 +27,17 @@ interface HeaderProps {
 
 const HOME_PAGE_ANCHORS: { id: string; label: string }[] = [
   { id: 'memories', label: 'Воспоминания' },
-  { id: 'catalog',  label: 'Коллекция' },
+  { id: 'catalog', label: 'Коллекция' },
   { id: 'about-description', label: 'О студии' },
-  { id: 'contact-reach',     label: 'Контакты' },
+  { id: 'contact-reach', label: 'Контакты' },
 ];
 
 const NAV_ITEMS: { href: string; label: string; matchFn: (p: string) => boolean; icon?: React.ReactNode }[] = [
-  { href: '/',                  label: 'Главная',              matchFn: (p) => p === '/' },
-  { href: '/collection',        label: 'Коллекции',            matchFn: (p) => p === '/collection' || p.startsWith('/products/') },
-  { href: '/custom-orders',     label: 'Индивидуальный заказ', matchFn: (p) => p.startsWith('/custom-orders') },
-  { href: '/gift-certificate',  label: 'Подарочный сертификат', matchFn: (p) => p.startsWith('/gift-certificate') },
-  { href: '/favorites',         label: 'Избранное',            matchFn: (p) => p === '/favorites', icon: <MenuHeartIcon className="w-5 h-5" /> },
+  { href: '/', label: 'Главная', matchFn: (p) => p === '/' },
+  { href: '/collection', label: 'Коллекции', matchFn: (p) => p === '/collection' || p.startsWith('/products/') },
+  { href: '/custom-orders', label: 'Индивидуальный заказ', matchFn: (p) => p.startsWith('/custom-orders') },
+  { href: '/gift-certificate', label: 'Подарочный сертификат', matchFn: (p) => p.startsWith('/gift-certificate') },
+  { href: '/favorites', label: 'Избранное', matchFn: (p) => p === '/favorites', icon: <MenuHeartIcon className="w-5 h-5" /> },
 ];
 
 /** Стиль капсулы меню (desktop/mobile, active/inactive) */
@@ -289,7 +289,7 @@ const Header = ({ sectionColor = '#f4f7f0', categories, currentProduct }: Header
       {/* Зона под шапкой: цвет фона → прозрачность + размытие */}
       <div
         aria-hidden
-        className="fixed top-0 left-0 right-0 z-[90] pointer-events-none h-[min(39.6vh,15.3rem)] sm:h-[min(36vh,16.2rem)] md:h-[min(32.4vh,17.1rem)]"
+        className="fixed top-0 left-0 right-0 z-[90] pointer-events-none h-[min(26vh,11.5rem)]"
       >
         <div className="absolute inset-0" style={veilTintStyle} />
         <div

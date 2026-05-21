@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import ProductDetailsClient from '@/components/ProductDetailsClient';
+import { getSiteContactChannels } from '@/lib/contact.server';
 import { absoluteOgImageUrl, siteUrlNormalized, truncateDescription } from '@/lib/seoHelpers';
 import { getAllProducts, getProductById, getCategoriesForNav } from '@/lib/products.server';
 import { SECTIONS } from '@/utils/theme';
@@ -59,10 +60,11 @@ export default async function ProductPage({ params }: ProductPageProps) {
     notFound();
   }
 
-  const [product, categories, allProducts] = await Promise.all([
+  const [product, categories, allProducts, channels] = await Promise.all([
     getProductById(productId),
     getCategoriesForNav(),
     getAllProducts(),
+    getSiteContactChannels(),
   ]);
 
   if (!product) {
@@ -84,7 +86,12 @@ export default async function ProductPage({ params }: ProductPageProps) {
           currentProduct={{ category: product.category, name: product.name }}
         />
       </Suspense>
-      <ProductDetailsClient product={product} relatedProducts={relatedProducts} />
+      <ProductDetailsClient
+        product={product}
+        relatedProducts={relatedProducts}
+        phoneHref={channels.phoneHref}
+        emailHref={channels.emailHref}
+      />
       <Footer />
     </main>
   );

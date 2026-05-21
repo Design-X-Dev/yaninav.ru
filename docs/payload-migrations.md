@@ -8,6 +8,7 @@
 
 - Каталог: [`src/payload/migrations/`](../src/payload/migrations/)
 - То же оглавление подключается в [`payload.config.ts`](../payload.config.ts) через `migrationDir`, `prodMigrations` и `sqliteAdapter({ push: false })`.
+- Типичная цепочка после первого clone с baseline: сначала `20260502_082625_baseline`, затем `20260502_190000_rename_media_collections` (slug uploads **`image`** / **`video`**, таблицы `image` / `video`). Если база уже существовала до переименования — перед migrate переместите файлы: `data/media` → `data/image`, `data/media-video` → `data/video`.
 
 ## Локальная разработка
 
@@ -43,7 +44,7 @@
 
 ```bash
 rm -f data/payload.db data/payload.db-shm data/payload.db-wal
-# опционально: rm -rf data/media data/media-video && mkdir -p data/media data/media-video
+# опционально: rm -rf data/image data/video && mkdir -p data/image data/video
 rm -f src/payload/migrations/*.ts src/payload/migrations/*.json
 echo "export const migrations = [];" > src/payload/migrations/index.ts
 DATABASE_URI=file:./data/payload.db PAYLOAD_SECRET=<секрет> npm run payload:migrate:create -- baseline

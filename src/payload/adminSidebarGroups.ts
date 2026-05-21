@@ -1,8 +1,9 @@
 /**
  * Группы в сайдбаре Payload Admin (коллекции / глобалы / блоки из плагинов).
  *
- * Порядок секций задаётся в патче `@payloadcms/ui`: сперва глобали, затем коллекции
- * (иначе блок «Главная» оказывается ниже страниц каталога).
+ * Порядок секций «глобалы выше коллекций» задаётся patch-package:
+ * — [`patches/@payloadcms+next+3.84.1.patch`](../../patches/@payloadcms+next+3.84.1.patch): `DefaultNav` → `groupNavItems([...globals, ...collections])`;
+ * — [`patches/@payloadcms+ui+3.84.1.patch`](../../patches/@payloadcms+ui+3.84.1.patch): `getNavGroups` в `@payloadcms/ui` для прочих мест.
  */
 export const PAYLOAD_ADMIN_GROUPS = {
   homeGlobals: 'Главная',

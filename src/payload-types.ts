@@ -70,8 +70,8 @@ export interface Config {
     pages: Page;
     categories: Category;
     products: Product;
-    media: Media;
-    'media-video': MediaVideo;
+    image: Image;
+    video: Video;
     users: User;
     forms: Form;
     'form-submissions': FormSubmission;
@@ -85,8 +85,8 @@ export interface Config {
     pages: PagesSelect<false> | PagesSelect<true>;
     categories: CategoriesSelect<false> | CategoriesSelect<true>;
     products: ProductsSelect<false> | ProductsSelect<true>;
-    media: MediaSelect<false> | MediaSelect<true>;
-    'media-video': MediaVideoSelect<false> | MediaVideoSelect<true>;
+    image: ImageSelect<false> | ImageSelect<true>;
+    video: VideoSelect<false> | VideoSelect<true>;
     users: UsersSelect<false> | UsersSelect<true>;
     forms: FormsSelect<false> | FormsSelect<true>;
     'form-submissions': FormSubmissionsSelect<false> | FormSubmissionsSelect<true>;
@@ -100,14 +100,20 @@ export interface Config {
   };
   fallbackLocale: ('false' | 'none' | 'null') | false | null | ('ru' | 'en') | ('ru' | 'en')[];
   globals: {
+    homepage: Homepage;
     memories: Memory;
     hero: Hero;
     about: About;
+    contact: Contact;
+    'home-catalog': HomeCatalog;
   };
   globalsSelect: {
+    homepage: HomepageSelect<false> | HomepageSelect<true>;
     memories: MemoriesSelect<false> | MemoriesSelect<true>;
     hero: HeroSelect<false> | HeroSelect<true>;
     about: AboutSelect<false> | AboutSelect<true>;
+    contact: ContactSelect<false> | ContactSelect<true>;
+    'home-catalog': HomeCatalogSelect<false> | HomeCatalogSelect<true>;
   };
   locale: 'ru' | 'en';
   widgets: {
@@ -173,7 +179,7 @@ export interface Page {
     /**
      * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
      */
-    image?: (number | null) | Media;
+    image?: (number | null) | Image;
   };
   updatedAt: string;
   createdAt: string;
@@ -181,9 +187,9 @@ export interface Page {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "media".
+ * via the `definition` "image".
  */
-export interface Media {
+export interface Image {
   id: number;
   /**
    * Дедуп при миграции из JSON (например DSC_2367.jpg)
@@ -246,7 +252,7 @@ export interface Category {
     /**
      * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
      */
-    image?: (number | null) | Media;
+    image?: (number | null) | Image;
   };
   updatedAt: string;
   createdAt: string;
@@ -265,10 +271,10 @@ export interface Product {
    */
   price?: number | null;
   category: number | Category;
-  image: number | Media;
-  image2?: (number | null) | Media;
-  image3?: (number | null) | Media;
-  bannerImage?: (number | null) | Media;
+  image: number | Image;
+  image2?: (number | null) | Image;
+  image3?: (number | null) | Image;
+  bannerImage?: (number | null) | Image;
   characteristics?:
     | {
         key: string;
@@ -282,16 +288,16 @@ export interface Product {
     /**
      * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
      */
-    image?: (number | null) | Media;
+    image?: (number | null) | Image;
   };
   updatedAt: string;
   createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "media-video".
+ * via the `definition` "video".
  */
-export interface MediaVideo {
+export interface Video {
   id: number;
   /**
    * Дедуп при сидере (например home-hero/jewelry-hero.mp4)
@@ -550,12 +556,12 @@ export interface PayloadLockedDocument {
         value: number | Product;
       } | null)
     | ({
-        relationTo: 'media';
-        value: number | Media;
+        relationTo: 'image';
+        value: number | Image;
       } | null)
     | ({
-        relationTo: 'media-video';
-        value: number | MediaVideo;
+        relationTo: 'video';
+        value: number | Video;
       } | null)
     | ({
         relationTo: 'users';
@@ -682,9 +688,9 @@ export interface ProductsSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "media_select".
+ * via the `definition` "image_select".
  */
-export interface MediaSelect<T extends boolean = true> {
+export interface ImageSelect<T extends boolean = true> {
   sourceBasename?: T;
   alt?: T;
   updatedAt?: T;
@@ -735,9 +741,9 @@ export interface MediaSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "media-video_select".
+ * via the `definition` "video_select".
  */
-export interface MediaVideoSelect<T extends boolean = true> {
+export interface VideoSelect<T extends boolean = true> {
   sourceBasename?: T;
   alt?: T;
   updatedAt?: T;
@@ -946,13 +952,36 @@ export interface PayloadMigrationsSelect<T extends boolean = true> {
   createdAt?: T;
 }
 /**
- * Карусель на главной. Не менее 5 слайдов с картинками.
+ * Title, description и OG-картинка для маршрута «/». Вкладка SEO добавляется плагином.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "homepage".
+ */
+export interface Homepage {
+  id: number;
+  meta?: {
+    title?: string | null;
+    description?: string | null;
+    /**
+     * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
+     */
+    image?: (number | null) | Image;
+  };
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * Карусель на главной. Не менее 5 слайдов для показа блока. Галочку «Показывать секцию» можно снять, чтобы скрыть блок без удаления слайдов.
  *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "memories".
  */
 export interface Memory {
   id: number;
+  /**
+   * Снимите, чтобы временно скрыть карусель.
+   */
+  enabled?: boolean | null;
   heading: string;
   subheading: string;
   description: string;
@@ -961,7 +990,7 @@ export interface Memory {
    */
   slides?:
     | {
-        image: number | Media;
+        image: number | Image;
         text: string;
         id?: string | null;
       }[]
@@ -982,9 +1011,9 @@ export interface Hero {
    */
   enabled?: boolean | null;
   overlayText?: string | null;
-  poster: number | Media;
-  videoMp4: number | MediaVideo;
-  videoWebm?: (number | null) | MediaVideo;
+  poster: number | Image;
+  videoMp4: number | Video;
+  videoWebm?: (number | null) | Video;
   updatedAt?: string | null;
   createdAt?: string | null;
 }
@@ -1015,7 +1044,33 @@ export interface About {
   };
   features?:
     | {
-        icon: 'heart' | 'sparkles' | 'check' | 'sparkle4' | 'clock' | 'shield';
+        icon:
+          | 'heart'
+          | 'sparkles'
+          | 'check'
+          | 'sparkle4'
+          | 'clock'
+          | 'shield'
+          | 'gem'
+          | 'diamond'
+          | 'crown'
+          | 'leaf'
+          | 'flower'
+          | 'feather'
+          | 'palette'
+          | 'pen'
+          | 'handHeart'
+          | 'handshake'
+          | 'badgeCheck'
+          | 'lock'
+          | 'scale'
+          | 'compass'
+          | 'eye'
+          | 'star'
+          | 'sun'
+          | 'moon'
+          | 'wand'
+          | 'gift';
         title: string;
         description: string;
         id?: string | null;
@@ -1025,10 +1080,91 @@ export interface About {
   createdAt?: string | null;
 }
 /**
+ * Тексты секции «Контакты» на главной. Телефон и email: если поля пустые, подставляются значения из кода сайта (футер и карточка товара не меняются).
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "contact".
+ */
+export interface Contact {
+  id: number;
+  enabled?: boolean | null;
+  heading: string;
+  /**
+   * Два абзаца можно разделить пустой строкой.
+   */
+  intro: string;
+  contactInfoHeading: string;
+  address: string;
+  hours: string;
+  /**
+   * Пусто — как в коде сайта.
+   */
+  phoneDisplay?: string | null;
+  /**
+   * Например tel:+79991234567
+   */
+  phoneHref?: string | null;
+  /**
+   * Пусто — как в коде сайта.
+   */
+  emailDisplay?: string | null;
+  /**
+   * Например mailto:hello@example.com
+   */
+  emailHref?: string | null;
+  formHeading: string;
+  appointmentButtonText: string;
+  appointmentNote: string;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * Какие товары показывать в блоке «Наша коллекция». В режиме «Случайный» порядок меняется при каждой загрузке страницы.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "home-catalog".
+ */
+export interface HomeCatalog {
+  id: number;
+  enabled?: boolean | null;
+  /**
+   * «Цена по запросу» (пустая цена) в конце списка для дорогих/дешёвых. Для ручного выбора задайте строки ниже.
+   */
+  selectionMode: 'catalog' | 'expensive' | 'cheap' | 'manual' | 'random';
+  /**
+   * Порядок строк совпадает с порядком карточек на главной.
+   */
+  manualProducts?:
+    | {
+        product: number | Product;
+        id?: string | null;
+      }[]
+    | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "homepage_select".
+ */
+export interface HomepageSelect<T extends boolean = true> {
+  meta?:
+    | T
+    | {
+        title?: T;
+        description?: T;
+        image?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "memories_select".
  */
 export interface MemoriesSelect<T extends boolean = true> {
+  enabled?: T;
   heading?: T;
   subheading?: T;
   description?: T;
@@ -1071,6 +1207,45 @@ export interface AboutSelect<T extends boolean = true> {
         icon?: T;
         title?: T;
         description?: T;
+        id?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "contact_select".
+ */
+export interface ContactSelect<T extends boolean = true> {
+  enabled?: T;
+  heading?: T;
+  intro?: T;
+  contactInfoHeading?: T;
+  address?: T;
+  hours?: T;
+  phoneDisplay?: T;
+  phoneHref?: T;
+  emailDisplay?: T;
+  emailHref?: T;
+  formHeading?: T;
+  appointmentButtonText?: T;
+  appointmentNote?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "home-catalog_select".
+ */
+export interface HomeCatalogSelect<T extends boolean = true> {
+  enabled?: T;
+  selectionMode?: T;
+  manualProducts?:
+    | T
+    | {
+        product?: T;
         id?: T;
       };
   updatedAt?: T;

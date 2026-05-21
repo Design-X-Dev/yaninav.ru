@@ -132,6 +132,32 @@ export async function getProductById(id: number): Promise<UiProduct | undefined>
   return doc ? docToUi(doc) : undefined;
 }
 
+/** Порядок `ids` сохраняется; отсутствующие id пропускаются. */
+export async function getProductsByIdsOrdered(ids: number[]): Promise<UiProduct[]> {
+  const uniq = [...new Set(ids.filter((id) => typeof id === 'number' && Number.isFinite(id)))];
+  if (uniq.length === 0) return [];
+
+  const p = await payload();
+  const { docs } = await p.find({
+    collection: 'products',
+    depth: 2,
+    limit: uniq.length,
+    where: {
+      id: {
+        in: uniq,
+      },
+    },
+  });
+
+  const byId = new Map<number, UiProduct>();
+  for (const d of docs) {
+    const doc = d as unknown as ProductDoc;
+    byId.set(doc.id, docToUi(doc));
+  }
+
+  return uniq.map((id) => byId.get(id)).filter((x): x is UiProduct => x != null);
+}
+
 export async function getProductsByCategory(slug: string): Promise<UiProduct[]> {
   if (!slug || slug === 'all') return getAllProducts();
 

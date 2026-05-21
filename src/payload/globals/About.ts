@@ -49,7 +49,7 @@ export const About: GlobalConfig = {
       name: 'enabled',
       type: 'checkbox',
       defaultValue: true,
-      label: 'Показывать секцию',
+      label: 'Показывать секцию на главной',
     },
     {
       name: 'heading',

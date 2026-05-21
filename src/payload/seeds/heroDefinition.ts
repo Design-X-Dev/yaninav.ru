@@ -4,7 +4,7 @@
 
 export const HERO_SEED = {
   overlayText: 'Смотреть видео',
-  poster: { file: 'jewelry-hero.png', collection: 'media' as const },
-  videoMp4: { file: 'jewelry-hero.mp4', collection: 'media-video' as const },
-  videoWebm: { file: 'jewelry-hero.webm', collection: 'media-video' as const },
+  poster: { file: 'jewelry-hero.png', collection: 'image' as const },
+  videoMp4: { file: 'jewelry-hero.mp4', collection: 'video' as const },
+  videoWebm: { file: 'jewelry-hero.webm', collection: 'video' as const },
 };

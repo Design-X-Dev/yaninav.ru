@@ -4,9 +4,11 @@ import type { CollectionConfig } from 'payload';
 
 import { PAYLOAD_ADMIN_GROUPS } from '../adminSidebarGroups';
 
-export const Media: CollectionConfig = {
-  slug: 'media',
-  labels: { singular: 'Изображение', plural: 'Изображения' },
+export const VIDEO_COLLECTION_SLUG = 'video';
+
+export const Video: CollectionConfig = {
+  slug: VIDEO_COLLECTION_SLUG,
+  labels: { singular: 'Видеофайл', plural: 'Видеофайлы' },
   admin: {
     group: PAYLOAD_ADMIN_GROUPS.media,
     useAsTitle: 'filename',
@@ -19,13 +21,8 @@ export const Media: CollectionConfig = {
     delete: ({ req }) => Boolean(req.user),
   },
   upload: {
-    staticDir: path.resolve(process.cwd(), 'data/media'),
-    mimeTypes: ['image/*'],
-    imageSizes: [
-      { name: 'card', width: 900, height: 900, position: 'centre' },
-      { name: 'hero', width: 1600, height: 1600 },
-      { name: 'og', width: 1200, height: 630, position: 'centre' },
-    ],
+    staticDir: path.resolve(process.cwd(), 'data/video'),
+    mimeTypes: ['video/mp4', 'video/webm'],
   },
   fields: [
     {
@@ -35,9 +32,9 @@ export const Media: CollectionConfig = {
       label: 'Исходное имя файла',
       admin: {
         position: 'sidebar',
-        description: 'Дедуп при миграции из JSON (например DSC_2367.jpg)',
+        description: 'Дедуп при сидере (например home-hero/jewelry-hero.mp4)',
       },
     },
-    { name: 'alt', type: 'text', localized: false, label: 'Подпись / alt' },
+    { name: 'alt', type: 'text', label: 'Подпись' },
   ],
 };

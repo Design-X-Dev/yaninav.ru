@@ -1,5 +1,6 @@
 import type { GlobalConfig } from 'payload';
 
+import { IMAGE_COLLECTION_SLUG } from '../collections/Image';
 import { PAYLOAD_ADMIN_GROUPS } from '../adminSidebarGroups';
 
 export const MEMORIES_GLOBAL_SLUG = 'memories';
@@ -13,9 +14,19 @@ export const Memories: GlobalConfig = {
   },
   admin: {
     group: PAYLOAD_ADMIN_GROUPS.homeGlobals,
-    description: 'Карусель на главной. Не менее 5 слайдов с картинками.',
+    description:
+      'Карусель на главной. Не менее 5 слайдов для показа блока. Галочку «Показывать секцию» можно снять, чтобы скрыть блок без удаления слайдов.',
   },
   fields: [
+    {
+      name: 'enabled',
+      type: 'checkbox',
+      defaultValue: true,
+      label: 'Показывать секцию на главной',
+      admin: {
+        description: 'Снимите, чтобы временно скрыть карусель.',
+      },
+    },
     { name: 'heading', type: 'text', required: true, label: 'Заголовок (логотип)' },
     { name: 'subheading', type: 'text', required: true, label: 'Подзаголовок' },
     { name: 'description', type: 'textarea', required: true, label: 'Описание' },
@@ -28,7 +39,7 @@ export const Memories: GlobalConfig = {
         {
           name: 'image',
           type: 'upload',
-          relationTo: 'media',
+          relationTo: IMAGE_COLLECTION_SLUG,
           required: true,
           label: 'Картинка',
         },

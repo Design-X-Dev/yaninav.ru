@@ -3,6 +3,8 @@ import path from 'node:path';
 import fs from 'node:fs/promises';
 import type { Payload } from 'payload';
 
+import { IMAGE_COLLECTION_SLUG } from '../collections/Image';
+import { VIDEO_COLLECTION_SLUG } from '../collections/Video';
 import { HERO_GLOBAL_SLUG } from '../globals/Hero';
 import { HERO_SEED } from './heroDefinition';
 
@@ -19,7 +21,7 @@ async function ensureHeroPosterMedia(payload: Payload, fileName: string): Promis
   const sourceBasename = `${MEDIA_SOURCE_PREFIX}${fileName}`;
 
   const found = await payload.find({
-    collection: 'media',
+    collection: IMAGE_COLLECTION_SLUG,
     limit: 1,
     depth: 0,
     where: { sourceBasename: { equals: sourceBasename } },
@@ -38,7 +40,7 @@ async function ensureHeroPosterMedia(payload: Payload, fileName: string): Promis
   }
 
   const created = await payload.create({
-    collection: 'media',
+    collection: IMAGE_COLLECTION_SLUG,
     overrideAccess: true,
     filePath: absolute,
     data: {
@@ -55,7 +57,7 @@ async function ensureHeroVideoMedia(payload: Payload, fileName: string): Promise
   const sourceBasename = `${MEDIA_SOURCE_PREFIX}${fileName}`;
 
   const found = await payload.find({
-    collection: 'media-video',
+    collection: VIDEO_COLLECTION_SLUG,
     limit: 1,
     depth: 0,
     where: { sourceBasename: { equals: sourceBasename } },
@@ -74,7 +76,7 @@ async function ensureHeroVideoMedia(payload: Payload, fileName: string): Promise
   }
 
   const created = await payload.create({
-    collection: 'media-video',
+    collection: VIDEO_COLLECTION_SLUG,
     overrideAccess: true,
     filePath: absolute,
     data: {
@@ -83,12 +85,12 @@ async function ensureHeroVideoMedia(payload: Payload, fileName: string): Promise
     },
   });
 
-  payload.logger.info({ msg: `[payload] Hero seed: media-video "${sourceBasename}" → id=${created.id}` });
+  payload.logger.info({ msg: `[payload] Hero seed: video "${sourceBasename}" → id=${created.id}` });
   return created.id as number;
 }
 
 /**
- * Загружает файлы Hero из `public/videos/` в `media` / `media-video` и заполняет глобал `hero`.
+ * Загружает файлы Hero из `public/videos/` в `image` / `video` и заполняет глобал `hero`.
  * При `force: false` пропуск, если `poster` и `videoMp4` уже заданы.
  */
 export async function seedHeroFromDisk(payload: Payload, opts?: { force?: boolean }): Promise<void> {

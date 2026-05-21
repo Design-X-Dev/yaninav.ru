@@ -5,6 +5,14 @@ import { Playfair_Display, Inter } from 'next/font/google';
 import localFont from 'next/font/local';
 import AppLoader from '@/components/AppLoader';
 import ContactMessengerFab from '@/components/ContactMessengerFab';
+import { phoneHrefToWhatsAppLink } from '@/lib/contact.defaults';
+import { getSiteContactChannels } from '@/lib/contact.server';
+import {
+  HOMEPAGE_DEFAULT_DESCRIPTION,
+  HOMEPAGE_DEFAULT_OG_DESCRIPTION,
+  HOMEPAGE_DEFAULT_OG_TITLE,
+  HOMEPAGE_DEFAULT_TITLE,
+} from '@/lib/homepageMeta.defaults';
 import { siteUrlNormalized } from '@/lib/seoHelpers';
 
 const siteBaseUrl = siteUrlNormalized();
@@ -27,24 +35,26 @@ const disruptorScript = localFont({
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteBaseUrl),
-  title: 'ЯНИНА В - Ювелирная студия | Эксклюзивные украшения',
-  description:
-    'Ювелирная студия ЯНИНА В - помолвочные и обручальные кольца, эксклюзивные украшения ручной работы. Индивидуальный подход к каждому клиенту.',
+  title: HOMEPAGE_DEFAULT_TITLE,
+  description: HOMEPAGE_DEFAULT_DESCRIPTION,
   keywords:
     'ювелирная студия, помолвочные кольца, обручальные кольца, эксклюзивные украшения, ювелирные изделия на заказ',
   openGraph: {
-    title: 'ЯНИНА В - Ювелирная студия',
-    description: 'Эксклюзивные украшения ручной работы',
+    title: HOMEPAGE_DEFAULT_OG_TITLE,
+    description: HOMEPAGE_DEFAULT_OG_DESCRIPTION,
     type: 'website',
     locale: 'ru_RU',
   },
 };
 
-export default function SiteLayout({
+export default async function SiteLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const channels = await getSiteContactChannels();
+  const whatsappHref = phoneHrefToWhatsAppLink(channels.phoneHref);
+
   return (
     <html
       lang="ru"
@@ -53,7 +63,7 @@ export default function SiteLayout({
       <body className="antialiased min-h-screen">
         <AppLoader />
         {children}
-        <ContactMessengerFab />
+        <ContactMessengerFab whatsappHref={whatsappHref} />
       </body>
     </html>
   );

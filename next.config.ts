@@ -49,7 +49,11 @@ const nextConfig: NextConfig = {
         headers: longCacheHeaders,
       },
       {
-        source: '/api/media-video/file/:path*',
+        source: '/api/image/file/:path*',
+        headers: longCacheHeaders,
+      },
+      {
+        source: '/api/video/file/:path*',
         headers: longCacheHeaders,
       },
       {

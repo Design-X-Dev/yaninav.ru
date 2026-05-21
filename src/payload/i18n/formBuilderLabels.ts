@@ -129,7 +129,7 @@ function translateCommonFieldLabel(out: Loose): void {
         }
         out.admin = {
           ...(out.admin as Loose),
-          description: 'В какой коллекции Media хранить файлы',
+          description: 'В какой коллекции загрузок хранить файлы',
         };
       }
       break;

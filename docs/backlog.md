@@ -73,9 +73,9 @@
 - **Приоритет:** Critical
 - **Категория:** Performance / DX / Infra
 
-**Что нашли:** В `public/images/products/` лежали пары файлов на товар — полноразмерные `DSC_*.jpg` (~10–15 МБ каждый) и версии `_small.jpg` (~80 КБ). В UI для превью использовались только `_small` (логика была в `src/utils/products.ts`, сейчас URL картинок отдаёт Payload / коллекция `media`).
+**Что нашли:** В `public/images/products/` лежали пары файлов на товар — полноразмерные `DSC_*.jpg` (~10–15 МБ каждый) и версии `_small.jpg` (~80 КБ). В UI для превью использовались только `_small` (логика была в `src/utils/products.ts`, сейчас URL картинок отдаёт Payload / коллекция `image`).
 
-Каталог перенесён в Payload: файлы превью живут в volume `data/media` (репозиторий не хранит ни JSON, ни `public/images/products/`).
+Каталог перенесён в Payload: файлы превью живут в volume `data/image` (репозиторий не хранит ни JSON, ни `public/images/products/`).
 
 **Почему это важно:** Долгое время CI/CD и деплоя, дорогий трафик, риск упереться в лимиты хостинга. История Git может сохранять блобы даже после удаления файлов — может понадобиться очистка истории (`git filter-repo` / BFG).
 
@@ -85,7 +85,7 @@
 - Для Retina: рассмотреть промежуточный размер (например `_medium`) вместо или вместе с `_small`, не светя 15 МБ на пользователя.
 
 **Решение команды:**  
-Оригиналы (`DSC_*.jpg`) удалены из рабочего дерева; превью исторически были в `public/images/products/` (~8.9 МБ). После внедрения Payload превью загружаются в коллекцию `media` (`data/media` на диске/volume). История git по-прежнему может содержать старые блобы — при необходимости `git filter-repo` / BFG. Оригиналы хранить отдельно (S3 / локально у заказчика).
+Оригиналы (`DSC_*.jpg`) удалены из рабочего дерева; превью исторически были в `public/images/products/` (~8.9 МБ). После внедрения Payload превью загружаются в коллекцию `image` (`data/image` на диске/volume). История git по-прежнему может содержать старые блобы — при необходимости `git filter-repo` / BFG. Оригиналы хранить отдельно (S3 / локально у заказчика).
 
 ---
 
@@ -307,7 +307,7 @@ _(заполнить после обсуждения)_
 **Что было:** Заголовки и слайды блока «Воспоминания» захардкожены в [`src/components/MemoriesSection.tsx`](src/components/MemoriesSection.tsx), картинки — из `public/images/00*.jpeg`; тяжёлые файлы и `next/image` давали проблемы с оптимизатором.
 
 **Решение команды:**  
-Глобал [`memories`](../src/payload/globals/Memories.ts): тексты полей `heading`, `subheading`, `description`, массив `slides` (upload → `media` + подпись), минимум 5 элементов карусели. Редактор: **`/admin/globals/memories`**. Данные на главной: [`getMemoriesContent`](../src/lib/memories.server.ts) в [`src/app/(site)/page.tsx`](../src/app/(site)/page.tsx) → props в [`MemoriesSection`](../src/components/MemoriesSection.tsx); URL через `sizes.card` и `/_next/image`. Идемпотентный первичный контент из `public/images/`: **`npm run seed:memories`**; при первом запуске без данных — попытка в `onInit` ([`memoriesBootstrap`](../src/payload/seeds/memoriesBootstrap.ts)) без перезаписи существующих слайдов.
+Глобал [`memories`](../src/payload/globals/Memories.ts): тексты полей `heading`, `subheading`, `description`, массив `slides` (upload → `image` + подпись), минимум 5 элементов карусели. Редактор: **`/admin/globals/memories`**. Данные на главной: [`getMemoriesContent`](../src/lib/memories.server.ts) в [`src/app/(site)/page.tsx`](../src/app/(site)/page.tsx) → props в [`MemoriesSection`](../src/components/MemoriesSection.tsx); URL через `sizes.card` и `/_next/image`. Идемпотентный первичный контент из `public/images/`: **`npm run seed:memories`**; при первом запуске без данных — попытка в `onInit` ([`memoriesBootstrap`](../src/payload/seeds/memoriesBootstrap.ts)) без перезаписи существующих слайдов.
 
 ---
 
@@ -320,7 +320,7 @@ _(заполнить после обсуждения)_
 **Что было:** Полноэкранное Hero-видео и постер зашиты в [`Hero.tsx`](../src/components/Hero.tsx) (`/videos/jewelry-hero.*`).
 
 **Решение команды:**  
-Коллекция **`media-video`** ([`MediaVideo.ts`](../src/payload/collections/MediaVideo.ts), `data/media-video`), глобал **`hero`** ([`globals/Hero.ts`](../src/payload/globals/Hero.ts)): флаг **`enabled`** (скрыть секцию без удаления медиа), `overlayText`, постер в `media`, обязательный `videoMp4`, опционально `videoWebm`. Редактор: **`/admin/globals/hero`**. Главная: [`getHeroContent`](../src/lib/hero.server.ts) → props в [`Hero`](../src/components/Hero.tsx); при `enabled === false` или отсутствии постера/источников секция не рендерится. Первичное наполнение из `public/videos/`: **`npm run seed:hero`**, в `onInit` — [`seedHeroIfMissing`](../src/payload/seeds/heroBootstrap.ts) без перезаписи при уже заданных постере и mp4. Long-cache заголовки для отдачи видеофайлов через API: [`next.config.ts`](../next.config.ts) — `/api/media-video/file/:path*`.
+Коллекция **`video`** ([`Video.ts`](../src/payload/collections/Video.ts), `data/video`), глобал **`hero`** ([`globals/Hero.ts`](../src/payload/globals/Hero.ts)): флаг **`enabled`** (скрыть секцию без удаления медиа), `overlayText`, постер в `image`, обязательный `videoMp4`, опционально `videoWebm`. Редактор: **`/admin/globals/hero`**. Главная: [`getHeroContent`](../src/lib/hero.server.ts) → props в [`Hero`](../src/components/Hero.tsx); при `enabled === false` или отсутствии постера/источников секция не рендерится. Первичное наполнение из `public/videos/`: **`npm run seed:hero`**, в `onInit` — [`seedHeroIfMissing`](../src/payload/seeds/heroBootstrap.ts) без перезаписи при уже заданных постере и mp4. Long-cache заголовки для отдачи через API: [`next.config.ts`](../next.config.ts) — `/api/image/file/:path*` и `/api/video/file/:path*`.
 
 ---
 
@@ -412,8 +412,8 @@ _(заполнить после обсуждения)_
 
 - [`Dockerfile`](../Dockerfile) запускает `node scripts/remove-dev-push-marker.mjs && node server.js`, но не вызывает `npm run payload:migrate` явно. Нужно подтвердить, что `prodMigrations` в standalone-сборке применяются на всех production-сценариях старта и свежей БД.
 - [`scripts/remove-dev-push-marker.mjs`](../scripts/remove-dev-push-marker.mjs) поддерживает только `file:` `DATABASE_URI`; для hosted libsql/Turso скрипт пишет skip и выходит с `0`. Это безопасно для текущего local file, но может скрыть проблему при миграции инфраструктуры.
-- В production нужен явный persistence checklist: volume/backup для `data/payload.db`, `data/media` и `data/media-video`; [`Dockerfile`](../Dockerfile) сам не описывает, куда монтировать эти данные.
-- [`.gitignore`](../.gitignore) игнорирует `/data/*.db*` и `/data/media/*`, но не `/data/media-video/*`; hero-видео можно случайно добавить в git.
+- В production нужен явный persistence checklist: volume/backup для `data/payload.db`, `data/image` и `data/video`; [`Dockerfile`](../Dockerfile) сам не описывает, куда монтировать эти данные.
+- [`.gitignore`](../.gitignore) игнорирует `/data/*.db*`, `/data/image/*` и `/data/video/*` — случайное добавление превью и hero-видео в git не ожидается (ранее `/data/media-video/*` не игнорировался — закрыто).
 - [`package.json`](../package.json) использует `patch-package` для `@payloadcms/ui`; это может усложнять обновления Payload admin и быстрые security patch upgrades.
 
 **Почему это важно:** Схема Payload быстро меняется: localization, drafts, SEO plugin, globals. Если production-миграции не применятся в нужный момент, сайт может стартовать с несовместимой SQLite-схемой. Если volume/backup настроены неполно, можно потерять БД, изображения или видео; если large video попадёт в git, вернётся проблема B-01.
@@ -422,7 +422,7 @@ _(заполнить после обсуждения)_
 - Документально или тестом подтвердить fresh-start контейнера с пустой `data/payload.db`.
 - Решить, должен ли prod entrypoint явно запускать `payload:migrate` перед `server.js`, или текущий `prodMigrations` достаточно надёжен.
 - При переходе на non-file SQLite обновить `remove-dev-push-marker` или убрать его из production path.
-- Добавить `/data/media-video/*` в `.gitignore` и описать production volume/backup для всех `data/*`, которые нужны Payload.
+- Описать production volume/backup для всех `data/*`, которые нужны Payload (базы и uploads-каталоги).
 - Перед обновлением `@payloadcms/*` проверять, что patch для UI всё ещё применим и нужен.
 
 **Решение команды:**  
@@ -553,10 +553,10 @@ _(заполнить после обсуждения)_
 - **Приоритет:** Nice-to-have
 - **Категория:** Product / UX
 
-**Что:** В старой вёрстке [`Contact.tsx`](../src/components/Contact.tsx) было поле «Прикрепить файл». При переходе на `@payloadcms/plugin-form-builder` оно **намеренно убрано**: нативного upload-блока в связке «публичный сабмит → form-submissions» без доработки нет (либо включаются `fields.upload` + `uploadCollections` + `submissionUploads`, либо отдельный `POST` в коллекцию `media`, затем в `submissionData` сохранять URL/`id`).
+**Что:** В старой вёрстке [`Contact.tsx`](../src/components/Contact.tsx) было поле «Прикрепить файл». При переходе на `@payloadcms/plugin-form-builder` оно **намеренно убрано**: нативного upload-блока в связке «публичный сабмит → form-submissions» без доработки нет (либо включаются `fields.upload` + `uploadCollections` + `submissionUploads`, либо отдельный `POST` в коллекцию `image`, затем в `submissionData` сохранять URL/`id`).
 
 **Решение команды:**  
-Вернуть в отдельной итерации: предзагрузка в `media` + ссылка в заявке, лимиты размера и MIME, возможно связка с **B-18** (оповещение с вложением). См. также [docs/contact-form-setup.md](../docs/contact-form-setup.md).
+Вернуть в отдельной итерации: предзагрузка в `image` + ссылка в заявке, лимиты размера и MIME, возможно связка с **B-18** (оповещение с вложением). См. также [docs/contact-form-setup.md](../docs/contact-form-setup.md).
 
 ---
 
@@ -568,7 +568,7 @@ _(заполнить после обсуждения)_
 
 **Что нашли:** После переноса контента в Payload сиды стали критичнее, но часть эвристик пока мягкая:
 
-- [`sourceBasename`](../src/payload/collections/Media.ts) в `media` и [`media-video`](../src/payload/collections/MediaVideo.ts) индексируется, но не уникален. Сидеры ищут `limit: 1`, поэтому дубликаты могут сделать выбор медиа недетерминированным.
+- [`sourceBasename`](../src/payload/collections/Image.ts) в `image` и [`video`](../src/payload/collections/Video.ts) индексируется, но не уникален. Сидеры ищут `limit: 1`, поэтому дубликаты могут сделать выбор медиа недетерминированным.
 - [`src/payload/seeds/aboutBootstrap.ts`](../src/payload/seeds/aboutBootstrap.ts) считает global заполненным, если есть `heading` и хотя бы одна карточка, но не проверяет обязательный rich-text `lead`.
 - В seed-файлах встречаются `as never` / `as unknown`, из-за чего часть изменений схемы Payload будет ловиться только в runtime.
 
@@ -591,14 +591,15 @@ _(заполнить после обсуждения)_
 | 2026-04-30 | B-03 | Done — частично: [`src/app/(site)/page.tsx`](../src/app/(site)/page.tsx) и [`src/app/(site)/collection/page.tsx`](../src/app/(site)/collection/page.tsx) переведены в Server Components, клиентские хуки главной вынесены в [`src/components/HomeCatalog.tsx`](../src/components/HomeCatalog.tsx). Подробности и «что на потом» — в теле B-03. |
 | 2026-04-30 | Payload + SQLite | Done: каталог и медиа в Payload v3 (`@payloadcms/db-sqlite`), файлы БД/медиа в `data/`, публичные страницы каталога с `dynamic = 'force-dynamic'`, импорт из JSON — `npm run migrate:payload` (bundle esbuild + `node`). Postgres — отложен до лимитов SQLite. |
 | 2026-04-30 | B-10 | Done: `products.server` + данные через RSC/props; фильтр по slug без легаси-веток; категория в URL на `/collection` синхронизируется на клиенте. По серверной фильтрации — блок **B-10** выше; оставшиеся Payload-риски каталога — **B-27**. |
-| 2026-04-30 | B-01 | Done — частично: оригиналы `DSC_*.jpg` удалены из рабочего дерева; превью ранее жили в `public/images/products/` (~8.9 МБ `_small`), затем каталог перенесён в Payload (`data/media`). История git не переписана — блобы остаются. |
+| 2026-04-30 | B-01 | Done — частично: оригиналы `DSC_*.jpg` удалены из рабочего дерева; превью ранее жили в `public/images/products/` (~8.9 МБ `_small`), затем каталог перенесён в Payload (`data/image`, коллекция `image`). История git не переписана — блобы остаются. |
 | 2026-04-30 | B-05 | Done — добавлен файл `public/images/placeholder.jpg` (≈ 3.9 КБ); fallback`ы из кода теперь резолвятся. |
 | 2026-04-30 | B-12 | Done — добавлен [`.env.example`](../.env.example): `NEXT_PUBLIC_SITE_URL`, SMTP, `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID` (для будущего **B-18**), S3, `PAYLOAD_SECRET`, `DATABASE_URI`. |
 | 2026-05-01 | B-06, B-07, B-09 | Done — частично: `@payloadcms/plugin-seo` на товары, категории и pages; `generateMetadata` на товаре, каталоге (`?category=`) и CMS slug pages; [`sitemap.ts`](../src/app/sitemap.ts), [`robots.ts`](../src/app/robots.ts), OG/Twitter через `meta` + `metadataBase` в `(site)/layout`. Default metadata главной/fallback — **B-25**. |
 | 2026-05-01 | B-02 (часть 1), B-18, B-19 | Частично **B-02**: `@payloadcms/plugin-form-builder`, сабмиты в **`form-submissions`**, главная через [`forms.server`](../src/lib/forms.server.ts) + [`ContactForm`](../src/components/ContactForm.tsx), док [`contact-form-setup.md`](../docs/contact-form-setup.md), **`npm run seed:contact-form`**. Поле файла убрано → **Open B-19**. Внешние уведомления (Telegram/SMTP) не делали → **Open B-18**. |
 | 2026-05-02 | B-04, B-08 | Done: [`next.config.ts`](../next.config.ts) — убран `/:path*` с годовым immutable; long-cache для `/_next/static`, `/images`, `/videos`; включена оптимизация `next/image` (AVIF/WebP, `deviceSizes`/`imageSizes`); `sizes` на слайдах Memories. |
 | 2026-05-02 | B-20 | Done: глобал **`memories`** ([`payload.config.ts`](../payload.config.ts), [`globals/Memories.ts`](../src/payload/globals/Memories.ts)), загрузка [`getMemoriesContent`](../src/lib/memories.server.ts) на главной и [`MemoriesSection`](../src/components/MemoriesSection.tsx); первичное наполнение **`npm run seed:memories`**, авто‑сид в `onInit` без перезаписи уже заполненного. |
-| 2026-05-02 | B-21 | Done: коллекция **`media-video`**, глобал **`hero`**, [`getHeroContent`](../src/lib/hero.server.ts) + CMS-driven [`Hero`](../src/components/Hero.tsx); **`npm run seed:hero`**, [`seedHeroIfMissing`](../src/payload/seeds/heroBootstrap.ts) в `onInit`; long-cache в [`next.config.ts`](../next.config.ts) для `/api/media-video/file/:path*`. |
+| 2026-05-02 | B-21 | Done: коллекция **`video`**, глобал **`hero`**, [`getHeroContent`](../src/lib/hero.server.ts) + CMS-driven [`Hero`](../src/components/Hero.tsx); **`npm run seed:hero`**, [`seedHeroIfMissing`](../src/payload/seeds/heroBootstrap.ts) в `onInit`; long-cache в [`next.config.ts`](../next.config.ts) для `/api/video/file/:path*` (и превью — `/api/image/file/:path*`). |
+| 2026-05-02 | Payload uploads | Переименованы коллекции загрузок: slug **`image`** / **`video`**, каталоги **`data/image`**, **`data/video`**; SQLite — [`20260502_190000_rename_media_collections.ts`](../src/payload/migrations/20260502_190000_rename_media_collections.ts) после baseline; SEO plugin — `uploadsCollection: image`. На уже заполненной БД: перенести каталоги с файлами, затем **`npm run payload:migrate`**. |
 | 2026-05-02 | B-22 | Done: глобал **`about`**, [`getAboutContent`](../src/lib/about.server.ts), CMS-driven [`About`](../src/components/About.tsx); **`npm run seed:about`**, [`seedAboutIfMissing`](../src/payload/seeds/aboutBootstrap.ts) в `onInit`; rich-text **`lead`** + 6 пресет-иконок в карточках. |
 | 2026-05-02 | B-23 | Done: **`push: false`** + [`src/payload/migrations/`](../src/payload/migrations/) + `prodMigrations`; baseline `20260502_082625_baseline` (полная схема, в т.ч. `pages_locales` / `_pages_v_locales`); dev-БД пересоздана после wipe; `npm run payload:migrate` → бандл + [`scripts/run-payload-migrate.mjs`](../scripts/run-payload-migrate.mjs) (tsx в alpine на undici); ESLint: игнор сгенерённых миграций в [`eslint.config.mjs`](../eslint.config.mjs); см. **[`docs/payload-migrations.md`](../docs/payload-migrations.md)**. |
 | 2026-05-02 | B-23 (каталог) | После wipe: каталог восстановлен из **`b6b13f9`** + **`npm run migrate:payload`** (не путать с schema-migrate); зафиксировано в теле **B-23** выше. |

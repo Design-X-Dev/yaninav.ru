@@ -3,6 +3,7 @@ import path from 'node:path';
 import fs from 'node:fs/promises';
 import type { Payload } from 'payload';
 
+import { IMAGE_COLLECTION_SLUG } from '../collections/Image';
 import { MEMORIES_GLOBAL_SLUG } from '../globals/Memories';
 import { MEMORY_DEFAULT_COPY, MEMORY_SLIDE_SOURCES } from './memoriesDefinition';
 
@@ -23,7 +24,7 @@ async function ensureMemorySlideMedia(payload: Payload, fileName: string): Promi
   const sourceBasename = `${MEDIA_SOURCE_PREFIX}${fileName}`;
 
   const found = await payload.find({
-    collection: 'media',
+    collection: IMAGE_COLLECTION_SLUG,
     limit: 1,
     depth: 0,
     where: { sourceBasename: { equals: sourceBasename } },
@@ -42,7 +43,7 @@ async function ensureMemorySlideMedia(payload: Payload, fileName: string): Promi
   }
 
   const created = await payload.create({
-    collection: 'media',
+    collection: IMAGE_COLLECTION_SLUG,
     overrideAccess: true,
     filePath: absolute,
     data: {
@@ -87,6 +88,7 @@ export async function seedMemoriesFromDisk(payload: Payload, opts?: { force?: bo
       overrideAccess: true,
       depth: 0,
       data: {
+        enabled: true,
         heading: MEMORY_DEFAULT_COPY.heading,
         subheading: MEMORY_DEFAULT_COPY.subheading,
         description: MEMORY_DEFAULT_COPY.description,

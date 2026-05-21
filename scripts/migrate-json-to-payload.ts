@@ -122,7 +122,7 @@ async function main() {
     if (!origFileName) return null;
 
     const found = await payload.find({
-      collection: 'media',
+      collection: 'image',
       limit: 1,
       depth: 0,
       where: { sourceBasename: { equals: origFileName } },
@@ -143,7 +143,7 @@ async function main() {
     }
 
     const created = await payload.create({
-      collection: 'media',
+      collection: 'image',
       overrideAccess: true,
       filePath: absolute,
       data: {

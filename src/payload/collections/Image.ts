@@ -4,11 +4,11 @@ import type { CollectionConfig } from 'payload';
 
 import { PAYLOAD_ADMIN_GROUPS } from '../adminSidebarGroups';
 
-export const MEDIA_VIDEO_COLLECTION_SLUG = 'media-video';
+export const IMAGE_COLLECTION_SLUG = 'image';
 
-export const MediaVideo: CollectionConfig = {
-  slug: MEDIA_VIDEO_COLLECTION_SLUG,
-  labels: { singular: 'Видеофайл', plural: 'Видеофайлы' },
+export const Image: CollectionConfig = {
+  slug: IMAGE_COLLECTION_SLUG,
+  labels: { singular: 'Изображение', plural: 'Изображения' },
   admin: {
     group: PAYLOAD_ADMIN_GROUPS.media,
     useAsTitle: 'filename',
@@ -21,8 +21,13 @@ export const MediaVideo: CollectionConfig = {
     delete: ({ req }) => Boolean(req.user),
   },
   upload: {
-    staticDir: path.resolve(process.cwd(), 'data/media-video'),
-    mimeTypes: ['video/mp4', 'video/webm'],
+    staticDir: path.resolve(process.cwd(), 'data/image'),
+    mimeTypes: ['image/*'],
+    imageSizes: [
+      { name: 'card', width: 900, height: 900, position: 'centre' },
+      { name: 'hero', width: 1600, height: 1600 },
+      { name: 'og', width: 1200, height: 630, position: 'centre' },
+    ],
   },
   fields: [
     {
@@ -32,9 +37,9 @@ export const MediaVideo: CollectionConfig = {
       label: 'Исходное имя файла',
       admin: {
         position: 'sidebar',
-        description: 'Дедуп при сидере (например home-hero/jewelry-hero.mp4)',
+        description: 'Дедуп при миграции из JSON (например DSC_2367.jpg)',
       },
     },
-    { name: 'alt', type: 'text', label: 'Подпись' },
+    { name: 'alt', type: 'text', localized: false, label: 'Подпись / alt' },
   ],
 };

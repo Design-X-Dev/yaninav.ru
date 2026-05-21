@@ -1,6 +1,7 @@
 import type { GlobalConfig } from 'payload';
 
-import { MEDIA_VIDEO_COLLECTION_SLUG } from '../collections/MediaVideo';
+import { IMAGE_COLLECTION_SLUG } from '../collections/Image';
+import { VIDEO_COLLECTION_SLUG } from '../collections/Video';
 import { PAYLOAD_ADMIN_GROUPS } from '../adminSidebarGroups';
 
 export const HERO_GLOBAL_SLUG = 'hero';
@@ -35,21 +36,21 @@ export const Hero: GlobalConfig = {
     {
       name: 'poster',
       type: 'upload',
-      relationTo: 'media',
+      relationTo: IMAGE_COLLECTION_SLUG,
       required: true,
       label: 'Постер (jpg/png)',
     },
     {
       name: 'videoMp4',
       type: 'upload',
-      relationTo: MEDIA_VIDEO_COLLECTION_SLUG,
+      relationTo: VIDEO_COLLECTION_SLUG,
       required: true,
       label: 'Видео .mp4',
     },
     {
       name: 'videoWebm',
       type: 'upload',
-      relationTo: MEDIA_VIDEO_COLLECTION_SLUG,
+      relationTo: VIDEO_COLLECTION_SLUG,
       label: 'Видео .webm (опц.)',
     },
   ],

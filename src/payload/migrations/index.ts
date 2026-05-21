@@ -1,9 +1,39 @@
 import * as migration_20260502_082625_baseline from './20260502_082625_baseline';
+import * as migration_20260502_190000_rename_media_collections from './20260502_190000_rename_media_collections';
+import * as migration_20260502_203000_homepage_global from './20260502_203000_homepage_global';
+import * as migration_20260502_204500_contact_global from './20260502_204500_contact_global';
+import * as migration_20260502_205000_home_catalog_global from './20260502_205000_home_catalog_global';
+import * as migration_20260502_210500_memories_enabled from './20260502_210500_memories_enabled';
 
 export const migrations = [
   {
     up: migration_20260502_082625_baseline.up,
     down: migration_20260502_082625_baseline.down,
     name: '20260502_082625_baseline'
+  },
+  {
+    up: migration_20260502_190000_rename_media_collections.up,
+    down: migration_20260502_190000_rename_media_collections.down,
+    name: '20260502_190000_rename_media_collections'
+  },
+  {
+    up: migration_20260502_203000_homepage_global.up,
+    down: migration_20260502_203000_homepage_global.down,
+    name: '20260502_203000_homepage_global'
+  },
+  {
+    up: migration_20260502_204500_contact_global.up,
+    down: migration_20260502_204500_contact_global.down,
+    name: '20260502_204500_contact_global'
+  },
+  {
+    up: migration_20260502_205000_home_catalog_global.up,
+    down: migration_20260502_205000_home_catalog_global.down,
+    name: '20260502_205000_home_catalog_global'
+  },
+  {
+    up: migration_20260502_210500_memories_enabled.up,
+    down: migration_20260502_210500_memories_enabled.down,
+    name: '20260502_210500_memories_enabled'
   },
 ];

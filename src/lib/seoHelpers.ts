@@ -66,7 +66,7 @@ export function truncateDescription(raw: string, max = 160): string {
   return raw.replace(/\s+/g, ' ').trim().slice(0, max);
 }
 
-/** Преобразует путь типа `/api/media/...` или абсолютный URL в абсолютный URL. */
+/** Преобразует путь типа `/api/image/...` или абсолютный URL в абсолютный URL. */
 export function absoluteOgImageUrl(pathOrUrl: string, base: string): string {
   const trimmed = base.replace(/\/$/, '');
   if (pathOrUrl.startsWith('http://') || pathOrUrl.startsWith('https://')) {

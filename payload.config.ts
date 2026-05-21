@@ -11,20 +11,30 @@ import { ru } from 'payload/i18n/ru';
 import sharp from 'sharp';
 
 import { Categories } from './src/payload/collections/Categories';
-import { Media } from './src/payload/collections/Media';
-import { MediaVideo } from './src/payload/collections/MediaVideo';
+import { Image } from './src/payload/collections/Image';
+import { Video } from './src/payload/collections/Video';
 import { Pages } from './src/payload/collections/Pages';
 import { Products } from './src/payload/collections/Products';
 import { Users } from './src/payload/collections/Users';
 import { About } from './src/payload/globals/About';
+import { Contact } from './src/payload/globals/Contact';
 import { Hero } from './src/payload/globals/Hero';
+import { HomeCatalogGlobal } from './src/payload/globals/HomeCatalog';
+import { Homepage, HOMEPAGE_GLOBAL_SLUG } from './src/payload/globals/Homepage';
 import { Memories } from './src/payload/globals/Memories';
 import { applyRussianFormLabels, applyRussianSubmissionLabels } from './src/payload/i18n/formBuilderLabels';
 import { seedAboutIfMissing } from './src/payload/seeds/aboutBootstrap';
+import { seedContactGlobalIfMissing, ensureContactChannelsFromDefaults } from './src/payload/seeds/contactBootstrap';
 import { seedContactFormIfMissing } from './src/payload/seeds/contactFormBootstrap';
 import { seedHeroIfMissing } from './src/payload/seeds/heroBootstrap';
+import { seedHomeCatalogIfMissing } from './src/payload/seeds/homeCatalogBootstrap';
+import { seedHomepageSeoIfMissing } from './src/payload/seeds/homepageBootstrap';
 import { seedMemoriesIfMissing } from './src/payload/seeds/memoriesBootstrap';
 import { seedPagesIfMissing } from './src/payload/seeds/pagesBootstrap';
+import {
+  HOMEPAGE_DEFAULT_DESCRIPTION,
+  HOMEPAGE_DEFAULT_TITLE,
+} from './src/lib/homepageMeta.defaults';
 import { pickLocalizedString, siteUrlNormalized, truncateDescription } from './src/lib/seoHelpers';
 import { PAYLOAD_ADMIN_GROUPS } from './src/payload/adminSidebarGroups';
 import { migrations as payloadProdMigrations } from './src/payload/migrations';
@@ -34,7 +44,11 @@ const siteUrl = siteUrlNormalized();
 const generateTitle: GenerateTitle<{ name?: unknown; slug?: unknown; title?: unknown }> = ({
   doc,
   collectionSlug,
+  globalSlug,
 }) => {
+  if (globalSlug === HOMEPAGE_GLOBAL_SLUG) {
+    return HOMEPAGE_DEFAULT_TITLE;
+  }
   if (collectionSlug === 'products') {
     const name = pickLocalizedString(doc?.name);
     const base = name || 'Ювелирное изделие';
@@ -57,7 +71,10 @@ const generateDescription: GenerateDescription<{
   description?: unknown;
   name?: unknown;
   title?: unknown;
-}> = ({ doc, collectionSlug }) => {
+}> = ({ doc, collectionSlug, globalSlug }) => {
+  if (globalSlug === HOMEPAGE_GLOBAL_SLUG) {
+    return truncateDescription(HOMEPAGE_DEFAULT_DESCRIPTION);
+  }
   if (collectionSlug === 'products') {
     const raw = pickLocalizedString(doc?.description);
     return truncateDescription(raw || '');
@@ -77,7 +94,14 @@ const generateDescription: GenerateDescription<{
   return '';
 };
 
-const generateURL: GenerateURL<{ id?: unknown; slug?: unknown }> = ({ doc, collectionSlug }) => {
+const generateURL: GenerateURL<{ id?: unknown; slug?: unknown }> = ({
+  doc,
+  collectionSlug,
+  globalSlug,
+}) => {
+  if (globalSlug === HOMEPAGE_GLOBAL_SLUG) {
+    return siteUrl;
+  }
   if (collectionSlug === 'products') {
     const id = typeof doc?.id === 'number' ? doc.id : Number(doc?.id);
     if (Number.isFinite(id)) return `${siteUrl}/products/${id}`;
@@ -95,7 +119,10 @@ const generateURL: GenerateURL<{ id?: unknown; slug?: unknown }> = ({ doc, colle
   return siteUrl;
 };
 
-const generateImage: GenerateImage<{ image?: unknown }> = ({ doc, collectionSlug }) => {
+const generateImage: GenerateImage<{ image?: unknown }> = ({ doc, collectionSlug, globalSlug }) => {
+  if (globalSlug === HOMEPAGE_GLOBAL_SLUG) {
+    return '';
+  }
   if (collectionSlug !== 'products') return '';
   const img = doc?.image;
   if (typeof img === 'number') return img;
@@ -126,8 +153,8 @@ export default buildConfig({
     fallback: true,
   },
   /** Порядок регистрации задаёт порядок внутри групп в Payload Admin. */
-  collections: [Pages, Categories, Products, Media, MediaVideo, Users],
-  globals: [Memories, Hero, About],
+  collections: [Pages, Categories, Products, Image, Video, Users],
+  globals: [Homepage, Memories, Hero, About, Contact, HomeCatalogGlobal],
   plugins: [
     formBuilderPlugin({
       fields: {
@@ -177,7 +204,8 @@ export default buildConfig({
     }),
     seoPlugin({
       collections: ['products', 'categories', 'pages'],
-      uploadsCollection: 'media',
+      globals: ['homepage'],
+      uploadsCollection: 'image',
       tabbedUI: true,
       generateTitle,
       generateDescription,
@@ -200,9 +228,13 @@ export default buildConfig({
   }),
   onInit: async (payload) => {
     await seedContactFormIfMissing(payload);
+    await seedHomepageSeoIfMissing(payload);
     await seedMemoriesIfMissing(payload);
     await seedHeroIfMissing(payload);
     await seedAboutIfMissing(payload);
+    await seedContactGlobalIfMissing(payload);
+    await ensureContactChannelsFromDefaults(payload);
+    await seedHomeCatalogIfMissing(payload);
     await seedPagesIfMissing(payload);
   },
   sharp,

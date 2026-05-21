@@ -25,6 +25,15 @@ export async function getMemoriesContent(): Promise<MemoriesContent> {
     overrideAccess: true,
   });
 
+  if (data?.enabled === false) {
+    return {
+      heading: '',
+      subheading: '',
+      description: '',
+      slides: [],
+    };
+  }
+
   const rawSlides = Array.isArray(data?.slides) ? data.slides : [];
   const slides: MemoriesSlide[] = rawSlides
     .map((s, i) => ({
