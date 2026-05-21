@@ -72,10 +72,26 @@ Prod-образ — standalone Next.js без `npm`/`esbuild`/исходнико
 
 ### Однократно на сервере
 
+На сервере **нет Node/npm** — только Docker. Скрипт [`scripts/migrate-prod.sh`](../scripts/migrate-prod.sh)
+использует `docker compose` и при отсутствии `git` на хосте — образ `alpine/git`.
+
 ```bash
 cd /apps/yaninav.ru
-git fetch --tags
-npm run prod:migrate    # или ./scripts/migrate-prod.sh
+git pull   # или git fetch --tags, если git есть на хосте
+./scripts/migrate-prod.sh
+```
+
+`npm run prod:migrate` — только для локальной машины разработчика (обёртка над тем же скриптом).
+
+Без скрипта — те же шаги вручную:
+
+```bash
+cd /apps/yaninav.ru
+docker run --rm -v "$PWD:/repo" -w /repo alpine/git:2.45.2 checkout v1.0 -- src/data/products.json public/images/products/
+docker compose -f docker-compose.prod.yml stop web
+docker compose -f docker-compose.prod.yml --profile tools run --rm --build migrate
+docker compose -f docker-compose.prod.yml start web
+rm -rf src/data/products.json public/images/products/
 ```
 
 Скрипт:

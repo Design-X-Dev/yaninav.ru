@@ -2,8 +2,13 @@
 # Production catalog import: restore products.json + images from tag v1.0,
 # run migrate in a one-off builder-stage container, then clean up.
 #
-# Usage:
+# On the server only Docker is required (no Node/npm on the host).
+# Git on the host is optional — falls back to alpine/git container.
+#
+# Usage (server):
 #   ./scripts/migrate-prod.sh
+#
+# Usage (local dev, optional):
 #   npm run prod:migrate
 
 set -euo pipefail
@@ -25,6 +30,19 @@ require_command() {
   fi
 }
 
+git_cmd() {
+  if command -v git >/dev/null 2>&1; then
+    git "$@"
+    return
+  fi
+
+  docker run --rm \
+    -v "${ROOT_DIR}:/repo" \
+    -w /repo \
+    alpine/git:2.45.2 \
+    "$@"
+}
+
 cleanup_restored_files() {
   if [[ "$RESTORED" != true ]]; then
     return 0
@@ -37,26 +55,25 @@ cleanup_restored_files() {
 trap cleanup_restored_files EXIT
 
 require_command docker
-require_command git
 
 if [[ ! -f "$ENV_FILE" ]]; then
   echo "Error: missing .env (copy from .env.example and set PAYLOAD_SECRET)" >&2
   exit 1
 fi
 
-if git fetch --tags 2>/dev/null; then
+if git_cmd fetch --tags 2>/dev/null; then
   :
 else
   echo "Warning: git fetch --tags failed; using local tags only" >&2
 fi
 
-if ! git rev-parse --verify "refs/tags/${MIGRATION_TAG}^{commit}" >/dev/null 2>&1; then
+if ! git_cmd rev-parse --verify "refs/tags/${MIGRATION_TAG}^{commit}" >/dev/null 2>&1; then
   echo "Error: git tag not found: ${MIGRATION_TAG}" >&2
   exit 1
 fi
 
 echo "Restoring catalog source files from tag ${MIGRATION_TAG}..."
-git checkout "${MIGRATION_TAG}" -- src/data/products.json public/images/products/
+git_cmd checkout "${MIGRATION_TAG}" -- src/data/products.json public/images/products/
 RESTORED=true
 
 echo "Stopping web service to avoid SQLite WAL race..."
