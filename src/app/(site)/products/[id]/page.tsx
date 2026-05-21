@@ -83,7 +83,11 @@ export default async function ProductPage({ params }: ProductPageProps) {
         <Header
           sectionColor={catalogBg}
           categories={categories}
-          currentProduct={{ category: product.category, name: product.name }}
+          currentProduct={{
+            category: product.category,
+            categorySlug: product.categorySlug,
+            name: product.name,
+          }}
         />
       </Suspense>
       <ProductDetailsClient

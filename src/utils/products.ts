@@ -39,7 +39,10 @@ export interface Product {
   meta?: ProductSeoMeta;
 }
 
-/** Slug категории для `?category=` и сравнения с фильтром коллекции. */
+/**
+ * Slug из названия (legacy fallback). Для CMS-товаров используйте `Product.categorySlug`.
+ * @deprecated Не использовать для данных из Payload — slug берётся из `categorySlug`.
+ */
 export function getCategorySlug(category: string): string {
   return category.toLowerCase().replace(/\s+/g, '-');
 }

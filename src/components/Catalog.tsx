@@ -5,7 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { SECTIONS } from '@/utils/theme';
-import { formatPrice, getCategorySlug, type Product } from '@/utils/products';
+import { formatPrice, type Product } from '@/utils/products';
 import { nbspAfterSi } from '@/utils/typography';
 
 // ─── Компоненты изображений ─────────────────────────────────────────────────
@@ -220,7 +220,7 @@ const Catalog = ({
     const filtered =
       activeCategory === 'all'
         ? products
-        : products.filter((p) => Boolean(p.category) && getCategorySlug(p.category) === activeCategory);
+        : products.filter((p) => Boolean(p.categorySlug) && p.categorySlug === activeCategory);
     const seen = new Set<number>();
     const unique = filtered.filter((p) => {
       if (seen.has(p.id)) return false;

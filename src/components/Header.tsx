@@ -4,7 +4,6 @@ import { useState, useEffect, useRef, useCallback, Suspense, type CSSProperties 
 import Link from 'next/link';
 import { usePathname, useSearchParams } from 'next/navigation';
 import { generateHeaderShadow } from '@/utils/shadowUtils';
-import { getCategorySlug } from '@/utils/products';
 import { scrollToHomeSection } from '@/utils/navigation';
 import LogoYV from '@/components/icons/LogoYV';
 
@@ -22,7 +21,7 @@ const MenuHeartIcon = ({ className }: { className?: string }) => (
 interface HeaderProps {
   sectionColor?: string;
   categories?: { id: string; name: string }[];
-  currentProduct?: { category: string; name: string };
+  currentProduct?: { category: string; categorySlug: string; name: string };
 }
 
 const HOME_PAGE_ANCHORS: { id: string; label: string }[] = [
@@ -172,10 +171,14 @@ const BreadcrumbDot = () => (
   </li>
 );
 
-function HeaderProductBreadcrumbs({ currentProduct }: { currentProduct?: { category: string; name: string } }) {
+function HeaderProductBreadcrumbs({
+  currentProduct,
+}: {
+  currentProduct?: { category: string; categorySlug: string; name: string };
+}) {
   if (!currentProduct) return null;
 
-  const { category, name } = currentProduct;
+  const { category, categorySlug, name } = currentProduct;
 
   return (
     <div className="px-2.5 sm:px-3 max-w-7xl mx-auto w-full pointer-events-auto">
@@ -190,7 +193,11 @@ function HeaderProductBreadcrumbs({ currentProduct }: { currentProduct?: { categ
             <BreadcrumbDot />
             <li className="flex shrink-0 items-center justify-center">
               <Link
-                href={`/collection?category=${encodeURIComponent(getCategorySlug(category))}`}
+                href={
+                  categorySlug
+                    ? `/collection?category=${encodeURIComponent(categorySlug)}`
+                    : '/collection'
+                }
                 className={subnavLinkClass(false)}
               >
                 {category}
