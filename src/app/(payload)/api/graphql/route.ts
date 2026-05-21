@@ -1,9 +1,15 @@
-/* THIS FILE WAS GENERATED AUTOMATICALLY BY PAYLOAD. */
-/* DO NOT MODIFY IT BECAUSE IT COULD BE REWRITTEN AT ANY TIME. */
+/** GraphQL POST disabled in production — see docs/backlog.md B-24. */
 import config from '@payload-config';
 import '@payloadcms/next/css';
 import { GRAPHQL_POST, REST_OPTIONS } from '@payloadcms/next/routes';
 
-export const POST = GRAPHQL_POST(config);
+const graphqlPost = GRAPHQL_POST(config);
+
+export const POST = (req: Request) => {
+  if (process.env.NODE_ENV === 'production') {
+    return new Response('Not Found', { status: 404 });
+  }
+  return graphqlPost(req);
+};
 
 export const OPTIONS = REST_OPTIONS(config);
