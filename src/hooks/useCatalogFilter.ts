@@ -7,17 +7,15 @@ import type { Product } from '@/utils/products';
 interface UseCatalogFilterOptions {
   products: Product[];
   categories: { id: string; name: string }[];
-  initialCategory?: string;
   limit?: number;
 }
 
 export function useCatalogFilter({
   products,
   categories,
-  initialCategory,
   limit,
 }: UseCatalogFilterOptions) {
-  const [activeCategory, setActiveCategory] = useState(() => initialCategory ?? 'all');
+  const [activeCategory, setActiveCategory] = useState('all');
   const pathname = usePathname();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -36,14 +34,6 @@ export function useCatalogFilter({
   useEffect(() => {
     syncCategoryFromUrl();
   }, [syncCategoryFromUrl]);
-
-  useEffect(() => {
-    if (pathname !== '/collection' || initialCategory == null) return;
-    const id = initialCategory.toLowerCase().trim();
-    if (id === 'all' || categories.some((c) => c.id === id)) {
-      setActiveCategory(id === 'all' ? 'all' : id);
-    }
-  }, [pathname, initialCategory, categories]);
 
   const handleCategoryChange = useCallback(
     (id: string) => {

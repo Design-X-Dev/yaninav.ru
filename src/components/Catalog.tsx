@@ -13,7 +13,6 @@ interface CatalogProps {
   limit?: number;
   showViewAll?: boolean;
   hideCategoryFilter?: boolean;
-  initialCategory?: string;
 }
 
 export default function Catalog({
@@ -22,12 +21,10 @@ export default function Catalog({
   limit,
   showViewAll = false,
   hideCategoryFilter = false,
-  initialCategory,
 }: CatalogProps) {
   const { activeCategory, displayedProducts, handleCategoryChange } = useCatalogFilter({
     products,
     categories,
-    initialCategory,
     limit,
   });
 
