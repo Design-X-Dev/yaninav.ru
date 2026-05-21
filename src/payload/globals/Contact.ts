@@ -2,6 +2,7 @@ import type { GlobalConfig } from 'payload';
 
 import { CONTACT_CHANNEL_DEFAULTS } from '../../lib/contact.defaults';
 import { PAYLOAD_ADMIN_GROUPS } from '../adminSidebarGroups';
+import { revalidateHomeGlobalsAfterChange } from '../hooks/revalidate';
 
 export const CONTACT_GLOBAL_SLUG = 'contact';
 
@@ -138,4 +139,7 @@ export const Contact: GlobalConfig = {
       label: 'Подпись под кнопкой записи',
     },
   ],
+  hooks: {
+    afterChange: [revalidateHomeGlobalsAfterChange],
+  },
 };

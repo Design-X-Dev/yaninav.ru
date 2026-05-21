@@ -1,5 +1,6 @@
 import 'server-only';
 
+import { unstable_cache } from 'next/cache';
 import { getPayload } from 'payload';
 import config from '@payload-config';
 import {
@@ -46,6 +47,9 @@ type ProductDoc = {
   meta?: PayloadMetaGroup;
 };
 
+const PRODUCTS_REVALIDATE = 60;
+const CATEGORIES_REVALIDATE = 300;
+
 function resolveMediaUrl(media: number | MediaLike | null | undefined): string {
   if (media == null || typeof media === 'number') return '';
   const m = media as MediaLike;
@@ -70,6 +74,7 @@ function mapMetaFromDoc(
 
 function docToUi(doc: ProductDoc): UiProduct {
   const cat = typeof doc.category === 'number' ? null : doc.category;
+  const categoryId = typeof doc.category === 'number' ? doc.category : (cat?.id ?? 0);
   const price = doc.price;
 
   return {
@@ -79,6 +84,8 @@ function docToUi(doc: ProductDoc): UiProduct {
     descriptionEnd: doc.descriptionEnd ?? undefined,
     price: price == null ? null : price,
     category: cat?.name ?? '',
+    categoryId,
+    categorySlug: cat?.slug ?? '',
     image: resolveMediaUrl(doc.image),
     image2: (() => {
       const u = resolveMediaUrl(doc.image2 ?? undefined);
@@ -104,7 +111,7 @@ async function payload() {
   return cached;
 }
 
-export async function getAllProducts(): Promise<UiProduct[]> {
+async function fetchAllProducts(): Promise<UiProduct[]> {
   const p = await payload();
   const { docs } = await p.find({
     collection: 'products',
@@ -116,7 +123,14 @@ export async function getAllProducts(): Promise<UiProduct[]> {
   return docs.map((d) => docToUi(d as unknown as ProductDoc));
 }
 
-export async function getProductById(id: number): Promise<UiProduct | undefined> {
+export async function getAllProducts(): Promise<UiProduct[]> {
+  return unstable_cache(fetchAllProducts, ['all-products'], {
+    revalidate: PRODUCTS_REVALIDATE,
+    tags: ['products'],
+  })();
+}
+
+async function fetchProductById(id: number): Promise<UiProduct | undefined> {
   const p = await payload();
   const { docs } = await p.find({
     collection: 'products',
@@ -132,8 +146,15 @@ export async function getProductById(id: number): Promise<UiProduct | undefined>
   return doc ? docToUi(doc) : undefined;
 }
 
+export async function getProductById(id: number): Promise<UiProduct | undefined> {
+  return unstable_cache(() => fetchProductById(id), ['product-by-id', String(id)], {
+    revalidate: PRODUCTS_REVALIDATE,
+    tags: ['products'],
+  })();
+}
+
 /** Порядок `ids` сохраняется; отсутствующие id пропускаются. */
-export async function getProductsByIdsOrdered(ids: number[]): Promise<UiProduct[]> {
+async function fetchProductsByIdsOrdered(ids: number[]): Promise<UiProduct[]> {
   const uniq = [...new Set(ids.filter((id) => typeof id === 'number' && Number.isFinite(id)))];
   if (uniq.length === 0) return [];
 
@@ -158,8 +179,16 @@ export async function getProductsByIdsOrdered(ids: number[]): Promise<UiProduct[
   return uniq.map((id) => byId.get(id)).filter((x): x is UiProduct => x != null);
 }
 
-export async function getProductsByCategory(slug: string): Promise<UiProduct[]> {
-  if (!slug || slug === 'all') return getAllProducts();
+export async function getProductsByIdsOrdered(ids: number[]): Promise<UiProduct[]> {
+  const key = ids.filter((id) => Number.isFinite(id)).join(',');
+  return unstable_cache(() => fetchProductsByIdsOrdered(ids), ['products-by-ids', key], {
+    revalidate: PRODUCTS_REVALIDATE,
+    tags: ['products'],
+  })();
+}
+
+async function fetchProductsByCategory(slug: string): Promise<UiProduct[]> {
+  if (!slug || slug === 'all') return fetchAllProducts();
 
   const p = await payload();
   const s = slug.toLowerCase().trim();
@@ -185,7 +214,53 @@ export async function getProductsByCategory(slug: string): Promise<UiProduct[]> 
     });
 }
 
-export async function getAllCategories(): Promise<{ id: string; name: string }[]> {
+export async function getProductsByCategory(slug: string): Promise<UiProduct[]> {
+  const normalized = slug.toLowerCase().trim() || 'all';
+  return unstable_cache(() => fetchProductsByCategory(normalized), ['products-by-category', normalized], {
+    revalidate: PRODUCTS_REVALIDATE,
+    tags: ['products'],
+  })();
+}
+
+async function fetchRelatedProducts(
+  productId: number,
+  categoryId: number,
+  limit: number
+): Promise<UiProduct[]> {
+  if (!Number.isFinite(categoryId) || categoryId <= 0) return [];
+
+  const p = await payload();
+  const { docs } = await p.find({
+    collection: 'products',
+    depth: 2,
+    limit,
+    where: {
+      and: [
+        { category: { equals: categoryId } },
+        { id: { not_equals: productId } },
+      ],
+    },
+  });
+
+  return docs.map((d) => docToUi(d as unknown as ProductDoc));
+}
+
+export async function getRelatedProducts(
+  productId: number,
+  categoryId: number,
+  limit = 3
+): Promise<UiProduct[]> {
+  return unstable_cache(
+    () => fetchRelatedProducts(productId, categoryId, limit),
+    ['related-products', String(productId), String(categoryId), String(limit)],
+    {
+      revalidate: PRODUCTS_REVALIDATE,
+      tags: ['products'],
+    }
+  )();
+}
+
+async function fetchAllCategories(): Promise<{ id: string; name: string }[]> {
   const p = await payload();
   const { docs } = await p.find({
     collection: 'categories',
@@ -201,7 +276,14 @@ export async function getAllCategories(): Promise<{ id: string; name: string }[]
   return [{ id: 'all', name: 'Все изделия' }, ...mapped];
 }
 
-export async function getCategoriesForNav(): Promise<{ id: string; name: string }[]> {
+export async function getAllCategories(): Promise<{ id: string; name: string }[]> {
+  return unstable_cache(fetchAllCategories, ['all-categories'], {
+    revalidate: CATEGORIES_REVALIDATE,
+    tags: ['categories'],
+  })();
+}
+
+async function fetchCategoriesForNav(): Promise<{ id: string; name: string }[]> {
   const p = await payload();
   const { docs } = await p.find({
     collection: 'categories',
@@ -216,8 +298,15 @@ export async function getCategoriesForNav(): Promise<{ id: string; name: string 
   }))];
 }
 
+export async function getCategoriesForNav(): Promise<{ id: string; name: string }[]> {
+  return unstable_cache(fetchCategoriesForNav, ['categories-for-nav'], {
+    revalidate: CATEGORIES_REVALIDATE,
+    tags: ['categories'],
+  })();
+}
+
 /** Для `generateMetadata` страницы `/collection?category=…`. */
-export async function getCategoryBySlug(
+async function fetchCategoryBySlug(
   slug: string
 ): Promise<{
   name: string;
@@ -254,4 +343,18 @@ export async function getCategoryBySlug(
     slug: doc.slug,
     meta: Object.keys(meta).length ? meta : undefined,
   };
+}
+
+export async function getCategoryBySlug(
+  slug: string
+): Promise<{
+  name: string;
+  slug: string;
+  meta?: UiProduct['meta'];
+} | null> {
+  const normalized = slug.toLowerCase().trim();
+  return unstable_cache(() => fetchCategoryBySlug(normalized), ['category-by-slug', normalized], {
+    revalidate: CATEGORIES_REVALIDATE,
+    tags: ['categories'],
+  })();
 }

@@ -1,5 +1,6 @@
 import 'server-only';
 
+import { unstable_cache } from 'next/cache';
 import type { SerializedEditorState } from 'lexical';
 import { getPayload } from 'payload';
 import config from '@payload-config';
@@ -37,6 +38,8 @@ export type CmsPage = {
   showLegalDivider: boolean;
   meta?: CmsPageMeta;
 };
+
+const PAGES_REVALIDATE = 300;
 
 function resolveMediaUrl(media: number | MediaLike | null | undefined): string {
   if (media == null || typeof media === 'number') return '';
@@ -78,7 +81,7 @@ function mapPageMeta(meta: PayloadMetaGroup): CmsPageMeta | undefined {
   return Object.keys(out).length ? out : undefined;
 }
 
-export async function getPageBySlug(slug: string): Promise<CmsPage | null> {
+async function fetchPageBySlug(slug: string): Promise<CmsPage | null> {
   const trimmed = slug.trim().toLowerCase();
   if (!trimmed) return null;
 
@@ -108,4 +111,12 @@ export async function getPageBySlug(slug: string): Promise<CmsPage | null> {
     showLegalDivider: Boolean((doc as { showLegalDivider?: unknown }).showLegalDivider),
     meta: mapPageMeta((doc as { meta?: PayloadMetaGroup }).meta ?? null),
   };
+}
+
+export async function getPageBySlug(slug: string): Promise<CmsPage | null> {
+  const trimmed = slug.trim().toLowerCase();
+  return unstable_cache(() => fetchPageBySlug(trimmed), ['page-by-slug', trimmed], {
+    revalidate: PAGES_REVALIDATE,
+    tags: ['pages'],
+  })();
 }

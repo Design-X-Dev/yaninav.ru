@@ -1,5 +1,6 @@
 import 'server-only';
 
+import { unstable_cache } from 'next/cache';
 import { getPayload } from 'payload';
 import config from '@payload-config';
 
@@ -15,6 +16,8 @@ export type HomepageCatalogResult = {
   enabled: boolean;
   products: UiProduct[];
 };
+
+const HOMEPAGE_CATALOG_REVALIDATE = 60;
 
 function stableShuffle<T>(items: T[]): T[] {
   const arr = [...items];
@@ -71,7 +74,7 @@ function normalizeMode(raw: unknown): HomeCatalogSelectionMode {
   return allowed.includes(m as HomeCatalogSelectionMode) ? (m as HomeCatalogSelectionMode) : 'catalog';
 }
 
-export async function getHomepageCatalogProducts(): Promise<HomepageCatalogResult> {
+async function fetchHomepageCatalogProducts(): Promise<HomepageCatalogResult> {
   try {
     const p = await getPayload({ config });
     const doc = await p.findGlobal({
@@ -109,4 +112,11 @@ export async function getHomepageCatalogProducts(): Promise<HomepageCatalogResul
     const products = await getAllProducts();
     return { enabled: true, products };
   }
+}
+
+export async function getHomepageCatalogProducts(): Promise<HomepageCatalogResult> {
+  return unstable_cache(fetchHomepageCatalogProducts, ['homepage-catalog-products'], {
+    revalidate: HOMEPAGE_CATALOG_REVALIDATE,
+    tags: ['homepage-catalog'],
+  })();
 }

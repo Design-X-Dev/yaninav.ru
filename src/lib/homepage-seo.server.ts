@@ -1,5 +1,6 @@
 import 'server-only';
 
+import { unstable_cache } from 'next/cache';
 import { getPayload } from 'payload';
 import config from '@payload-config';
 
@@ -16,6 +17,8 @@ export type HomepageMeta = {
   image?: string;
 };
 
+const GLOBALS_REVALIDATE = 60;
+
 type MediaLike = {
   id?: number;
   url?: string | null;
@@ -31,7 +34,7 @@ function resolveMediaUrl(media: number | MediaLike | null | undefined): string {
   return m.sizes?.og?.url || m.sizes?.card?.url || m.url || '';
 }
 
-export async function getHomepageMeta(): Promise<HomepageMeta | null> {
+async function fetchHomepageMeta(): Promise<HomepageMeta | null> {
   const p = await getPayload({ config });
   const doc = await p.findGlobal({
     slug: HOMEPAGE_GLOBAL_SLUG,
@@ -58,4 +61,11 @@ export async function getHomepageMeta(): Promise<HomepageMeta | null> {
   };
 
   return Object.keys(out).length ? out : null;
+}
+
+export async function getHomepageMeta(): Promise<HomepageMeta | null> {
+  return unstable_cache(fetchHomepageMeta, ['homepage-meta'], {
+    revalidate: GLOBALS_REVALIDATE,
+    tags: ['globals'],
+  })();
 }

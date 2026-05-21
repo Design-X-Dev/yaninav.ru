@@ -20,7 +20,12 @@ export interface Product {
   image: string;
   image2?: string;
   image3?: string;
+  /** Название категории для отображения. */
   category: string;
+  /** ID категории в Payload (для запросов related и фильтров). */
+  categoryId: number;
+  /** Slug категории из Payload (для `?category=` и фильтра коллекции). */
+  categorySlug: string;
   name: string;
   description: string;
   /** Текст после блока характеристик (маркетинговый хвост) */

@@ -2,6 +2,7 @@ import type { GlobalConfig } from 'payload';
 
 import { IMAGE_COLLECTION_SLUG } from '../collections/Image';
 import { PAYLOAD_ADMIN_GROUPS } from '../adminSidebarGroups';
+import { revalidateHomeGlobalsAfterChange } from '../hooks/revalidate';
 
 export const MEMORIES_GLOBAL_SLUG = 'memories';
 
@@ -50,4 +51,7 @@ export const Memories: GlobalConfig = {
       },
     },
   ],
+  hooks: {
+    afterChange: [revalidateHomeGlobalsAfterChange],
+  },
 };

@@ -1,5 +1,6 @@
 import 'server-only';
 
+import { unstable_cache } from 'next/cache';
 import { cache } from 'react';
 import { getPayload } from 'payload';
 import config from '@payload-config';
@@ -22,15 +23,23 @@ function trimStr(v: unknown): string {
   return typeof v === 'string' ? v.trim() : '';
 }
 
-/** Один запрос глобала «Контакты» на SSR-запрос (футер + секция + layout). */
-export const loadContactGlobal = cache(async () => {
+async function fetchContactGlobal() {
   const p = await getPayload({ config });
   return p.findGlobal({
     slug: CONTACT_GLOBAL_SLUG,
     depth: 0,
     overrideAccess: true,
   });
+}
+
+/** Кэш между запросами; внутри SSR-запроса дедуп через React cache. */
+const loadContactGlobalCached = unstable_cache(fetchContactGlobal, ['contact-global'], {
+  revalidate: 60,
+  tags: ['globals'],
 });
+
+/** Один запрос глобала «Контакты» на SSR-запрос (футер + секция + layout). */
+export const loadContactGlobal = cache(async () => loadContactGlobalCached());
 
 function channelsFromDoc(d: Record<string, unknown> | null | undefined): SiteContactChannels {
   return {
@@ -45,7 +54,7 @@ function channelsFromDoc(d: Record<string, unknown> | null | undefined): SiteCon
 export async function getSiteContactChannels(): Promise<SiteContactChannels> {
   try {
     const doc = await loadContactGlobal();
-    return channelsFromDoc(doc as Record<string, unknown>);
+    return channelsFromDoc(doc as unknown as Record<string, unknown>);
   } catch {
     return { ...CONTACT_CHANNEL_DEFAULTS };
   }
@@ -72,7 +81,7 @@ export async function getContactContent(): Promise<ContactSectionContent | null>
 
     if (doc?.enabled === false) return null;
 
-    const d = doc as Record<string, unknown> | null | undefined;
+    const d = doc as unknown as Record<string, unknown> | null | undefined;
 
     const heading = trimStr(d?.heading) || CONTACT_SECTION_DEFAULTS.heading;
     const intro = trimStr(d?.intro) || CONTACT_SECTION_DEFAULTS.intro;

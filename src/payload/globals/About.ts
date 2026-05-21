@@ -1,6 +1,7 @@
 import type { GlobalConfig } from 'payload';
 
 import { PAYLOAD_ADMIN_GROUPS } from '../adminSidebarGroups';
+import { revalidateHomeGlobalsAfterChange } from '../hooks/revalidate';
 
 export const ABOUT_GLOBAL_SLUG = 'about';
 
@@ -88,4 +89,7 @@ export const About: GlobalConfig = {
       ],
     },
   ],
+  hooks: {
+    afterChange: [revalidateHomeGlobalsAfterChange],
+  },
 };

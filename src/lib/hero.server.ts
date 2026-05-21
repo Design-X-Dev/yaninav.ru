@@ -1,5 +1,6 @@
 import 'server-only';
 
+import { unstable_cache } from 'next/cache';
 import { getPayload } from 'payload';
 import config from '@payload-config';
 
@@ -7,6 +8,8 @@ import { HERO_GLOBAL_SLUG } from '@/payload/globals/Hero';
 import type { HeroContent, HeroVideoSource } from '@/types/hero';
 
 export type { HeroContent, HeroVideoSource };
+
+const GLOBALS_REVALIDATE = 60;
 
 /** Как в memories: для постера предпочитаем `sizes.card`, иначе основной `url`. */
 function pickPosterUrl(media: unknown): string {
@@ -25,7 +28,7 @@ function pickVideoUrl(upload: unknown): string {
   return '';
 }
 
-export async function getHeroContent(): Promise<HeroContent | null> {
+async function fetchHeroContent(): Promise<HeroContent | null> {
   const p = await getPayload({ config });
   const data = await p.findGlobal({
     slug: HERO_GLOBAL_SLUG,
@@ -55,4 +58,11 @@ export async function getHeroContent(): Promise<HeroContent | null> {
     poster,
     sources,
   };
+}
+
+export async function getHeroContent(): Promise<HeroContent | null> {
+  return unstable_cache(fetchHeroContent, ['hero-content'], {
+    revalidate: GLOBALS_REVALIDATE,
+    tags: ['globals'],
+  })();
 }

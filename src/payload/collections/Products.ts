@@ -2,6 +2,10 @@ import type { CollectionConfig } from 'payload';
 
 import { IMAGE_COLLECTION_SLUG } from './Image';
 import { PAYLOAD_ADMIN_GROUPS } from '../adminSidebarGroups';
+import {
+  revalidateProductsAfterChange,
+  revalidateProductsAfterDelete,
+} from '../hooks/revalidate';
 
 export const Products: CollectionConfig = {
   slug: 'products',
@@ -71,4 +75,8 @@ export const Products: CollectionConfig = {
       ],
     },
   ],
+  hooks: {
+    afterChange: [revalidateProductsAfterChange],
+    afterDelete: [revalidateProductsAfterDelete],
+  },
 };

@@ -1,5 +1,6 @@
 import 'server-only';
 
+import { unstable_cache } from 'next/cache';
 import { getPayload } from 'payload';
 import type { SerializedEditorState } from 'lexical';
 import config from '@payload-config';
@@ -10,7 +11,9 @@ import { isAboutIconKey } from '@/types/about';
 
 export type { AboutContent, AboutFeature };
 
-export async function getAboutContent(): Promise<AboutContent | null> {
+const GLOBALS_REVALIDATE = 60;
+
+async function fetchAboutContent(): Promise<AboutContent | null> {
   const p = await getPayload({ config });
   const data = await p.findGlobal({
     slug: ABOUT_GLOBAL_SLUG,
@@ -47,4 +50,11 @@ export async function getAboutContent(): Promise<AboutContent | null> {
     lead,
     features,
   };
+}
+
+export async function getAboutContent(): Promise<AboutContent | null> {
+  return unstable_cache(fetchAboutContent, ['about-content'], {
+    revalidate: GLOBALS_REVALIDATE,
+    tags: ['globals'],
+  })();
 }

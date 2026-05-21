@@ -8,7 +8,7 @@ import { absoluteOgImageUrl, siteUrlNormalized, truncateDescription } from '@/li
 import { getPageBySlug } from '@/lib/pages.server';
 import { THEME } from '@/utils/theme';
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 300;
 
 interface InfoSlugPageProps {
   params: Promise<{ slug: string }>;

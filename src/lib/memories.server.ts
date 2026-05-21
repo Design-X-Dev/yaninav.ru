@@ -1,5 +1,6 @@
 import 'server-only';
 
+import { unstable_cache } from 'next/cache';
 import { getPayload } from 'payload';
 import config from '@payload-config';
 
@@ -7,6 +8,8 @@ import { MEMORIES_GLOBAL_SLUG } from '@/payload/globals/Memories';
 import type { MemoriesContent, MemoriesSlide } from '@/types/memories';
 
 export type { MemoriesContent, MemoriesSlide };
+
+const GLOBALS_REVALIDATE = 60;
 
 function pickUrl(media: unknown): string {
   if (!media || typeof media !== 'object') return '';
@@ -17,7 +20,7 @@ function pickUrl(media: unknown): string {
   return '';
 }
 
-export async function getMemoriesContent(): Promise<MemoriesContent> {
+async function fetchMemoriesContent(): Promise<MemoriesContent> {
   const p = await getPayload({ config });
   const data = await p.findGlobal({
     slug: MEMORIES_GLOBAL_SLUG,
@@ -52,4 +55,11 @@ export async function getMemoriesContent(): Promise<MemoriesContent> {
     description: typeof data?.description === 'string' ? data.description : '',
     slides: safeSlides,
   };
+}
+
+export async function getMemoriesContent(): Promise<MemoriesContent> {
+  return unstable_cache(fetchMemoriesContent, ['memories-content'], {
+    revalidate: GLOBALS_REVALIDATE,
+    tags: ['globals'],
+  })();
 }

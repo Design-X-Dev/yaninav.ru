@@ -1,6 +1,10 @@
 import type { CollectionConfig } from 'payload';
 
 import { PAYLOAD_ADMIN_GROUPS } from '../adminSidebarGroups';
+import {
+  revalidateCategoriesAfterChange,
+  revalidateCategoriesAfterDelete,
+} from '../hooks/revalidate';
 
 function slugFromName(name: string): string {
   return name.trim().toLowerCase().replace(/\s+/g, '-');
@@ -38,5 +42,7 @@ export const Categories: CollectionConfig = {
         return data;
       },
     ],
+    afterChange: [revalidateCategoriesAfterChange],
+    afterDelete: [revalidateCategoriesAfterDelete],
   },
 };

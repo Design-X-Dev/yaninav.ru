@@ -6,10 +6,10 @@ import Footer from '@/components/Footer';
 import ProductDetailsClient from '@/components/ProductDetailsClient';
 import { getSiteContactChannels } from '@/lib/contact.server';
 import { absoluteOgImageUrl, siteUrlNormalized, truncateDescription } from '@/lib/seoHelpers';
-import { getAllProducts, getProductById, getCategoriesForNav } from '@/lib/products.server';
+import { getCategoriesForNav, getProductById, getRelatedProducts } from '@/lib/products.server';
 import { SECTIONS } from '@/utils/theme';
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 60;
 
 interface ProductPageProps {
   params: Promise<{ id: string }>;
@@ -60,10 +60,9 @@ export default async function ProductPage({ params }: ProductPageProps) {
     notFound();
   }
 
-  const [product, categories, allProducts, channels] = await Promise.all([
+  const [product, categories, channels] = await Promise.all([
     getProductById(productId),
     getCategoriesForNav(),
-    getAllProducts(),
     getSiteContactChannels(),
   ]);
 
@@ -71,9 +70,10 @@ export default async function ProductPage({ params }: ProductPageProps) {
     notFound();
   }
 
-  const relatedProducts = allProducts
-    .filter((p) => p.category === product.category && p.id !== product.id)
-    .slice(0, 3);
+  const relatedProducts =
+    product.categoryId > 0
+      ? await getRelatedProducts(product.id, product.categoryId)
+      : [];
 
   const catalogBg = SECTIONS.catalog.bg;
 

@@ -5,7 +5,7 @@ import FavoritesClient from '@/components/FavoritesClient';
 import { SECTIONS } from '@/utils/theme';
 import { getAllProducts } from '@/lib/products.server';
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 60;
 
 export default async function FavoritesPage() {
   const products = await getAllProducts();

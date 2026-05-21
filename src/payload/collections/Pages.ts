@@ -1,6 +1,10 @@
 import type { CollectionConfig } from 'payload';
 
 import { PAYLOAD_ADMIN_GROUPS } from '../adminSidebarGroups';
+import {
+  revalidatePagesAfterChange,
+  revalidatePagesAfterDelete,
+} from '../hooks/revalidate';
 
 export const PAGES_COLLECTION_SLUG = 'pages';
 
@@ -92,5 +96,7 @@ export const Pages: CollectionConfig = {
         return data;
       },
     ],
+    afterChange: [revalidatePagesAfterChange],
+    afterDelete: [revalidatePagesAfterDelete],
   },
 };

@@ -3,6 +3,7 @@ import type { GlobalConfig } from 'payload';
 import { IMAGE_COLLECTION_SLUG } from '../collections/Image';
 import { VIDEO_COLLECTION_SLUG } from '../collections/Video';
 import { PAYLOAD_ADMIN_GROUPS } from '../adminSidebarGroups';
+import { revalidateHomeGlobalsAfterChange } from '../hooks/revalidate';
 
 export const HERO_GLOBAL_SLUG = 'hero';
 
@@ -54,4 +55,7 @@ export const Hero: GlobalConfig = {
       label: 'Видео .webm (опц.)',
     },
   ],
+  hooks: {
+    afterChange: [revalidateHomeGlobalsAfterChange],
+  },
 };

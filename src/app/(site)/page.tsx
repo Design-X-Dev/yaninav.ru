@@ -22,7 +22,7 @@ import { absoluteOgImageUrl, siteUrlNormalized, truncateDescription } from '@/li
 import { getHomepageCatalogProducts } from '@/lib/homeCatalog.server';
 import { getCategoriesForNav } from '@/lib/products.server';
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 60;
 
 export async function generateMetadata(): Promise<Metadata> {
   const base = siteUrlNormalized();

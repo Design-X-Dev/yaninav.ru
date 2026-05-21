@@ -7,7 +7,7 @@ import { SECTIONS } from '@/utils/theme';
 import { absoluteOgImageUrl, siteUrlNormalized, truncateDescription } from '@/lib/seoHelpers';
 import { getAllProducts, getCategoriesForNav, getCategoryBySlug } from '@/lib/products.server';
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 60;
 
 const defaultCatalogMeta = {
   title: 'Каталог — ЯНИНА В | Эксклюзивные украшения',

@@ -3,7 +3,7 @@ import { getAllCategories, getAllProducts } from '@/lib/products.server';
 import { siteUrlNormalized } from '@/lib/seoHelpers';
 
 /** Не пререндерить на билде — Local API обращается к SQLite (схема с plugin-seo). */
-export const dynamic = 'force-dynamic';
+export const revalidate = 3600;
 
 /** Динамическая карта URL: статические страницы + каталог с фильтром + все товары. */
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
