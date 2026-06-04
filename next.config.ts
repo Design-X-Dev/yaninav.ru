@@ -20,6 +20,9 @@ const shortIconCacheHeaders = [
 
 const nextConfig: NextConfig = {
   output: 'standalone',
+  // Отключить streaming metadata — метаданные всегда в <head> для всех агентов
+  // Нужно для корректного отображения превью в соцсетях/мессенджерах (WhatsApp, Telegram, VK)
+  htmlLimitedBots: /.*/,
   images: {
     formats: ['image/avif', 'image/webp'],
     deviceSizes: [320, 640, 750, 828, 1080, 1200, 1920],
