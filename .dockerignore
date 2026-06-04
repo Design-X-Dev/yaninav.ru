@@ -4,6 +4,7 @@ npm-debug.log
 .git
 .gitignore
 .env*.local
+.env
 *.md
 Dockerfile
 docker-compose*.yml

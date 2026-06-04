@@ -3,8 +3,11 @@ import '../globals.css';
 import type { Metadata } from 'next';
 import { Playfair_Display, Inter } from 'next/font/google';
 import localFont from 'next/font/local';
+import { Suspense } from 'react';
 import AppLoader from '@/components/AppLoader';
 import ContactMessengerFab from '@/components/ContactMessengerFab';
+import TopMailRu from '@/components/TopMailRu';
+import TopMailRuPageView from '@/components/TopMailRuPageView';
 import { phoneHrefToWhatsAppLink } from '@/lib/contact.defaults';
 import { getSiteContactChannels } from '@/lib/contact.server';
 import {
@@ -61,6 +64,10 @@ export default async function SiteLayout({
       className={`${playfair.variable} ${inter.variable} ${disruptorScript.variable}`}
     >
       <body className="antialiased min-h-screen">
+        <TopMailRu />
+        <Suspense fallback={null}>
+          <TopMailRuPageView />
+        </Suspense>
         <AppLoader />
         {children}
         <ContactMessengerFab whatsappHref={whatsappHref} />
