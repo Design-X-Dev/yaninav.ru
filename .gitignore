@@ -61,3 +61,6 @@ next-env.d.ts
 # Payload CLI: сборка конфига без tsx/tsconfig paths (esbuild)
 .payload-bundle/
 
+# Next.js image optimization cache (сохраняется между деплоями)
+.next-cache/
+
