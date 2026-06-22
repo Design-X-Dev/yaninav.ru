@@ -1,9 +1,9 @@
-# Prod: `docker compose -f docker-compose.prod.yml up --build`
+# Prod: `docker compose -f docker-compose.prod.yml up -d --build`
 services:
   web:
     build: .
-    ports:
-      - "127.0.0.1:3000:3000"
+    expose:
+      - "3000"
     environment:
       NODE_ENV: production
       DATABASE_URI: file:/app/data/payload.db
@@ -23,6 +23,19 @@ services:
           cpus: '2'
           memory: 2G
 
+  caddy:
+    image: caddy:2-alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - web
+    restart: unless-stopped
+
   migrate:
     profiles: ["tools"]
     build:
@@ -37,3 +50,7 @@ services:
       - ./data:/app/data
     # Builder /app is root-owned; chown data for web (uid 1001) after migration.
     command: ["sh", "-c", "npm run migrate:payload && chown -R 1001:1001 /app/data"]
+
+volumes:
+  caddy_data:
+  caddy_config:

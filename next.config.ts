@@ -29,8 +29,6 @@ const nextConfig: NextConfig = {
     // Оптимизатор теперь меньше нагружает CPU в runtime
     deviceSizes: [640, 828, 1080, 1200, 1920],
     imageSizes: [32, 64, 128, 256, 640, 900],
-    // Качество JPEG 80% вместо дефолта 75% — баланс между размером и качеством
-    quality: 80,
   },
   async redirects() {
     return [

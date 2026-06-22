@@ -25,6 +25,7 @@ const ProductImage = ({ src, alt, isActive, isFirstImage = false, shouldRender =
       className="object-cover transition-opacity duration-300"
       style={{ opacity: isActive ? 1 : 0, position: 'absolute', zIndex: isActive ? 1 : 0 }}
       sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+      quality={80}
       // Первая картинка грузится с приоритетом в первых 8 карточках, остальные — лениво
       priority={isFirstImage && shouldRender}
       loading={isFirstImage ? 'eager' : 'lazy'}
