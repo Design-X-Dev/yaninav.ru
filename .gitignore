@@ -23,6 +23,7 @@ Thumbs.db
 # archives & data dumps
 *.zip
 *.csv
+data.backup-*/
 
 # notes / drafts
 need.txt
@@ -54,6 +55,7 @@ next-env.d.ts
 /data/*.db*
 /data/image/*
 /data/video/*
+/public/images/products/
 
 # Одноразовая сборка migrate (генерируется `npm run migrate:payload:build`)
 .migrate-bundle/
