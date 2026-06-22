@@ -98,3 +98,7 @@ export const revalidateHomeCatalogAfterChange = makeGlobalRevalidateAfterChange(
   ['homepage-catalog'],
   ['/']
 );
+
+export const revalidateScriptsAfterChange = makeRevalidateAfterChange(['scripts'], ['/']);
+
+export const revalidateScriptsAfterDelete = makeRevalidateAfterDelete(['scripts'], ['/']);

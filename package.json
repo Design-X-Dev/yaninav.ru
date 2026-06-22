@@ -24,6 +24,8 @@
     "seed:about": "npm run seed:about:build && cross-env NODE_OPTIONS=--no-deprecation node .migrate-bundle/seed-about.mjs",
     "seed:pages:build": "esbuild scripts/seed-pages.ts --bundle --format=esm --platform=node --packages=external --outfile=.migrate-bundle/seed-pages.mjs",
     "seed:pages": "npm run seed:pages:build && cross-env NODE_OPTIONS=--no-deprecation node .migrate-bundle/seed-pages.mjs",
+    "seed:scripts:build": "esbuild scripts/seed-scripts.ts --bundle --format=esm --platform=node --packages=external --outfile=.migrate-bundle/seed-scripts.mjs",
+    "seed:scripts": "npm run seed:scripts:build && cross-env NODE_OPTIONS=--no-deprecation node .migrate-bundle/seed-scripts.mjs",
     "payload:config:bundle": "esbuild payload.config.ts --bundle --format=esm --platform=node --packages=external --outfile=.payload-bundle/payload.config.mjs",
     "payload:dev-db-prep": "cross-env NODE_OPTIONS=--no-deprecation node scripts/remove-dev-push-marker.mjs",
     "payload:migrate": "npm run payload:config:bundle && npm run payload:dev-db-prep && cross-env NODE_OPTIONS=--no-deprecation node scripts/run-payload-migrate.mjs",
