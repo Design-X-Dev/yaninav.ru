@@ -18,12 +18,28 @@ const shortIconCacheHeaders = [
   },
 ];
 
+const securityHeaders = [
+  { key: 'X-Content-Type-Options', value: 'nosniff' },
+  { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
+  { key: 'X-Frame-Options', value: 'SAMEORIGIN' },
+  // Clickjacking for /admin and the rest of the site. Full CSP (script-src) deferred — breaks CMS scripts + Next inline.
+  { key: 'Content-Security-Policy', value: "frame-ancestors 'self'" },
+  { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=()' },
+];
+
 const nextConfig: NextConfig = {
   output: 'standalone',
+  // Отключить streaming metadata — метаданные всегда в <head> для всех агентов
+  // Нужно для корректного отображения превью в соцсетях/мессенджерах (WhatsApp, Telegram, VK)
+  htmlLimitedBots: /.*/,
   images: {
     formats: ['image/avif', 'image/webp'],
-    deviceSizes: [320, 640, 750, 828, 1080, 1200, 1920],
-    imageSizes: [16, 32, 64, 96, 128, 256, 384, 640, 900],
+    // Next 16: quality must be allowlisted (ProductCard uses 80; default is 75)
+    qualities: [75, 80],
+    // Уменьшены breakpoints — картинки уже оптимизированы на дисе (sizes.card: 900x900)
+    // Оптимизатор теперь меньше нагружает CPU в runtime
+    deviceSizes: [640, 828, 1080, 1200, 1920],
+    imageSizes: [32, 64, 128, 256, 640, 900],
   },
   async redirects() {
     return [
@@ -36,6 +52,10 @@ const nextConfig: NextConfig = {
   },
   async headers() {
     return [
+      {
+        source: '/:path*',
+        headers: securityHeaders,
+      },
       {
         source: '/_next/static/:path*',
         headers: longCacheHeaders,

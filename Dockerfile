@@ -1,29 +1,41 @@
 # Сборка
-FROM node:20-alpine AS builder
+FROM node:20-bookworm-slim AS builder
 
-RUN apk add --no-cache libc6-compat python3 make g++ vips-dev
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    python3 make g++ libvips-dev \
+    && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
-COPY package.json package-lock.json* ./
+COPY package.json package-lock.json* .npmrc ./
 COPY patches ./patches
 RUN npm ci
 
 COPY . .
+RUN mkdir -p data
+ENV DATABASE_URI=file:./data/payload.db
+ENV PAYLOAD_SECRET=docker-build-placeholder-secret
+# NEXT_PUBLIC_* is inlined into the client bundle at build time — not overridable at runtime.
+ARG NEXT_PUBLIC_SITE_URL=https://yaninav.ru
+ENV NEXT_PUBLIC_SITE_URL=$NEXT_PUBLIC_SITE_URL
+ENV ADMIN_EMAIL=build@local.dev
+ENV ADMIN_PASSWORD=buildlocalpass
+RUN npm run payload:migrate
 RUN npm run build
 
 # Продакшен
-FROM node:20-alpine AS runner
+FROM node:20-bookworm-slim AS runner
 
 WORKDIR /app
 
-RUN apk add --no-cache vips
+RUN apt-get update && apt-get install -y --no-install-recommends libvips42 \
+    && rm -rf /var/lib/apt/lists/*
 
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 
-RUN addgroup --system --gid 1001 nodejs
-RUN adduser --system --uid 1001 nextjs
+RUN groupadd --system --gid 1001 nodejs \
+    && useradd --system --uid 1001 --gid nodejs nextjs
 
 RUN mkdir -p /app/data/image /app/data/video && chown -R nextjs:nodejs /app/data
 

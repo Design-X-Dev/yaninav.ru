@@ -5,6 +5,7 @@ import { Playfair_Display, Inter } from 'next/font/google';
 import localFont from 'next/font/local';
 import AppLoader from '@/components/AppLoader';
 import ContactMessengerFab from '@/components/ContactMessengerFab';
+import SiteScripts from '@/components/SiteScripts';
 import { phoneHrefToWhatsAppLink } from '@/lib/contact.defaults';
 import { getSiteContactChannels } from '@/lib/contact.server';
 import {
@@ -60,10 +61,16 @@ export default async function SiteLayout({
       lang="ru"
       className={`${playfair.variable} ${inter.variable} ${disruptorScript.variable}`}
     >
+      <head>
+        <SiteScripts location="head_open" />
+        <SiteScripts location="head_close" />
+      </head>
       <body className="antialiased min-h-screen">
+        <SiteScripts location="body_open" />
         <AppLoader />
         {children}
         <ContactMessengerFab whatsappHref={whatsappHref} />
+        <SiteScripts location="body_close" />
       </body>
     </html>
   );

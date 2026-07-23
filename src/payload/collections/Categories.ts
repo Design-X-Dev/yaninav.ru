@@ -15,7 +15,8 @@ export const Categories: CollectionConfig = {
   labels: { singular: 'Категория', plural: 'Категории' },
   admin: { group: PAYLOAD_ADMIN_GROUPS.pagesAndCatalog, useAsTitle: 'name', defaultColumns: ['name', 'slug', 'order'] },
   access: {
-    read: () => true,
+    // Public site uses Local API (overrideAccess). Anonymous REST scrape blocked.
+    read: ({ req }) => Boolean(req.user),
     create: ({ req }) => Boolean(req.user),
     update: ({ req }) => Boolean(req.user),
     delete: ({ req }) => Boolean(req.user),

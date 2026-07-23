@@ -12,13 +12,17 @@ export function pickLocalizedString(value: unknown): string | undefined {
   if (typeof value === 'string') {
     const trimmed = value.trim();
     if (!trimmed) return undefined;
+    // Only treat as serialized locale map when JSON looks like { ru: "...", en: "..." }.
+    // Avoid mangling legitimate content that happens to start with `{`.
     if (trimmed.startsWith('{') && trimmed.endsWith('}')) {
       try {
         const parsed = JSON.parse(trimmed) as unknown;
-        const fromLocales = pickLocalizedString(parsed);
-        if (fromLocales !== undefined) return fromLocales;
+        if (isLocaleStringMap(parsed)) {
+          const fromLocales = pickLocalizedString(parsed);
+          if (fromLocales !== undefined) return fromLocales;
+        }
       } catch {
-        /* не JSON локализации — трактуем как обычную строку */
+        /* not JSON — treat as plain string */
       }
     }
     return trimmed;
@@ -40,6 +44,20 @@ export function pickLocalizedString(value: unknown): string | undefined {
     }
   }
   return undefined;
+}
+
+const LOCALE_MAP_KEYS = new Set(['ru', 'ru-RU', 'en', 'en-US']);
+
+function isLocaleStringMap(value: unknown): boolean {
+  if (value == null || typeof value !== 'object' || Array.isArray(value)) return false;
+  const entries = Object.entries(value as Record<string, unknown>);
+  if (entries.length === 0) return false;
+  let hasKnownLocale = false;
+  for (const [key, inner] of entries) {
+    if (typeof inner !== 'string') return false;
+    if (LOCALE_MAP_KEYS.has(key)) hasKnownLocale = true;
+  }
+  return hasKnownLocale;
 }
 
 /** Для связи upload/meta.image из локализованной карты значений — берём первое непустое. */

@@ -72,6 +72,7 @@ export interface Config {
     products: Product;
     image: Image;
     video: Video;
+    scripts: Script;
     users: User;
     forms: Form;
     'form-submissions': FormSubmission;
@@ -87,6 +88,7 @@ export interface Config {
     products: ProductsSelect<false> | ProductsSelect<true>;
     image: ImageSelect<false> | ImageSelect<true>;
     video: VideoSelect<false> | VideoSelect<true>;
+    scripts: ScriptsSelect<false> | ScriptsSelect<true>;
     users: UsersSelect<false> | UsersSelect<true>;
     forms: FormsSelect<false> | FormsSelect<true>;
     'form-submissions': FormSubmissionsSelect<false> | FormSubmissionsSelect<true>;
@@ -315,6 +317,31 @@ export interface Video {
   height?: number | null;
   focalX?: number | null;
   focalY?: number | null;
+}
+/**
+ * Сторонние скрипты и HTML-вставки (Метрика, GTM, пиксели, виджеты).
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "scripts".
+ */
+export interface Script {
+  id: number;
+  /**
+   * Стабильный идентификатор для сид-данных, напр. «top-mailru». Не меняйте.
+   */
+  key: string;
+  /**
+   * Понятное имя: «Яндекс.Метрика», «GTM», «Пиксель VK».
+   */
+  name: string;
+  location: 'head_open' | 'head_close' | 'body_open' | 'body_close';
+  /**
+   * Вставьте блок целиком, как из инструкции сервиса.
+   */
+  code: string;
+  isActive?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -568,6 +595,10 @@ export interface PayloadLockedDocument {
         value: number | Video;
       } | null)
     | ({
+        relationTo: 'scripts';
+        value: number | Script;
+      } | null)
+    | ({
         relationTo: 'users';
         value: number | User;
       } | null)
@@ -761,6 +792,19 @@ export interface VideoSelect<T extends boolean = true> {
   height?: T;
   focalX?: T;
   focalY?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "scripts_select".
+ */
+export interface ScriptsSelect<T extends boolean = true> {
+  key?: T;
+  name?: T;
+  location?: T;
+  code?: T;
+  isActive?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

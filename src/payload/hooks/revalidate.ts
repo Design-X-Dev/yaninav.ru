@@ -11,7 +11,9 @@ async function runRevalidation(tags: string[], paths: string[]): Promise<void> {
   try {
     const { revalidateTag, revalidatePath } = await import('next/cache');
     for (const tag of tags) {
-      revalidateTag(tag);
+      // Next 16: second arg required. expire:0 — immediate invalidation after CMS edits
+      // (closer to Next 15 one-arg behaviour than SWR profile 'max').
+      revalidateTag(tag, { expire: 0 });
     }
     for (const path of paths) {
       revalidatePath(path);
@@ -98,3 +100,7 @@ export const revalidateHomeCatalogAfterChange = makeGlobalRevalidateAfterChange(
   ['homepage-catalog'],
   ['/']
 );
+
+export const revalidateScriptsAfterChange = makeRevalidateAfterChange(['scripts'], ['/']);
+
+export const revalidateScriptsAfterDelete = makeRevalidateAfterDelete(['scripts'], ['/']);

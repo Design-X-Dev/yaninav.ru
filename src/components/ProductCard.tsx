@@ -5,19 +5,36 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { formatPrice, type Product } from '@/utils/products';
 
-const ProductImage = ({ src, alt, isActive }: { src: string; alt: string; isActive: boolean }) => (
-  <Image
-    src={src?.trim() ? src : '/images/placeholder.jpg'}
-    alt={alt}
-    fill
-    className="object-cover transition-opacity duration-300"
-    style={{ opacity: isActive ? 1 : 0, position: 'absolute', zIndex: isActive ? 1 : 0 }}
-    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-    onError={(e: React.SyntheticEvent<HTMLImageElement>) => {
-      e.currentTarget.src = '/images/placeholder.jpg';
-    }}
-  />
-);
+interface ProductImageProps {
+  src: string;
+  alt: string;
+  isActive: boolean;
+  isFirstImage?: boolean;
+  shouldRender?: boolean;
+}
+
+const ProductImage = ({ src, alt, isActive, isFirstImage = false, shouldRender = true }: ProductImageProps) => {
+  // Не рендерим изображение, если оно не видно и не должно быть предзагружено
+  if (!shouldRender) return null;
+
+  return (
+    <Image
+      src={src?.trim() ? src : '/images/placeholder.jpg'}
+      alt={alt}
+      fill
+      className="object-cover transition-opacity duration-300"
+      style={{ opacity: isActive ? 1 : 0, position: 'absolute', zIndex: isActive ? 1 : 0 }}
+      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+      quality={80}
+      // Первая картинка грузится с приоритетом в первых 8 карточках, остальные — лениво
+      priority={isFirstImage && shouldRender}
+      loading={isFirstImage ? 'eager' : 'lazy'}
+      onError={(e: React.SyntheticEvent<HTMLImageElement>) => {
+        e.currentTarget.src = '/images/placeholder.jpg';
+      }}
+    />
+  );
+};
 
 const DotIndicator = ({
   index,
@@ -80,6 +97,7 @@ export interface ProductCardProps {
 
 export default function ProductCard({ product }: ProductCardProps) {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [hasInteracted, setHasInteracted] = useState(false);
 
   const images = useMemo(() => {
     return [product.image, product.image2, product.image3].filter((img): img is string => Boolean(img?.trim()));
@@ -91,6 +109,7 @@ export default function ProductCard({ product }: ProductCardProps) {
     (e: React.MouseEvent) => {
       e.preventDefault();
       e.stopPropagation();
+      setHasInteracted(true);
       setCurrentImageIndex((prev) => (prev + 1) % images.length);
     },
     [images.length],
@@ -100,6 +119,7 @@ export default function ProductCard({ product }: ProductCardProps) {
     (e: React.MouseEvent) => {
       e.preventDefault();
       e.stopPropagation();
+      setHasInteracted(true);
       setCurrentImageIndex((prev) => (prev - 1 + images.length) % images.length);
     },
     [images.length],
@@ -108,6 +128,7 @@ export default function ProductCard({ product }: ProductCardProps) {
   const handleDotClick = useCallback((e: React.MouseEvent, index: number) => {
     e.preventDefault();
     e.stopPropagation();
+    setHasInteracted(true);
     setCurrentImageIndex(index);
   }, []);
 
@@ -121,15 +142,23 @@ export default function ProductCard({ product }: ProductCardProps) {
           className="relative w-full aspect-square bg-theme-secondary overflow-hidden flex-shrink-0"
           style={{ cursor: hasMultiple ? 'pointer' : 'default' }}
           onClick={hasMultiple ? handleNextImage : undefined}
+          onMouseEnter={() => setHasInteracted(true)}
         >
-          {images.map((image, index) => (
-            <ProductImage
-              key={`${product.id}-img-${index}`}
-              src={image}
-              alt={index === 0 ? product.name : `${product.name} — вид ${index + 1}`}
-              isActive={currentImageIndex === index}
-            />
-          ))}
+          {images.map((image, index) => {
+            // Рендерим первую картинку всегда, остальные — только после взаимодействия
+            const shouldRender = index === 0 || hasInteracted;
+
+            return (
+              <ProductImage
+                key={`${product.id}-img-${index}`}
+                src={image}
+                alt={index === 0 ? product.name : `${product.name} — вид ${index + 1}`}
+                isActive={currentImageIndex === index}
+                isFirstImage={index === 0}
+                shouldRender={shouldRender}
+              />
+            );
+          })}
           {hasMultiple && (
             <>
               <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2.5 z-10">

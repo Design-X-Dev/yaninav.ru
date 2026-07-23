@@ -15,6 +15,7 @@ import { Image } from './src/payload/collections/Image';
 import { Video } from './src/payload/collections/Video';
 import { Pages } from './src/payload/collections/Pages';
 import { Products } from './src/payload/collections/Products';
+import { Scripts } from './src/payload/collections/Scripts';
 import { Users } from './src/payload/collections/Users';
 import { About } from './src/payload/globals/About';
 import { Contact } from './src/payload/globals/Contact';
@@ -31,6 +32,7 @@ import { seedHomeCatalogIfMissing } from './src/payload/seeds/homeCatalogBootstr
 import { seedHomepageSeoIfMissing } from './src/payload/seeds/homepageBootstrap';
 import { seedMemoriesIfMissing } from './src/payload/seeds/memoriesBootstrap';
 import { seedPagesIfMissing } from './src/payload/seeds/pagesBootstrap';
+import { seedScriptsIfMissing } from './src/payload/seeds/scriptsBootstrap';
 import { seedAdminIfMissing } from './src/payload/seeds/usersBootstrap';
 import {
   HOMEPAGE_DEFAULT_DESCRIPTION,
@@ -166,7 +168,7 @@ export default buildConfig({
     fallback: true,
   },
   /** Порядок регистрации задаёт порядок внутри групп в Payload Admin. */
-  collections: [Pages, Categories, Products, Image, Video, Users],
+  collections: [Pages, Categories, Products, Image, Video, Scripts, Users],
   globals: [Homepage, Memories, Hero, About, Contact, HomeCatalogGlobal],
   plugins: [
     formBuilderPlugin({
@@ -187,6 +189,10 @@ export default buildConfig({
       formOverrides: {
         labels: { singular: 'Форма', plural: 'Формы' },
         admin: { group: PAYLOAD_ADMIN_GROUPS.forms, useAsTitle: 'title' },
+        // Site loads forms via Local API; block anonymous /api/forms scrape.
+        access: {
+          read: ({ req: { user } }) => Boolean(user),
+        },
         fields: ({ defaultFields }) => [
           {
             name: 'slug',
@@ -280,6 +286,7 @@ export default buildConfig({
     await ensureContactChannelsFromDefaults(payload);
     await seedHomeCatalogIfMissing(payload);
     await seedPagesIfMissing(payload);
+    await seedScriptsIfMissing(payload);
   },
   sharp,
 });

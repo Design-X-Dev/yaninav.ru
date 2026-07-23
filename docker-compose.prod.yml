@@ -1,21 +1,60 @@
-# Prod: `docker compose -f docker-compose.prod.yml up --build`
+# Prod: `docker compose -f docker-compose.prod.yml up -d --build`
 services:
   web:
-    build: .
-    ports:
-      - "127.0.0.1:3000:3000"
+    build:
+      context: .
+      args:
+        # Baked into client JS at build time — changing this without rebuild has no effect on the browser bundle.
+        NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL:-https://yaninav.ru}
+    expose:
+      - "3000"
     environment:
       NODE_ENV: production
       DATABASE_URI: file:/app/data/payload.db
       PAYLOAD_SECRET: ${PAYLOAD_SECRET:?set PAYLOAD_SECRET in .env}
       ADMIN_EMAIL: ${ADMIN_EMAIL:-}
+      # Only needed on first bootstrap (empty users). Remove from .env after first successful seed.
       ADMIN_PASSWORD: ${ADMIN_PASSWORD:-}
-      NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL:-http://localhost:3000}
     volumes:
       - ./data:/app/data
+      # Кэш оптимизированных картинок persists между деплоями (не пересчитываются заново)
+      - ./.next-cache:/app/.next/cache
     restart: unless-stopped
     deploy:
       resources:
         limits:
-          cpus: '0.90'
-          memory: 1G
+          # Увеличены лимиты для быстрой оптимизации картинок и SSR
+          cpus: '2'
+          memory: 2G
+
+  caddy:
+    image: caddy:2-alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - web
+    restart: unless-stopped
+
+  migrate:
+    profiles: ["tools"]
+    build:
+      context: .
+      target: builder
+    working_dir: /app
+    environment:
+      NODE_ENV: production
+      DATABASE_URI: file:/app/data/payload.db
+      PAYLOAD_SECRET: ${PAYLOAD_SECRET:?set PAYLOAD_SECRET in .env}
+    volumes:
+      - ./data:/app/data
+    # Builder /app is root-owned; chown data for web (uid 1001) after migration.
+    command: ["sh", "-c", "npm run migrate:payload && chown -R 1001:1001 /app/data"]
+
+volumes:
+  caddy_data:
+  caddy_config:

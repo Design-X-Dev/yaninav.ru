@@ -119,6 +119,7 @@ upsert_env_var() {
 
 ensure_env_file() {
   if [[ -f "$ENV_FILE" ]]; then
+    chmod 600 "$ENV_FILE"
     return
   fi
   if [[ ! -f "$ENV_EXAMPLE" ]]; then
@@ -128,6 +129,20 @@ ensure_env_file() {
   cp "$ENV_EXAMPLE" "$ENV_FILE"
   chmod 600 "$ENV_FILE"
   echo "Created ${ENV_FILE} from .env.example"
+}
+
+warn_stale_admin_password() {
+  if [[ ! -f "$DB_FILE" ]]; then
+    return
+  fi
+  local password
+  password="$(get_env_var ADMIN_PASSWORD)"
+  if is_placeholder_admin_password "$password"; then
+    return
+  fi
+  echo "Warning: ADMIN_PASSWORD is still set in .env after bootstrap." >&2
+  echo "  Seed only runs when users collection is empty — remove ADMIN_PASSWORD from .env" >&2
+  echo "  (and from the container env) so it is not visible via docker inspect." >&2
 }
 
 ensure_payload_secret() {
@@ -204,6 +219,7 @@ ensure_admin_credentials() {
 ensure_env_file
 ensure_payload_secret
 ensure_admin_credentials
+warn_stale_admin_password
 
 echo
 echo "Starting production stack..."
@@ -211,8 +227,13 @@ docker compose -f "$COMPOSE_FILE" up --build -d
 
 echo
 echo "Production stack is up."
-echo "  Site:    http://127.0.0.1:3000"
-echo "  Admin:   http://127.0.0.1:3000/admin"
+SITE_URL="$(get_env_var NEXT_PUBLIC_SITE_URL)"
+if [[ -z "$SITE_URL" || "$SITE_URL" == http://localhost* ]]; then
+  SITE_URL="https://yaninav.ru"
+fi
+echo "  Site:    ${SITE_URL}  (via Caddy on :80/:443)"
+echo "  Admin:   ${SITE_URL%/}/admin"
+echo "  Note:    web:3000 is not published on the host — only reachable inside the Docker network."
 echo "  Logs:    docker compose -f docker-compose.prod.yml logs -f"
 
 if [[ "$FOLLOW_LOGS" == true ]]; then
