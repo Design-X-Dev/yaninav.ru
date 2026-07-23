@@ -31,7 +31,9 @@ export const Pages: CollectionConfig = {
     drafts: true,
   },
   access: {
-    read: () => true,
+    // Anonymous REST: published only. Drafts never leave admin. (Keep; do not lock fully.)
+    read: ({ req }) =>
+      req.user ? true : { _status: { equals: 'published' } },
     create: ({ req }) => Boolean(req.user),
     update: ({ req }) => Boolean(req.user),
     delete: ({ req }) => Boolean(req.user),

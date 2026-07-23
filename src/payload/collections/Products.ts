@@ -16,7 +16,8 @@ export const Products: CollectionConfig = {
     defaultColumns: ['name', 'category', 'price'],
   },
   access: {
-    read: () => true,
+    // Public site uses Local API (overrideAccess). Anonymous REST scrape blocked.
+    read: ({ req }) => Boolean(req.user),
     create: ({ req }) => Boolean(req.user),
     update: ({ req }) => Boolean(req.user),
     delete: ({ req }) => Boolean(req.user),

@@ -7,7 +7,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 WORKDIR /app
 
-COPY package.json package-lock.json* ./
+COPY package.json package-lock.json* .npmrc ./
 COPY patches ./patches
 RUN npm ci
 
@@ -15,7 +15,9 @@ COPY . .
 RUN mkdir -p data
 ENV DATABASE_URI=file:./data/payload.db
 ENV PAYLOAD_SECRET=docker-build-placeholder-secret
-ENV NEXT_PUBLIC_SITE_URL=https://yaninav.ru
+# NEXT_PUBLIC_* is inlined into the client bundle at build time — not overridable at runtime.
+ARG NEXT_PUBLIC_SITE_URL=https://yaninav.ru
+ENV NEXT_PUBLIC_SITE_URL=$NEXT_PUBLIC_SITE_URL
 ENV ADMIN_EMAIL=build@local.dev
 ENV ADMIN_PASSWORD=buildlocalpass
 RUN npm run payload:migrate

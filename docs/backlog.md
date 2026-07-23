@@ -141,7 +141,7 @@
 
 ### B-24. Production hardening Payload API и секретов
 
-- **Статус:** Open — частично (закрыта публичная регистрация админов)
+- **Статус:** Open — частично (закрыта публичная регистрация админов; 2026-07-24: анонимный REST на каталог/глобалы/scripts/forms, hardening contact, security headers)
 - **Приоритет:** Critical
 - **Категория:** Security / Ops / CMS
 
@@ -149,12 +149,14 @@
 
 - ~~[`src/payload/collections/Users.ts`](../src/payload/collections/Users.ts): `access.create: () => true` разрешает создание пользователей через API.~~ **Закрыто (2026-05-21):** `create`/`update`/`delete` — только для аутентифицированных пользователей; первый admin создаётся идемпотентно из `ADMIN_EMAIL`/`ADMIN_PASSWORD` в [`usersBootstrap.ts`](../src/payload/seeds/usersBootstrap.ts) при `onInit` (prod — fail-fast, если env не задан и `users` пуста).
 - ~~[`payload.config.ts`](../payload.config.ts): `secret: process.env.PAYLOAD_SECRET || 'dev-local-payload-secret-change-me'` оставляет известный fallback для подписи cookies/JWT, если env забыли задать.~~ **Закрыто (2026-05-21):** `resolvePayloadSecret()` — fail-fast в production; dev fallback сохранён. Bootstrap: [`scripts/prod-up.sh`](../scripts/prod-up.sh) + `npm run prod:up`.
-- ~~[`payload.config.ts`](../payload.config.ts): `form-submissions` принимают `create: () => true` без rate limit / CAPTCHA / honeypot.~~ **Закрыто частично (2026-05-21):** прямой `create` закрыт для анонимов; публичная форма идёт через [`/api/contact`](../src/app/(site)/api/contact/route.ts) (Origin-check, honeypot, IP cooldown, `overrideAccess`). CAPTCHA/Turnstile — отдельная задача при росте спама.
-- Публичные коллекции/globals с `read: () => true` доступны через Payload REST API: товары, категории, медиа, страницы можно массово выгружать анонимным REST-запросом. GraphQL закрыт в prod; REST — отдельная задача (middleware + whitelist).
+- ~~[`payload.config.ts`](../payload.config.ts): `form-submissions` принимают `create: () => true` без rate limit / CAPTCHA / honeypot.~~ **Закрыто частично (2026-05-21 + 2026-07-24):** прямой `create` закрыт; `/api/contact` — Origin-check, honeypot, лимит тела 64 КБ до парсинга, rate limit до `JSON.parse`, IP из последнего `X-Forwarded-For`. CAPTCHA/Turnstile — отдельно при росте спама.
+- ~~Публичные коллекции/globals с `read: () => true` доступны через Payload REST.~~ **Закрыто частично (2026-07-24):** анонимный `read` закрыт у `products`, `categories`, `scripts`, всех globals и `forms`. Остаются публичными: `image`/`video` (файлы `/api/*/file/*`), `pages` (только `_status: published`). Сайт читает через Local API.
 - ~~[`src/app/(payload)/api/graphql-playground/route.ts`](../src/app/(payload)/api/graphql-playground/route.ts) оставляет GraphQL Playground route в приложении.~~ **Закрыто (2026-05-21):** `GET /api/graphql-playground` и `POST /api/graphql` возвращают `404` при `NODE_ENV=production`; в dev работают как раньше.
-- ~~В [`Users.ts`](../src/payload/collections/Users.ts) заданы только `read` и `create`; defaults для `update` / `delete` нужно проверить отдельно, чтобы не оставить неожиданные мутации пользователей.~~ **Закрыто (2026-05-21):** явно заданы `update`/`delete` — только для аутентифицированных.
+- ~~В [`Users.ts`](../src/payload/collections/Users.ts) заданы только `read` и `create`; defaults для `update` / `delete` нужно проверить отдельно, чтобы не оставить неожиданные мутации пользователей.~~ **Закрыто (2026-05-21):** явно заданы `update`/`delete` — только для аутентифицированных. **2026-07-24:** `auth.maxLoginAttempts: 5`, `lockTime: 600000`. 2FA — отложено (нужен плагин).
+- ~~Нет security-заголовков.~~ **Закрыто частично (2026-07-24):** в [`next.config.ts`](../next.config.ts) — `nosniff`, `Referrer-Policy`, `X-Frame-Options`/`frame-ancestors`, `Permissions-Policy`; в [`Caddyfile`](../Caddyfile) — HSTS. Полный CSP (`script-src`) отложен — ломает CMS scripts и Next inline.
 - [`docker-compose.yml`](../docker-compose.yml) задаёт `PAYLOAD_SECRET: ${PAYLOAD_SECRET:-change-me-local-dev-secret}` — это удобно локально, но файл нельзя использовать как production-шаблон без явного override.
 - `form-submissions` хранят персональные данные заявок; backlog пока описывает доставку и спам, но не retention/export/delete/backups для этих данных.
+- Секреты: `prod-up.sh` всегда `chmod 600 .env`; предупреждение об `ADMIN_PASSWORD` после bootstrap; `NEXT_PUBLIC_SITE_URL` — build ARG (не runtime).
 
 **Почему это важно:** Это прямой риск для админ-доступа, сессий, приватности заявок и стабильности SQLite/диска. В отличие от SEO/UX пунктов, такие настройки лучше закрыть до публичного запуска.
 
@@ -165,6 +167,7 @@
 - Для формы добавить минимальный антиспам: honeypot + throttling по IP/UA, затем Turnstile или аналог при росте спама.
 - Решить, какие публичные REST/GraphQL endpoints действительно нужны сайту; закрыть или rate-limit лишнее, отключить GraphQL Playground в production.
 - Зафиксировать политику хранения заявок: срок retention, экспорт, удаление по запросу, попадание в backup.
+- Отложено: полный CSP, CAPTCHA, 2FA админов.
 
 **Решение команды:**  
 Публичная регистрация админов закрыта: env `ADMIN_EMAIL`/`ADMIN_PASSWORD` + [`seedAdminIfMissing`](../src/payload/seeds/usersBootstrap.ts) в `onInit`. `PAYLOAD_SECRET` fail-fast + [`scripts/prod-up.sh`](../scripts/prod-up.sh) для первого prod-деплоя. Форма: [`/api/contact`](../src/app/(site)/api/contact/route.ts) + honeypot + Origin + IP cooldown; прямой `POST /api/form-submissions` для анонимов закрыт. GraphQL Playground и `POST /api/graphql` отключены в production. Осталось: анонимный REST `/api/{collection}`, retention заявок, CAPTCHA при необходимости.
@@ -240,7 +243,7 @@ export const metadata: Metadata = {
 
 При этом у CMS slug pages уже есть `generateMetadata` в [`src/app/(site)/[slug]/page.tsx`](../src/app/(site)/[slug]/page.tsx); проблема не в полном отсутствии SEO у `pages`, а в sitemap, `lastModified` и default metadata для главной/favorites.
 
-Ещё один момент для проверки: [`Pages`](../src/payload/collections/Pages.ts) включают drafts, а [`getPageBySlug`](../src/lib/pages.server.ts) читает через Local API с `overrideAccess: true` без явного `_status = published`. Нужно подтвердить, что публичный сайт и `/api/pages` не показывают draft-контент/metadata.
+~~Ещё один момент для проверки: drafts утекают~~ **Закрыто (2026-07-24):** утечка подтверждена. В [`Pages`](../src/payload/collections/Pages.ts) `access.read` для анонимов — `{ _status: { equals: 'published' } }`; в [`getPageBySlug`](../src/lib/pages.server.ts) явный фильтр `_status = published` при `overrideAccess: true`. Остаются sitemap / `lastModified` / metadata главной.
 
 **Почему это важно:** Новые CMS-страницы могут существовать и открываться по URL, но не попадать в карту сайта. Для главной маркетинговый контент может обновляться в админке, а title/description/OG оставаться статичными. `lastModified: now` заставляет поисковики видеть все URL как обновлённые на каждый запрос sitemap.
 
@@ -250,10 +253,10 @@ export const metadata: Metadata = {
 - Решить, будет ли главная иметь отдельный SEO global или использовать статический metadata. Если нужен CMS-контроль, добавить поля SEO для home/global и `generateMetadata`.
 - Добавить явный metadata для `/favorites` или осознанно закрыть страницу от индексации, если она не нужна в поиске.
 - Для `pages` проверить, что metadata берётся из `meta` плагина SEO и что canonical совпадает с `/${slug}`.
-- Для `pages` явно зафиксировать published-only поведение: фильтр `_status`, access rule или документированная гарантия Payload Local API.
+- Для `pages` явно зафиксировать published-only поведение: фильтр `_status`, access rule или документированная гарантия Payload Local API. **Сделано (2026-07-24):** `access.read` + фильтр в `getPageBySlug`; сид пишет `_status: 'published'` (один `draft: false` в Payload 3 недостаточен).
 
 **Решение команды:**  
-_(заполнить после обсуждения)_
+Часть drafts/access закрыта. Остаются sitemap / `lastModified` / metadata главной.
 
 ---
 
@@ -604,4 +607,6 @@ _(заполнить после обсуждения)_
 | 2026-05-02 | B-23 | Done: **`push: false`** + [`src/payload/migrations/`](../src/payload/migrations/) + `prodMigrations`; baseline `20260502_082625_baseline` (полная схема, в т.ч. `pages_locales` / `_pages_v_locales`); dev-БД пересоздана после wipe; `npm run payload:migrate` → бандл + [`scripts/run-payload-migrate.mjs`](../scripts/run-payload-migrate.mjs) (tsx в alpine на undici); ESLint: игнор сгенерённых миграций в [`eslint.config.mjs`](../eslint.config.mjs); см. **[`docs/payload-migrations.md`](../docs/payload-migrations.md)**. |
 | 2026-05-02 | B-23 (каталог) | После wipe: каталог восстановлен из **`b6b13f9`** + **`npm run migrate:payload`** (не путать с schema-migrate); зафиксировано в теле **B-23** выше. |
 | 2026-05-02 | Payload CMS audit | Open: после внедрения Payload добавлены B-24–B-31 — security hardening, CMS sitemap/SEO, локализация, устойчивость каталога, эксплуатация SQLite/migrations, сиды и дедуп, кэширование и structured data. |
+| 2026-07-24 | Security deps + drafts | Done: `Pages.access.read` / `getPageBySlug` — только `published`; Payload **3.86.0**, Next **15.5.21** (peer Payload исключает 15.5 → [`.npmrc`](../.npmrc) `legacy-peer-deps`), sharp **0.35.3**, overrides `dompurify`/`postcss`, убран `to-ico`; патчи UI/Next перенесены на 3.86.0. `npm audit`: 0 high/critical; остаток 5 moderate — `drizzle-kit`/`esbuild` через `@payloadcms/db-sqlite` (fix upstream). |
+| 2026-07-24 | B-24 (REST/contact/headers) | Done частично: анонимный REST закрыт (products/categories/scripts/globals/forms); media + published pages публичны; `/api/contact` — size limit + rate limit до parse, last XFF; security headers + HSTS; SiteScripts парсит `<script>` в head; Users lockout явный; секреты — chmod 600, warn ADMIN_PASSWORD, build ARG для SITE_URL. Отложено: полный CSP, CAPTCHA, 2FA. |
 | — | — | _(заполняется по мере обсуждения)_ |

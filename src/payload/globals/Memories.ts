@@ -10,7 +10,8 @@ export const Memories: GlobalConfig = {
   slug: MEMORIES_GLOBAL_SLUG,
   label: 'Главная — Воспоминания',
   access: {
-    read: () => true,
+    // Public site uses Local API. Anonymous REST scrape blocked.
+    read: ({ req }) => Boolean(req.user),
     update: ({ req }) => Boolean(req.user),
   },
   admin: {

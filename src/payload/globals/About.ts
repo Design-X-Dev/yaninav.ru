@@ -38,7 +38,8 @@ export const About: GlobalConfig = {
   slug: ABOUT_GLOBAL_SLUG,
   label: 'Главная — Философия бренда',
   access: {
-    read: () => true,
+    // Public site uses Local API. Anonymous REST scrape blocked.
+    read: ({ req }) => Boolean(req.user),
     update: ({ req }) => Boolean(req.user),
   },
   admin: {

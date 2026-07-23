@@ -38,7 +38,10 @@ const loadActiveScriptsCached = unstable_cache(fetchActiveScripts, ['site-script
 
 /** Один запрос на SSR-рендер; результат сгруппирован по точке вставки. */
 export const loadScriptsByLocation = cache(async () => {
-  const docs = await loadActiveScriptsCached().catch(() => [] as SiteScript[]);
+  const docs = await loadActiveScriptsCached().catch((err) => {
+    console.error('[scripts] load failed', err);
+    return [] as SiteScript[];
+  });
   const groups: Record<ScriptLocation, SiteScript[]> = {
     head_open: [],
     head_close: [],

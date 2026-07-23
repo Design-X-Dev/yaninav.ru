@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo, useCallback, useEffect } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import type { Product } from '@/utils/products';
 
@@ -10,34 +10,40 @@ interface UseCatalogFilterOptions {
   limit?: number;
 }
 
+function categoryIdFromSearchParams(
+  pathname: string,
+  searchParams: ReturnType<typeof useSearchParams>,
+  categories: { id: string; name: string }[],
+): string | null {
+  if (pathname !== '/collection') return null;
+  const raw = searchParams.get('category');
+  if (!raw) return 'all';
+  const id = decodeURIComponent(raw).toLowerCase().trim();
+  if (id === 'all' || categories.some((c) => c.id === id)) return id === 'all' ? 'all' : id;
+  return 'all';
+}
+
 export function useCatalogFilter({
   products,
   categories,
   limit,
 }: UseCatalogFilterOptions) {
-  const [activeCategory, setActiveCategory] = useState('all');
+  const [localCategory, setLocalCategory] = useState('all');
   const pathname = usePathname();
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const syncCategoryFromUrl = useCallback(() => {
-    if (pathname !== '/collection') return;
-    const raw = searchParams.get('category');
-    if (!raw) {
-      setActiveCategory('all');
-      return;
-    }
-    const id = decodeURIComponent(raw).toLowerCase().trim();
-    if (id === 'all' || categories.some((c) => c.id === id)) setActiveCategory(id === 'all' ? 'all' : id);
-  }, [pathname, searchParams, categories]);
-
-  useEffect(() => {
-    syncCategoryFromUrl();
-  }, [syncCategoryFromUrl]);
+  // On /collection derive from URL during render (no setState-in-effect).
+  // Elsewhere keep local filter state (home catalog).
+  const categoryFromUrl = useMemo(
+    () => categoryIdFromSearchParams(pathname, searchParams, categories),
+    [pathname, searchParams, categories],
+  );
+  const activeCategory = categoryFromUrl ?? localCategory;
 
   const handleCategoryChange = useCallback(
     (id: string) => {
-      setActiveCategory(id);
+      setLocalCategory(id);
       if (pathname === '/collection') {
         const q = id === 'all' ? '' : `?category=${encodeURIComponent(id)}`;
         router.replace(`/collection${q}`, { scroll: false });

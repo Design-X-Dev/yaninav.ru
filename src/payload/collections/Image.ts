@@ -15,6 +15,7 @@ export const Image: CollectionConfig = {
     defaultColumns: ['filename', 'sourceBasename', 'mimeType', 'filesize'],
   },
   access: {
+    // Must stay public: Payload uses `read` for /api/image/file/* serving.
     read: () => true,
     create: ({ req }) => Boolean(req.user),
     update: ({ req }) => Boolean(req.user),

@@ -90,11 +90,15 @@ async function fetchPageBySlug(slug: string): Promise<CmsPage | null> {
   const res = await p.find({
     collection: PAGES_COLLECTION_SLUG,
     where: {
-      slug: { equals: trimmed },
+      and: [
+        { slug: { equals: trimmed } },
+        { _status: { equals: 'published' } },
+      ],
     },
     limit: 1,
     depth: 2,
     locale: 'ru',
+    // Local API / SSR: access bypassed, but drafts must never reach the public site.
     overrideAccess: true,
   });
 

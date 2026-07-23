@@ -49,6 +49,19 @@ export async function seedPagesFromDisk(payload: Payload, opts?: { force?: boole
         const hasBody = hasLocalizedLexicalBody((ruDoc as { body?: unknown }).body);
 
         if (titleRu && hasBody) {
+          const status = (doc as { _status?: string })._status;
+          if (status !== 'published') {
+            // Payload: draft:false alone does NOT publish — need explicit _status.
+            await payload.update({
+              collection: PAGES_COLLECTION_SLUG,
+              id: doc.id,
+              locale: 'ru',
+              draft: false,
+              overrideAccess: true,
+              data: { _status: 'published' },
+            });
+            payload.logger.info({ msg: `[payload] Page published (was ${status ?? 'unset'}): ${def.slug}` });
+          }
           continue;
         }
 
@@ -59,6 +72,7 @@ export async function seedPagesFromDisk(payload: Payload, opts?: { force?: boole
           draft: false,
           overrideAccess: true,
           data: {
+            _status: 'published',
             ...(titleRu ? {} : { title: def.titleRu }),
             ...(hasBody ? {} : { body: def.body as unknown as Record<string, unknown> }),
           },
@@ -86,6 +100,7 @@ export async function seedPagesFromDisk(payload: Payload, opts?: { force?: boole
           slug: def.slug,
           body: def.body as never,
           showLegalDivider: def.showLegalDivider ?? false,
+          _status: 'published',
         },
       });
 

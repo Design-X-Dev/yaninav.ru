@@ -19,7 +19,8 @@ export const HomeCatalogGlobal: GlobalConfig = {
   slug: HOME_CATALOG_GLOBAL_SLUG,
   label: 'Главная — Наша коллекция',
   access: {
-    read: () => true,
+    // Public site uses Local API. Anonymous REST scrape blocked.
+    read: ({ req }) => Boolean(req.user),
     update: ({ req }) => Boolean(req.user),
   },
   admin: {

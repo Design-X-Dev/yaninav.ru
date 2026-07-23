@@ -149,10 +149,10 @@
 
 Почти все серверные библиотеки ([`pages.server.ts`](../src/lib/pages.server.ts), [`hero.server.ts`](../src/lib/hero.server.ts), [`memories.server.ts`](../src/lib/memories.server.ts), [`contact.server.ts`](../src/lib/contact.server.ts), …) делают запросы к Payload с `overrideAccess: true`. Само по себе это нормально для SSR, но:
 
-1. У `Pages` включены drafts (`versions.drafts`), но в `getPageBySlug` нет фильтра `_status: { equals: 'published' }` — **на сайт уйдёт черновик**, как только редактор сохранит draft. **B-25** упоминает.
-2. Любая случайная утечка вызова `getPageBySlug` в ответ публичного API даст обход защиты.
+1. ~~У `Pages` включены drafts, но в `getPageBySlug` нет фильтра `_status`~~ **Исправлено (2026-07-24):** `getPageBySlug` фильтрует `_status: published`; `Pages.access.read` для анонимов — только published. **B-25** (часть drafts).
+2. Любая случайная утечка вызова `getPageBySlug` в ответ публичного API даст обход защиты — mitigируется фильтром `_status` даже при `overrideAccess: true`.
 
-**Что делать:** явно `where: { _status: { equals: 'published' } }` в `getPageBySlug`. Обернуть `overrideAccess: true` в утилиту с комментарием «only for SSR».
+**Что делать:** ~~явно `where: { _status: { equals: 'published' } }`~~ сделано. Обернуть `overrideAccess: true` в утилиту с комментарием «only for SSR» — опционально.
 
 ---
 
@@ -922,11 +922,9 @@ public/videos/jewelry-hero.webm — 7.4 МБ
 
 ---
 
-### 6.3. **High** — Drafts могут утекать на публичный сайт
+### 6.3. ~~**High** — Drafts могут утекать на публичный сайт~~ **Исправлено**
 
-[`pages.server.ts:81-110`](../src/lib/pages.server.ts) запрашивает `Pages` без `_status: 'published'`-фильтра. Если у редактора есть draft — он **виден всем** через прямой URL. SEO-боты тоже его проиндексируют.
-
-**B-25** упоминает.
+[`pages.server.ts`](../src/lib/pages.server.ts) и [`Pages.access.read`](../src/payload/collections/Pages.ts) ограничивают публичный доступ `_status: published` (2026-07-24). **B-25** (часть drafts).
 
 ---
 

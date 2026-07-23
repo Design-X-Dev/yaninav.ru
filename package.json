@@ -5,12 +5,12 @@
   "scripts": {
     "postinstall": "patch-package",
     "images:small": "python3 scripts/generate_product_images_small.py",
-    "dev": "next dev --turbopack",
+    "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "prod:up": "bash scripts/prod-up.sh",
     "prod:migrate": "bash scripts/migrate-prod.sh",
-    "lint": "next lint",
+    "lint": "eslint .",
     "icons:raster": "node scripts/raster-favicons.js",
     "migrate:payload:build": "esbuild scripts/migrate-json-to-payload.ts --bundle --format=esm --platform=node --packages=external --outfile=.migrate-bundle/migrate.mjs",
     "migrate:payload": "npm run migrate:payload:build && cross-env NODE_OPTIONS=--no-deprecation node .migrate-bundle/migrate.mjs",
@@ -32,22 +32,21 @@
     "payload:migrate:create": "npm run payload:config:bundle && cross-env NODE_OPTIONS=--no-deprecation PAYLOAD_CONFIG_PATH=./.payload-bundle/payload.config.mjs npx payload migrate:create"
   },
   "dependencies": {
-    "@payloadcms/db-sqlite": "^3.84.1",
-    "@payloadcms/next": "^3.84.1",
-    "@payloadcms/plugin-form-builder": "^3.84.1",
-    "@payloadcms/plugin-seo": "^3.84.1",
-    "@payloadcms/richtext-lexical": "^3.84.1",
+    "@payloadcms/db-sqlite": "3.86.0",
+    "@payloadcms/next": "3.86.0",
+    "@payloadcms/plugin-form-builder": "3.86.0",
+    "@payloadcms/plugin-seo": "3.86.0",
+    "@payloadcms/richtext-lexical": "3.86.0",
     "graphql": "^16.10.0",
-    "next": "15.3.9",
-    "payload": "^3.84.1",
+    "next": "16.2.11",
+    "payload": "3.86.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-icons": "^5.5.0",
     "server-only": "^0.0.1",
-    "sharp": "^0.34.5"
+    "sharp": "^0.35.3"
   },
   "devDependencies": {
-    "@eslint/eslintrc": "^3",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",
@@ -55,10 +54,14 @@
     "cross-env": "^7.0.3",
     "esbuild": "^0.28.0",
     "eslint": "^9",
-    "eslint-config-next": "15.3.9",
+    "eslint-config-next": "16.2.11",
     "patch-package": "^8.0.1",
     "tailwindcss": "^4",
-    "to-ico": "^1.1.5",
     "typescript": "^5"
+  },
+  "overrides": {
+    "sharp": "$sharp",
+    "dompurify": "3.4.12",
+    "postcss": "8.5.22"
   }
 }

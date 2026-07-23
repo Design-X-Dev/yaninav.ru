@@ -6,7 +6,10 @@ export const Users: CollectionConfig = {
   slug: 'users',
   labels: { singular: 'Пользователь', plural: 'Пользователи' },
   admin: { group: PAYLOAD_ADMIN_GROUPS.system, useAsTitle: 'email', defaultColumns: ['email', 'role'] },
-  auth: true,
+  auth: {
+    maxLoginAttempts: 5,
+    lockTime: 600_000, // 10 minutes
+  },
   fields: [
     {
       name: 'role',

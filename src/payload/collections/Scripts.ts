@@ -21,7 +21,8 @@ export const Scripts: CollectionConfig = {
   slug: SCRIPTS_COLLECTION_SLUG,
   labels: { singular: 'Скрипт / вставка', plural: 'Скрипты и вставки' },
   access: {
-    read: () => true,
+    // Scripts load via Local API; do not expose code via /api/scripts.
+    read: ({ req }) => Boolean(req.user),
     create: ({ req }) => Boolean(req.user),
     update: ({ req }) => Boolean(req.user),
     delete: ({ req }) => Boolean(req.user),
@@ -67,7 +68,8 @@ export const Scripts: CollectionConfig = {
       label: 'Код (HTML/JS)',
       admin: {
         language: 'html',
-        description: 'Вставьте блок целиком, как из инструкции сервиса.',
+        description:
+          'Вставьте блок целиком, как из инструкции сервиса. Для head_open/head_close используйте только <script>…</script> (атрибуты src/async/defer сохранятся). Блоки <noscript> и прочий HTML — в body_open / body_close.',
       },
     },
     {

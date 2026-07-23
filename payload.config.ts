@@ -189,6 +189,10 @@ export default buildConfig({
       formOverrides: {
         labels: { singular: 'Форма', plural: 'Формы' },
         admin: { group: PAYLOAD_ADMIN_GROUPS.forms, useAsTitle: 'title' },
+        // Site loads forms via Local API; block anonymous /api/forms scrape.
+        access: {
+          read: ({ req: { user } }) => Boolean(user),
+        },
         fields: ({ defaultFields }) => [
           {
             name: 'slug',
