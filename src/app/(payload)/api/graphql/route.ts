@@ -1,4 +1,4 @@
-/** GraphQL POST disabled in production — see docs/backlog.md B-24. */
+/** GraphQL POST disabled in production. */
 import config from '@payload-config';
 import '@payloadcms/next/css';
 import { GRAPHQL_POST, REST_OPTIONS } from '@payloadcms/next/routes';

@@ -4,7 +4,6 @@
   "private": true,
   "scripts": {
     "postinstall": "patch-package",
-    "images:small": "python3 scripts/generate_product_images_small.py",
     "dev": "next dev",
     "build": "next build",
     "start": "next start",

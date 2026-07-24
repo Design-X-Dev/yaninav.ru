@@ -68,7 +68,14 @@ npm run dev
 - `npm run payload:migrate:create -- имя` — создать новый файл миграции локально после изменений схемы (аргумент после `--`)
 - Контейнер dev (`docker compose up`) сам вызывает `payload:migrate` перед `next dev`; prod-образ выполняет миграции при старте (`prodMigrations`).
 
-Контент и каталог живут в **Payload** (`/admin`), см. также сидеры вида `npm run seed:*` и [docs/contact-form-setup.md](./docs/contact-form-setup.md).
+Контент и каталог живут в **Payload** (`/admin`), см. также сидеры вида `npm run seed:*`, [docs/contact-form-setup.md](./docs/contact-form-setup.md) и [docs/script-manager.md](./docs/script-manager.md) (сторонние скрипты: Метрика, GTM и т.п.).
+
+## Производительность
+
+- На карточке товара сразу грузится только первое фото; остальные — по hover/click ([`ProductCard`](./src/components/ProductCard.tsx)).
+- В [`next.config.ts`](./next.config.ts) урезан набор `deviceSizes` и задан `quality: 80` для `/_next/image`.
+- В prod Docker ([`docker-compose.prod.yml`](./docker-compose.prod.yml)) кэш `.next/cache` на volume; контейнеру выделены ~2 CPU / 2 GB — первый деплой прогревает кэш дольше, следующие быстрее.
+- `htmlLimitedBots: /.*/` — metadata всегда в начальном HTML (превью в Telegram/WhatsApp/VK), без streaming metadata.
 
 ## 🎨 Дизайн-система
 

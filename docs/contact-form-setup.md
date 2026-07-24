@@ -32,8 +32,8 @@ PAYLOAD_SECRET=your-secret DATABASE_URI=file:./data/payload.db npm run seed:cont
 
 ## Внешние уведомления (не реализовано)
 
-Почта / Telegram — см. **B-18** в [`backlog.md`](backlog.md).
+Почта / Telegram пока не настроены — заявки смотрите в Form Submissions.
 
 ## Загрузка файлов (не реализовано)
 
-Поле «Прикрепить файл» с главной убрано — возврат в **B-19** в [`backlog.md`](backlog.md).
+Поле «Прикрепить файл» с главной убрано; возврат в отдельной итерации.

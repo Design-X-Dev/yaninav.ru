@@ -36,7 +36,6 @@ function useHashScroll() {
 
 /**
  * Клиентская обёртка для главной: лимит колонок каталога по ширине экрана и скролл к якорям (#contact и т.п.).
- * См. B-03 в docs/backlog.md.
  */
 export default function HomeCatalog({ products, categories }: HomeCatalogProps) {
   const catalogLimit = useResponsiveCatalogLimit();
