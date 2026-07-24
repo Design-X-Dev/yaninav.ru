@@ -3,11 +3,3 @@ yaninav.ru, www.yaninav.ru {
 	reverse_proxy web:3000
 }
 
-yaninav.com, www.yaninav.com {
-	redir https://yaninav.ru{uri} permanent
-}
-
-
-yaninav.store, www.yaninav.store {
-	redir https://yaninav.ru{uri} permanent
-}
